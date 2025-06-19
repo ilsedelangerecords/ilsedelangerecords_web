@@ -1,0 +1,130 @@
+name: 🤝 Contribution Offer
+description: Offer to contribute content, code, or other help to the project
+title: "[Contribution]: "
+labels: ["contribution", "help-wanted"]
+assignees: []
+
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thank you for your interest in contributing to the Ilse DeLange Records Archive! 
+        Please tell us about how you'd like to help.
+
+  - type: dropdown
+    id: contribution-type
+    attributes:
+      label: Type of Contribution
+      description: What would you like to contribute?
+      multiple: true
+      options:
+        - Content (albums, lyrics, artist info)
+        - Images (album artwork, photos)
+        - Code/Development
+        - Design/UI improvements
+        - Documentation
+        - Translation
+        - Testing/Quality assurance
+        - Community management
+        - Research/Fact-checking
+        - Other
+    validations:
+      required: true
+
+  - type: textarea
+    id: description
+    attributes:
+      label: Contribution Description
+      description: Describe what you'd like to contribute
+      placeholder: |
+        Please provide details about:
+        - What specific content/code/help you want to contribute
+        - Your experience/expertise in this area
+        - Timeline for your contribution
+    validations:
+      required: true
+
+  - type: dropdown
+    id: experience
+    attributes:
+      label: Experience Level
+      description: What's your experience level with this type of contribution?
+      options:
+        - Beginner (new to this, willing to learn)
+        - Intermediate (some experience)
+        - Advanced (experienced contributor)
+        - Expert (professional/extensive experience)
+
+  - type: textarea
+    id: availability
+    attributes:
+      label: Availability
+      description: How much time can you dedicate to this contribution?
+      placeholder: |
+        - Hours per week you can contribute
+        - Preferred working schedule
+        - Any time constraints or deadlines
+
+  - type: checkboxes
+    id: areas
+    attributes:
+      label: Specific Areas of Interest
+      description: Which areas are you most interested in contributing to?
+      options:
+        - label: Ilse DeLange solo career content
+        - label: The Common Linnets content
+        - label: Collaborations and guest appearances
+        - label: Live performances and concerts
+        - label: Historical/archival content
+        - label: International releases
+        - label: Website functionality improvements
+        - label: Mobile/responsive design
+        - label: Accessibility features
+        - label: Performance optimization
+
+  - type: textarea
+    id: resources
+    attributes:
+      label: Resources/Materials
+      description: Do you have access to any special resources or materials?
+      placeholder: |
+        - Official releases or rare materials
+        - High-quality images or artwork
+        - Industry connections or insider knowledge
+        - Technical skills or tools
+        - Language skills for translations
+
+  - type: textarea
+    id: previous-work
+    attributes:
+      label: Previous Work/Portfolio
+      description: Share examples of your previous work (if applicable)
+      placeholder: |
+        - Links to previous projects
+        - GitHub profile
+        - Portfolio website
+        - Examples of similar contributions
+
+  - type: checkboxes
+    id: commitment
+    attributes:
+      label: Contribution Commitment
+      description: What level of ongoing involvement are you interested in?
+      options:
+        - label: One-time contribution
+        - label: Occasional contributions when I have time
+        - label: Regular ongoing contributions
+        - label: Long-term project involvement
+        - label: Potential maintainer/core contributor role
+
+  - type: textarea
+    id: questions
+    attributes:
+      label: Questions/Support Needed
+      description: Do you have any questions or need support to get started?
+      placeholder: |
+        - Technical setup questions
+        - Guidance on contribution process
+        - Clarification on project needs
+        - Mentorship or collaboration requests
+

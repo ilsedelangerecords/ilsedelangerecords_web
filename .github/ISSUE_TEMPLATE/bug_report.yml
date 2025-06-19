@@ -1,0 +1,149 @@
+name: 🐛 Bug Report
+description: Report a bug or issue with the website
+title: "[Bug]: "
+labels: ["bug", "needs-triage"]
+assignees: []
+
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for taking the time to report a bug! Please fill out the information below to help us understand and fix the issue.
+
+  - type: checkboxes
+    id: terms
+    attributes:
+      label: Pre-submission Checklist
+      description: Please confirm the following before submitting
+      options:
+        - label: I have searched existing issues to ensure this bug hasn't been reported already
+          required: true
+        - label: I have checked the [FAQ](https://github.com/ilsedelangerecords/ilsedelangerecords_web/wiki/FAQ) for common issues
+          required: true
+
+  - type: dropdown
+    id: bug-type
+    attributes:
+      label: Bug Type
+      description: What type of bug are you reporting?
+      options:
+        - Content Issue (incorrect information, missing data)
+        - Display Issue (layout, styling, images not loading)
+        - Functionality Issue (broken links, search not working)
+        - Performance Issue (slow loading, crashes)
+        - Accessibility Issue (screen reader, keyboard navigation)
+        - Mobile/Responsive Issue
+        - Other
+    validations:
+      required: true
+
+  - type: textarea
+    id: description
+    attributes:
+      label: Bug Description
+      description: A clear and concise description of what the bug is
+      placeholder: Describe what happened and what you expected to happen
+    validations:
+      required: true
+
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to Reproduce
+      description: Steps to reproduce the behavior
+      placeholder: |
+        1. Go to '...'
+        2. Click on '...'
+        3. Scroll down to '...'
+        4. See error
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected Behavior
+      description: What you expected to happen
+      placeholder: Describe what should have happened
+    validations:
+      required: true
+
+  - type: textarea
+    id: actual
+    attributes:
+      label: Actual Behavior
+      description: What actually happened
+      placeholder: Describe what actually happened instead
+    validations:
+      required: true
+
+  - type: dropdown
+    id: browsers
+    attributes:
+      label: Browser
+      description: Which browser(s) are you experiencing this issue on?
+      multiple: true
+      options:
+        - Chrome
+        - Firefox
+        - Safari
+        - Edge
+        - Opera
+        - Mobile Safari (iOS)
+        - Chrome Mobile (Android)
+        - Other
+
+  - type: dropdown
+    id: devices
+    attributes:
+      label: Device Type
+      description: What type of device are you using?
+      options:
+        - Desktop/Laptop
+        - Mobile Phone
+        - Tablet
+        - Other
+
+  - type: input
+    id: os
+    attributes:
+      label: Operating System
+      description: What operating system are you using?
+      placeholder: e.g., Windows 11, macOS 14, iOS 17, Android 13
+
+  - type: textarea
+    id: additional
+    attributes:
+      label: Additional Context
+      description: Add any other context about the problem here
+      placeholder: |
+        - Screenshots or screen recordings
+        - Console error messages
+        - Network connectivity issues
+        - Any other relevant information
+
+  - type: checkboxes
+    id: content-specific
+    attributes:
+      label: Content-Specific Issues (if applicable)
+      description: If this is a content issue, please specify
+      options:
+        - label: This affects album information
+        - label: This affects song lyrics
+        - label: This affects artist information
+        - label: This affects images/artwork
+        - label: This affects search functionality
+
+  - type: dropdown
+    id: severity
+    attributes:
+      label: Severity
+      description: How severe is this issue?
+      options:
+        - Low (minor inconvenience)
+        - Medium (affects functionality but has workarounds)
+        - High (major functionality broken)
+        - Critical (site unusable)
+    validations:
+      required: true
+

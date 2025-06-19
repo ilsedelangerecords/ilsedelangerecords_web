@@ -1,0 +1,15 @@
+blank_issues_enabled: false
+contact_links:
+  - name: 💬 General Discussion
+    url: https://github.com/ilsedelangerecords/ilsedelangerecords_web/discussions
+    about: Ask questions, share ideas, or discuss the project with the community
+  - name: 📚 Documentation & Wiki
+    url: https://github.com/ilsedelangerecords/ilsedelangerecords_web/wiki
+    about: Check the project wiki for documentation, FAQs, and guides
+  - name: 🚀 Project Roadmap
+    url: https://github.com/ilsedelangerecords/ilsedelangerecords_web/projects
+    about: View planned features and project progress
+  - name: 🤝 Contributing Guide
+    url: https://github.com/ilsedelangerecords/ilsedelangerecords_web/blob/main/CONTRIBUTING.md
+    about: Learn how to contribute to the project
+

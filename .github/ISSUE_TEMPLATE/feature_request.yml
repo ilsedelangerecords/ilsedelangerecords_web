@@ -1,0 +1,171 @@
+name: ✨ Feature Request
+description: Suggest a new feature or enhancement
+title: "[Feature]: "
+labels: ["enhancement", "needs-discussion"]
+assignees: []
+
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for suggesting a new feature! Please provide as much detail as possible to help us understand your request.
+
+  - type: checkboxes
+    id: terms
+    attributes:
+      label: Pre-submission Checklist
+      description: Please confirm the following before submitting
+      options:
+        - label: I have searched existing issues to ensure this feature hasn't been requested already
+          required: true
+        - label: I have checked the [roadmap](https://github.com/ilsedelangerecords/ilsedelangerecords_web/projects) for planned features
+          required: true
+
+  - type: dropdown
+    id: feature-type
+    attributes:
+      label: Feature Type
+      description: What type of feature are you requesting?
+      options:
+        - User Interface Enhancement
+        - New Content Type/Section
+        - Search & Discovery Improvement
+        - Performance Optimization
+        - Accessibility Improvement
+        - Mobile/Responsive Enhancement
+        - Community/Social Feature
+        - Developer/Technical Feature
+        - Content Management Feature
+        - Other
+    validations:
+      required: true
+
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem Statement
+      description: What problem does this feature solve? What need does it address?
+      placeholder: |
+        Describe the problem or need this feature would address.
+        For example: "As a fan, I find it difficult to..."
+    validations:
+      required: true
+
+  - type: textarea
+    id: solution
+    attributes:
+      label: Proposed Solution
+      description: Describe your proposed solution in detail
+      placeholder: |
+        Describe how you envision this feature working.
+        Include specific functionality, user interactions, and expected behavior.
+    validations:
+      required: true
+
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternative Solutions
+      description: Have you considered any alternative approaches?
+      placeholder: |
+        Describe any alternative solutions or features you've considered.
+        Why do you prefer your proposed solution?
+
+  - type: dropdown
+    id: user-type
+    attributes:
+      label: Primary User Type
+      description: Who would primarily benefit from this feature?
+      multiple: true
+      options:
+        - Casual fans browsing the site
+        - Dedicated fans looking for specific content
+        - Researchers/journalists
+        - Content contributors
+        - Site maintainers/developers
+        - Mobile users
+        - Accessibility users
+        - International users
+
+  - type: dropdown
+    id: priority
+    attributes:
+      label: Priority Level
+      description: How important is this feature to you?
+      options:
+        - Nice to have (would be cool but not essential)
+        - Useful (would improve the experience)
+        - Important (would significantly enhance functionality)
+        - Critical (essential for your use case)
+    validations:
+      required: true
+
+  - type: textarea
+    id: use-cases
+    attributes:
+      label: Use Cases
+      description: Provide specific examples of how this feature would be used
+      placeholder: |
+        Example scenarios:
+        1. A fan wants to...
+        2. A contributor needs to...
+        3. A mobile user tries to...
+
+  - type: textarea
+    id: mockups
+    attributes:
+      label: Mockups/Examples
+      description: Do you have any mockups, wireframes, or examples from other sites?
+      placeholder: |
+        - Link to similar features on other websites
+        - Attach mockups or wireframes
+        - Describe visual/interaction design ideas
+
+  - type: checkboxes
+    id: implementation
+    attributes:
+      label: Implementation Considerations
+      description: Are there any specific technical considerations?
+      options:
+        - label: This feature should work on mobile devices
+        - label: This feature should be accessible to screen readers
+        - label: This feature should work offline/with poor connectivity
+        - label: This feature should be available in multiple languages
+        - label: This feature should integrate with existing search
+        - label: This feature should be fast/performant
+
+  - type: dropdown
+    id: complexity
+    attributes:
+      label: Estimated Complexity
+      description: How complex do you think this feature would be to implement?
+      options:
+        - Simple (small UI change, content addition)
+        - Medium (new component, moderate functionality)
+        - Complex (major feature, significant development)
+        - Very Complex (architectural changes, extensive work)
+        - Not sure
+
+  - type: textarea
+    id: additional
+    attributes:
+      label: Additional Context
+      description: Any other information that would be helpful
+      placeholder: |
+        - Links to relevant resources
+        - Research or data supporting the request
+        - Community feedback or discussions
+        - Any other relevant information
+
+  - type: checkboxes
+    id: contribution
+    attributes:
+      label: Contribution Interest
+      description: Would you be interested in helping implement this feature?
+      options:
+        - label: I would be willing to help with design/mockups
+        - label: I would be willing to help with content/research
+        - label: I would be willing to help with development
+        - label: I would be willing to help with testing
+        - label: I would be willing to help with documentation
+

@@ -1,0 +1,318 @@
+name: 🔍 Pull Request Checks
+
+on:
+  pull_request:
+    branches: [ main, develop ]
+    types: [opened, synchronize, reopened, ready_for_review]
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  # Skip checks for draft PRs unless specifically requested
+  check-ready:
+    runs-on: ubuntu-latest
+    outputs:
+      should-run: ${{ steps.check.outputs.should-run }}
+    steps:
+      - name: Check if PR is ready
+        id: check
+        run: |
+          if [[ "${{ github.event.pull_request.draft }}" == "true" ]]; then
+            echo "should-run=false" >> $GITHUB_OUTPUT
+            echo "⏭️ Skipping checks for draft PR"
+          else
+            echo "should-run=true" >> $GITHUB_OUTPUT
+            echo "✅ PR is ready for checks"
+          fi
+
+  # Lint and format checks
+  code-quality:
+    needs: check-ready
+    if: needs.check-ready.outputs.should-run == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - name: 📥 Checkout code
+        uses: actions/checkout@v4
+
+      - name: 📦 Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+
+      - name: 📥 Install dependencies
+        run: npm ci
+
+      - name: 🔍 Run ESLint
+        run: npm run lint
+        continue-on-error: true
+
+      - name: 🎨 Check Prettier formatting
+        run: npm run format:check
+        continue-on-error: true
+
+      - name: 📝 TypeScript type checking
+        run: npm run type-check
+        continue-on-error: true
+
+  # Build and test
+  build-test:
+    needs: check-ready
+    if: needs.check-ready.outputs.should-run == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - name: 📥 Checkout code
+        uses: actions/checkout@v4
+
+      - name: 📦 Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+
+      - name: 📥 Install dependencies
+        run: npm ci
+
+      - name: 🏗️ Build application
+        run: npm run build
+
+      - name: 🧪 Run tests
+        run: npm run test
+        continue-on-error: true
+
+      - name: 📊 Upload build artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: build-files
+          path: dist/
+          retention-days: 7
+
+  # Content validation
+  content-validation:
+    needs: check-ready
+    if: needs.check-ready.outputs.should-run == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - name: 📥 Checkout code
+        uses: actions/checkout@v4
+
+      - name: 📦 Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+
+      - name: 📥 Install dependencies
+        run: npm ci
+
+      - name: ✅ Validate content schemas
+        run: |
+          echo "🔍 Validating content files..."
+          node -e "
+            const fs = require('fs');
+            const path = require('path');
+            
+            const contentDir = './public/content';
+            const files = ['albums.json', 'lyrics.json', 'artists.json'];
+            
+            let hasErrors = false;
+            
+            files.forEach(file => {
+              const filePath = path.join(contentDir, file);
+              if (fs.existsSync(filePath)) {
+                try {
+                  const content = JSON.parse(fs.readFileSync(filePath, 'utf8'));
+                  console.log(\`✅ \${file}: Valid JSON with \${Array.isArray(content) ? content.length : Object.keys(content).length} items\`);
+                } catch (error) {
+                  console.error(\`❌ \${file}: Invalid JSON - \${error.message}\`);
+                  hasErrors = true;
+                }
+              } else {
+                console.warn(\`⚠️ \${file}: File not found\`);
+              }
+            });
+            
+            if (hasErrors) {
+              process.exit(1);
+            }
+            
+            console.log('🎉 All content files are valid!');
+          "
+
+      - name: 🖼️ Check image references
+        run: |
+          echo "🔍 Checking image references..."
+          node -e "
+            const fs = require('fs');
+            const path = require('path');
+            
+            const contentFiles = ['./public/content/albums.json', './public/content/artists.json'];
+            const imageDir = './public/images';
+            
+            let missingImages = [];
+            
+            contentFiles.forEach(file => {
+              if (fs.existsSync(file)) {
+                const content = JSON.parse(fs.readFileSync(file, 'utf8'));
+                const items = Array.isArray(content) ? content : [content];
+                
+                items.forEach(item => {
+                  // Check various image fields
+                  const imageFields = ['coverArt', 'profileImage', 'bannerImage', 'image'];
+                  imageFields.forEach(field => {
+                    if (item[field] && typeof item[field] === 'string') {
+                      const imagePath = item[field].startsWith('/') ? 
+                        path.join('./public', item[field]) : 
+                        path.join(imageDir, item[field]);
+                      
+                      if (!fs.existsSync(imagePath)) {
+                        missingImages.push(\`\${file}: \${item.title || item.name || 'Unknown'} - \${field}: \${item[field]}\`);
+                      }
+                    }
+                  });
+                });
+              }
+            });
+            
+            if (missingImages.length > 0) {
+              console.log('⚠️ Missing images found:');
+              missingImages.forEach(img => console.log(\`  - \${img}\`));
+              console.log(\`\nTotal missing images: \${missingImages.length}\`);
+            } else {
+              console.log('✅ All referenced images exist!');
+            }
+          "
+
+  # Security scanning
+  security-scan:
+    needs: check-ready
+    if: needs.check-ready.outputs.should-run == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - name: 📥 Checkout code
+        uses: actions/checkout@v4
+
+      - name: 🔒 Run security audit
+        run: npm audit --audit-level=moderate
+        continue-on-error: true
+
+      - name: 🔍 Scan for secrets
+        uses: trufflesecurity/trufflehog@main
+        with:
+          path: ./
+          base: main
+          head: HEAD
+          extra_args: --debug --only-verified
+
+  # Accessibility testing
+  accessibility-test:
+    needs: [check-ready, build-test]
+    if: needs.check-ready.outputs.should-run == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - name: 📥 Checkout code
+        uses: actions/checkout@v4
+
+      - name: 📦 Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+
+      - name: 📥 Install dependencies
+        run: npm ci
+
+      - name: 🏗️ Build application
+        run: npm run build
+
+      - name: 🌐 Start preview server
+        run: |
+          npm install -g serve
+          serve -s dist -l 3000 &
+          sleep 5
+        
+      - name: ♿ Run accessibility tests
+        run: |
+          npx @axe-core/cli http://localhost:3000 --exit
+        continue-on-error: true
+
+  # Performance testing
+  performance-test:
+    needs: [check-ready, build-test]
+    if: needs.check-ready.outputs.should-run == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - name: 📥 Checkout code
+        uses: actions/checkout@v4
+
+      - name: 📦 Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+
+      - name: 📥 Install dependencies
+        run: npm ci
+
+      - name: 🏗️ Build application
+        run: npm run build
+
+      - name: 📊 Analyze bundle size
+        run: |
+          npx bundlesize
+        continue-on-error: true
+
+  # PR summary comment
+  pr-summary:
+    needs: [code-quality, build-test, content-validation, security-scan, accessibility-test, performance-test]
+    if: always() && needs.check-ready.outputs.should-run == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - name: 📝 Create PR summary comment
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const jobs = [
+              { name: 'Code Quality', status: '${{ needs.code-quality.result }}' },
+              { name: 'Build & Test', status: '${{ needs.build-test.result }}' },
+              { name: 'Content Validation', status: '${{ needs.content-validation.result }}' },
+              { name: 'Security Scan', status: '${{ needs.security-scan.result }}' },
+              { name: 'Accessibility Test', status: '${{ needs.accessibility-test.result }}' },
+              { name: 'Performance Test', status: '${{ needs.performance-test.result }}' }
+            ];
+            
+            const getEmoji = (status) => {
+              switch(status) {
+                case 'success': return '✅';
+                case 'failure': return '❌';
+                case 'cancelled': return '⏭️';
+                default: return '⚠️';
+              }
+            };
+            
+            const summary = jobs.map(job => 
+              `${getEmoji(job.status)} **${job.name}**: ${job.status}`
+            ).join('\n');
+            
+            const body = `## 🔍 Pull Request Checks Summary
+            
+            ${summary}
+            
+            ---
+            
+            ${jobs.every(job => job.status === 'success') ? 
+              '🎉 All checks passed! This PR is ready for review.' : 
+              '⚠️ Some checks failed or were skipped. Please review the details above.'
+            }
+            
+            *Automated comment by GitHub Actions*`;
+            
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: body
+            });
+

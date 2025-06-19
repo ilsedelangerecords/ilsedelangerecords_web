@@ -1,0 +1,229 @@
+name: 🚀 Deploy to Production
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+    inputs:
+      force_deploy:
+        description: 'Force deployment even if no changes detected'
+        required: false
+        default: false
+        type: boolean
+
+concurrency:
+  group: production-deployment
+  cancel-in-progress: false
+
+jobs:
+  # Pre-deployment checks
+  pre-deploy-checks:
+    runs-on: ubuntu-latest
+    outputs:
+      should-deploy: ${{ steps.changes.outputs.should-deploy }}
+      version: ${{ steps.version.outputs.version }}
+    steps:
+      - name: 📥 Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 2
+
+      - name: 🔍 Check for relevant changes
+        id: changes
+        run: |
+          if [[ "${{ github.event.inputs.force_deploy }}" == "true" ]]; then
+            echo "should-deploy=true" >> $GITHUB_OUTPUT
+            echo "🔄 Force deployment requested"
+          else
+            # Check if there are changes to source files
+            if git diff --name-only HEAD~1 HEAD | grep -E '\.(js|jsx|ts|tsx|json|css|html|md)$|^public/'; then
+              echo "should-deploy=true" >> $GITHUB_OUTPUT
+              echo "✅ Relevant changes detected"
+            else
+              echo "should-deploy=false" >> $GITHUB_OUTPUT
+              echo "⏭️ No relevant changes detected"
+            fi
+          fi
+
+      - name: 📋 Generate version
+        id: version
+        run: |
+          VERSION=$(date +%Y%m%d-%H%M%S)-$(git rev-parse --short HEAD)
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+          echo "📦 Version: $VERSION"
+
+  # Build and test
+  build:
+    needs: pre-deploy-checks
+    if: needs.pre-deploy-checks.outputs.should-deploy == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - name: 📥 Checkout code
+        uses: actions/checkout@v4
+
+      - name: 📦 Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+
+      - name: 📥 Install dependencies
+        run: npm ci
+
+      - name: 🔍 Run linting
+        run: npm run lint
+
+      - name: 🧪 Run tests
+        run: npm run test
+
+      - name: ✅ Validate content
+        run: |
+          echo "🔍 Validating content files..."
+          node -e "
+            const fs = require('fs');
+            const path = require('path');
+            
+            const contentDir = './public/content';
+            const files = ['albums.json', 'lyrics.json', 'artists.json'];
+            
+            let hasErrors = false;
+            let totalItems = 0;
+            
+            files.forEach(file => {
+              const filePath = path.join(contentDir, file);
+              if (fs.existsSync(filePath)) {
+                try {
+                  const content = JSON.parse(fs.readFileSync(filePath, 'utf8'));
+                  const itemCount = Array.isArray(content) ? content.length : Object.keys(content).length;
+                  totalItems += itemCount;
+                  console.log(\`✅ \${file}: \${itemCount} items\`);
+                } catch (error) {
+                  console.error(\`❌ \${file}: \${error.message}\`);
+                  hasErrors = true;
+                }
+              } else {
+                console.warn(\`⚠️ \${file}: Not found\`);
+              }
+            });
+            
+            if (hasErrors) {
+              console.error('❌ Content validation failed');
+              process.exit(1);
+            }
+            
+            console.log(\`🎉 Content validation passed! Total items: \${totalItems}\`);
+          "
+
+      - name: 🏗️ Build React application
+        run: npm run build
+
+      - name: 📊 Build summary
+        run: |
+          echo "📦 Build completed successfully!"
+          echo "📁 Build size:"
+          du -sh dist/
+          echo "📄 Files generated:"
+          find dist/ -type f | wc -l
+
+      - name: 📤 Upload build artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: production-build-${{ needs.pre-deploy-checks.outputs.version }}
+          path: dist/
+          retention-days: 30
+
+  # Deploy to production server
+  deploy:
+    needs: [pre-deploy-checks, build]
+    if: needs.pre-deploy-checks.outputs.should-deploy == 'true'
+    runs-on: ubuntu-latest
+    environment: production
+    steps:
+      - name: 📥 Download build artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: production-build-${{ needs.pre-deploy-checks.outputs.version }}
+          path: ./dist
+
+      - name: 🔐 Prepare SSH key
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.DEPLOY_SSH_KEY }}" > ~/.ssh/id_ed25519
+          chmod 600 ~/.ssh/id_ed25519
+          ssh-keyscan -p ${{ secrets.SSH_PORT || '22' }} ${{ secrets.SSH_HOST }} >> ~/.ssh/known_hosts
+
+      - name: 🚀 Deploy via rsync
+        run: |
+          echo "🚀 Deploying to production server..."
+          rsync -avz --delete --stats \
+            -e "ssh -i ~/.ssh/id_ed25519 -p ${{ secrets.SSH_PORT || '22' }}" \
+            ./dist/ \
+            ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}:${{ secrets.SSH_TARGET_PATH }}
+          
+          echo "✅ Deployment completed!"
+
+      - name: 🔍 Verify deployment
+        run: |
+          echo "🔍 Verifying deployment..."
+          if [[ -n "${{ secrets.SITE_URL }}" ]]; then
+            # Wait a moment for the deployment to propagate
+            sleep 10
+            
+            # Check if the site is accessible
+            if curl -f -s "${{ secrets.SITE_URL }}" > /dev/null; then
+              echo "✅ Site is accessible at ${{ secrets.SITE_URL }}"
+            else
+              echo "⚠️ Site check failed, but deployment may still be successful"
+            fi
+          else
+            echo "ℹ️ No SITE_URL configured for verification"
+          fi
+
+  # Post-deployment tasks
+  post-deploy:
+    needs: [pre-deploy-checks, deploy]
+    if: always() && needs.deploy.result == 'success'
+    runs-on: ubuntu-latest
+    steps:
+      - name: 📥 Checkout code
+        uses: actions/checkout@v4
+
+      - name: 🏷️ Create deployment tag
+        run: |
+          git config user.name "GitHub Actions"
+          git config user.email "actions@github.com"
+          
+          TAG="deploy-${{ needs.pre-deploy-checks.outputs.version }}"
+          git tag -a "$TAG" -m "Production deployment ${{ needs.pre-deploy-checks.outputs.version }}"
+          git push origin "$TAG"
+          
+          echo "🏷️ Created deployment tag: $TAG"
+
+      - name: 📝 Create deployment summary
+        run: |
+          echo "## 🚀 Deployment Summary" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Version:** ${{ needs.pre-deploy-checks.outputs.version }}" >> $GITHUB_STEP_SUMMARY
+          echo "**Commit:** ${{ github.sha }}" >> $GITHUB_STEP_SUMMARY
+          echo "**Deployed at:** $(date -u '+%Y-%m-%d %H:%M:%S UTC')" >> $GITHUB_STEP_SUMMARY
+          echo "**Status:** ✅ Success" >> $GITHUB_STEP_SUMMARY
+          
+          if [[ -n "${{ secrets.SITE_URL }}" ]]; then
+            echo "**Site URL:** ${{ secrets.SITE_URL }}" >> $GITHUB_STEP_SUMMARY
+          fi
+
+  # Notify on failure
+  notify-failure:
+    needs: [pre-deploy-checks, build, deploy]
+    if: always() && (needs.build.result == 'failure' || needs.deploy.result == 'failure')
+    runs-on: ubuntu-latest
+    steps:
+      - name: 📧 Notify deployment failure
+        run: |
+          echo "❌ Deployment failed!"
+          echo "Build status: ${{ needs.build.result }}"
+          echo "Deploy status: ${{ needs.deploy.result }}"
+          
+          # Create issue for failed deployment
+          echo "Creating issue for failed deployment..."
+

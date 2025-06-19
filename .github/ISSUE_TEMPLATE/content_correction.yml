@@ -1,0 +1,176 @@
+name: 📝 Content Correction
+description: Report incorrect or missing content (albums, lyrics, artist info)
+title: "[Content]: "
+labels: ["content", "needs-verification"]
+assignees: []
+
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for helping us maintain accurate content! Please provide detailed information about the correction needed.
+
+  - type: checkboxes
+    id: terms
+    attributes:
+      label: Pre-submission Checklist
+      description: Please confirm the following before submitting
+      options:
+        - label: I have verified this information through reliable sources
+          required: true
+        - label: I have checked that this correction hasn't been reported already
+          required: true
+
+  - type: dropdown
+    id: content-type
+    attributes:
+      label: Content Type
+      description: What type of content needs correction?
+      options:
+        - Album Information
+        - Song Lyrics
+        - Artist Biography/Information
+        - Release Dates
+        - Track Listings
+        - Album Artwork
+        - Artist Photos
+        - Credits/Personnel
+        - Chart Information
+        - Other
+    validations:
+      required: true
+
+  - type: input
+    id: item-title
+    attributes:
+      label: Item Title/Name
+      description: What is the title of the album, song, or artist being corrected?
+      placeholder: e.g., "World of Hurt", "Calm After the Storm", "Ilse DeLange"
+    validations:
+      required: true
+
+  - type: input
+    id: page-url
+    attributes:
+      label: Page URL (if applicable)
+      description: Link to the specific page with the incorrect information
+      placeholder: https://ilsedelangerecords.netlify.app/...
+
+  - type: textarea
+    id: current-content
+    attributes:
+      label: Current (Incorrect) Content
+      description: What information is currently shown that is incorrect?
+      placeholder: Copy and paste the incorrect information as it currently appears
+    validations:
+      required: true
+
+  - type: textarea
+    id: correct-content
+    attributes:
+      label: Correct Content
+      description: What should the information be instead?
+      placeholder: Provide the correct information
+    validations:
+      required: true
+
+  - type: textarea
+    id: sources
+    attributes:
+      label: Sources/References
+      description: Please provide sources that verify the correct information
+      placeholder: |
+        - Official website links
+        - Album liner notes
+        - Music databases (Discogs, MusicBrainz, etc.)
+        - Official social media posts
+        - Press releases
+        - Other reliable sources
+    validations:
+      required: true
+
+  - type: dropdown
+    id: correction-type
+    attributes:
+      label: Type of Correction
+      description: What kind of correction is this?
+      options:
+        - Factual Error (wrong information)
+        - Missing Information (incomplete data)
+        - Formatting Issue (incorrect presentation)
+        - Outdated Information (needs updating)
+        - Duplicate Content (redundant entries)
+        - Other
+
+  - type: dropdown
+    id: confidence
+    attributes:
+      label: Confidence Level
+      description: How confident are you in this correction?
+      options:
+        - Very High (official source, definitive proof)
+        - High (reliable sources, cross-verified)
+        - Medium (good sources, likely correct)
+        - Low (uncertain, needs further verification)
+    validations:
+      required: true
+
+  - type: textarea
+    id: additional-info
+    attributes:
+      label: Additional Information
+      description: Any other relevant details about this correction
+      placeholder: |
+        - Context about why this matters
+        - Related corrections that might be needed
+        - Historical information
+        - Any other relevant details
+
+  - type: checkboxes
+    id: content-areas
+    attributes:
+      label: Related Content Areas (check all that apply)
+      description: What other areas might be affected by this correction?
+      options:
+        - label: This affects multiple albums/songs
+        - label: This affects artist discography
+        - label: This affects search results
+        - label: This affects related content links
+        - label: This affects chronological ordering
+
+  - type: dropdown
+    id: urgency
+    attributes:
+      label: Urgency
+      description: How urgent is this correction?
+      options:
+        - Low (minor detail, can wait)
+        - Medium (noticeable error, should be fixed)
+        - High (significant error, affects user experience)
+        - Critical (major misinformation, needs immediate attention)
+    validations:
+      required: true
+
+  - type: textarea
+    id: files
+    attributes:
+      label: Supporting Files
+      description: Do you have any supporting files (images, documents, etc.)?
+      placeholder: |
+        Please attach or link to any supporting files:
+        - High-quality album artwork
+        - Official documents
+        - Screenshots of official sources
+        - Audio files (for lyrics verification)
+
+  - type: checkboxes
+    id: contribution
+    attributes:
+      label: Contribution Offer
+      description: Would you like to help with this correction?
+      options:
+        - label: I can provide additional research/sources
+        - label: I can help verify the correction
+        - label: I have access to official materials
+        - label: I can help with related corrections
+
