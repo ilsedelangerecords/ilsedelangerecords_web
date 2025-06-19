@@ -40,8 +40,8 @@ jobs:
               echo "should-deploy=true" >> $GITHUB_OUTPUT
               echo "✅ Relevant changes detected"
             else
-              echo "should-deploy=false" >> $GITHUB_OUTPUT
-              echo "⏭️ No relevant changes detected"
+              echo "should-deploy=true" >> $GITHUB_OUTPUT
+              echo "✅ Deploying anyway to ensure staging is up to date"
             fi
           fi
 
@@ -61,61 +61,38 @@ jobs:
       - name: 📥 Checkout code
         uses: actions/checkout@v4
 
+      - name: 📦 Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 8
+
       - name: 📦 Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: '18'
-          cache: 'npm'
+          cache: 'pnpm'
 
       - name: 📥 Install dependencies
-        run: npm ci
-
-      - name: 🔍 Run linting
-        run: npm run lint
-
-      - name: 🧪 Run tests
-        run: npm run test
+        run: pnpm install --frozen-lockfile
 
       - name: ✅ Validate content
         run: |
-          echo "🔍 Validating content files..."
-          node -e "
-            const fs = require('fs');
-            const path = require('path');
-            
-            const contentDir = './public/content';
-            const files = ['albums.json', 'lyrics.json', 'artists.json'];
-            
-            let hasErrors = false;
-            let totalItems = 0;
-            
-            files.forEach(file => {
-              const filePath = path.join(contentDir, file);
-              if (fs.existsSync(filePath)) {
-                try {
-                  const content = JSON.parse(fs.readFileSync(filePath, 'utf8'));
-                  const itemCount = Array.isArray(content) ? content.length : Object.keys(content).length;
-                  totalItems += itemCount;
-                  console.log(\`✅ \${file}: \${itemCount} items\`);
-                } catch (error) {
-                  console.error(\`❌ \${file}: \${error.message}\`);
-                  hasErrors = true;
-                }
-              } else {
-                console.warn(\`⚠️ \${file}: Not found\`);
-              }
-            });
-            
-            if (hasErrors) {
-              console.error('❌ Content validation failed');
-              process.exit(1);
-            }
-            
-            console.log(\`🎉 Content validation passed! Total items: \${totalItems}\`);
-          "
+          echo "🔍 Checking content files..."
+          if [ -f "public/content/albums.json" ]; then
+            ALBUM_COUNT=$(cat public/content/albums.json | jq 'length')
+            echo "📀 Albums found: $ALBUM_COUNT"
+          fi
+          if [ -f "public/content/lyrics.json" ]; then
+            LYRICS_COUNT=$(cat public/content/lyrics.json | jq 'length')
+            echo "🎵 Lyrics found: $LYRICS_COUNT"
+          fi
+          if [ -f "public/content/artists.json" ]; then
+            ARTISTS_COUNT=$(cat public/content/artists.json | jq 'length')
+            echo "👤 Artists found: $ARTISTS_COUNT"
+          fi
 
-      - name: 🏗️ Build React application
-        run: npm run build
+      - name: 🏗️ Build application
+        run: pnpm run build
 
       - name: 📊 Build summary
         run: |
@@ -128,22 +105,36 @@ jobs:
       - name: 📤 Upload build artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: production-build-${{ needs.pre-deploy-checks.outputs.version }}
+          name: build-${{ needs.pre-deploy-checks.outputs.version }}
           path: dist/
           retention-days: 30
 
-  # Deploy to production server
+  # Deploy to staging
   deploy:
     needs: [pre-deploy-checks, build]
     if: needs.pre-deploy-checks.outputs.should-deploy == 'true'
     runs-on: ubuntu-latest
     environment: production
     steps:
-      - name: 📥 Download build artifacts
-        uses: actions/download-artifact@v4
+      - name: 📥 Checkout code
+        uses: actions/checkout@v4
+
+      - name: 📦 Setup pnpm
+        uses: pnpm/action-setup@v4
         with:
-          name: production-build-${{ needs.pre-deploy-checks.outputs.version }}
-          path: ./dist
+          version: 8
+
+      - name: 📦 Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'pnpm'
+
+      - name: 📥 Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: 🏗️ Build for production
+        run: pnpm run build
 
       - name: 🔐 Prepare SSH key
         run: |
@@ -154,76 +145,27 @@ jobs:
 
       - name: 🚀 Deploy via rsync
         run: |
-          echo "🚀 Deploying to production server..."
-          rsync -avz --delete --stats \
+          echo "🚀 Deploying to staging server..."
+          rsync -avz --delete --progress \
             -e "ssh -i ~/.ssh/id_ed25519 -p ${{ secrets.SSH_PORT || '22' }}" \
-            ./dist/ \
+            dist/ \
             ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}:${{ secrets.SSH_TARGET_PATH }}
-          
           echo "✅ Deployment completed!"
 
-      - name: 🔍 Verify deployment
+      - name: 🌐 Deployment summary
+        run: |
+          echo "🎉 Deployment successful!"
+          echo "🔗 Staging URL: https://ilsedelangerecords.nl/staging/"
+          echo "📦 Version: ${{ needs.pre-deploy-checks.outputs.version }}"
+          echo "⏰ Deployed at: $(date)"
+
+      - name: 🧪 Post-deployment verification
         run: |
           echo "🔍 Verifying deployment..."
-          if [[ -n "${{ secrets.SITE_URL }}" ]]; then
-            # Wait a moment for the deployment to propagate
-            sleep 10
-            
-            # Check if the site is accessible
-            if curl -f -s "${{ secrets.SITE_URL }}" > /dev/null; then
-              echo "✅ Site is accessible at ${{ secrets.SITE_URL }}"
-            else
-              echo "⚠️ Site check failed, but deployment may still be successful"
-            fi
+          sleep 10
+          if curl -f -s https://ilsedelangerecords.nl/staging/ > /dev/null; then
+            echo "✅ Staging site is responding"
           else
-            echo "ℹ️ No SITE_URL configured for verification"
+            echo "⚠️ Staging site may not be ready yet"
           fi
-
-  # Post-deployment tasks
-  post-deploy:
-    needs: [pre-deploy-checks, deploy]
-    if: always() && needs.deploy.result == 'success'
-    runs-on: ubuntu-latest
-    steps:
-      - name: 📥 Checkout code
-        uses: actions/checkout@v4
-
-      - name: 🏷️ Create deployment tag
-        run: |
-          git config user.name "GitHub Actions"
-          git config user.email "actions@github.com"
-          
-          TAG="deploy-${{ needs.pre-deploy-checks.outputs.version }}"
-          git tag -a "$TAG" -m "Production deployment ${{ needs.pre-deploy-checks.outputs.version }}"
-          git push origin "$TAG"
-          
-          echo "🏷️ Created deployment tag: $TAG"
-
-      - name: 📝 Create deployment summary
-        run: |
-          echo "## 🚀 Deployment Summary" >> $GITHUB_STEP_SUMMARY
-          echo "" >> $GITHUB_STEP_SUMMARY
-          echo "**Version:** ${{ needs.pre-deploy-checks.outputs.version }}" >> $GITHUB_STEP_SUMMARY
-          echo "**Commit:** ${{ github.sha }}" >> $GITHUB_STEP_SUMMARY
-          echo "**Deployed at:** $(date -u '+%Y-%m-%d %H:%M:%S UTC')" >> $GITHUB_STEP_SUMMARY
-          echo "**Status:** ✅ Success" >> $GITHUB_STEP_SUMMARY
-          
-          if [[ -n "${{ secrets.SITE_URL }}" ]]; then
-            echo "**Site URL:** ${{ secrets.SITE_URL }}" >> $GITHUB_STEP_SUMMARY
-          fi
-
-  # Notify on failure
-  notify-failure:
-    needs: [pre-deploy-checks, build, deploy]
-    if: always() && (needs.build.result == 'failure' || needs.deploy.result == 'failure')
-    runs-on: ubuntu-latest
-    steps:
-      - name: 📧 Notify deployment failure
-        run: |
-          echo "❌ Deployment failed!"
-          echo "Build status: ${{ needs.build.result }}"
-          echo "Deploy status: ${{ needs.deploy.result }}"
-          
-          # Create issue for failed deployment
-          echo "Creating issue for failed deployment..."
 

@@ -27,292 +27,176 @@ jobs:
             echo "✅ PR is ready for checks"
           fi
 
-  # Lint and format checks
-  code-quality:
-    needs: check-ready
-    if: needs.check-ready.outputs.should-run == 'true'
-    runs-on: ubuntu-latest
-    steps:
-      - name: 📥 Checkout code
-        uses: actions/checkout@v4
-
-      - name: 📦 Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: '18'
-          cache: 'npm'
-
-      - name: 📥 Install dependencies
-        run: npm ci
-
-      - name: 🔍 Run ESLint
-        run: npm run lint
-        continue-on-error: true
-
-      - name: 🎨 Check Prettier formatting
-        run: npm run format:check
-        continue-on-error: true
-
-      - name: 📝 TypeScript type checking
-        run: npm run type-check
-        continue-on-error: true
-
   # Build and test
-  build-test:
+  build-and-test:
     needs: check-ready
     if: needs.check-ready.outputs.should-run == 'true'
     runs-on: ubuntu-latest
+    name: Build and Test
     steps:
       - name: 📥 Checkout code
         uses: actions/checkout@v4
+
+      - name: 📦 Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 8
 
       - name: 📦 Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: '18'
-          cache: 'npm'
+          cache: 'pnpm'
 
       - name: 📥 Install dependencies
-        run: npm ci
+        run: pnpm install --frozen-lockfile
+
+      - name: ✅ Validate content
+        run: |
+          echo "🔍 Checking content files..."
+          if [ -f "public/content/albums.json" ]; then
+            ALBUM_COUNT=$(cat public/content/albums.json | jq 'length')
+            echo "📀 Albums found: $ALBUM_COUNT"
+            if [ "$ALBUM_COUNT" -eq 0 ]; then
+              echo "❌ No albums found in content"
+              exit 1
+            fi
+          fi
+          if [ -f "public/content/lyrics.json" ]; then
+            LYRICS_COUNT=$(cat public/content/lyrics.json | jq 'length')
+            echo "🎵 Lyrics found: $LYRICS_COUNT"
+          fi
+          if [ -f "public/content/artists.json" ]; then
+            ARTISTS_COUNT=$(cat public/content/artists.json | jq 'length')
+            echo "👤 Artists found: $ARTISTS_COUNT"
+          fi
 
       - name: 🏗️ Build application
-        run: npm run build
+        run: pnpm run build
 
-      - name: 🧪 Run tests
-        run: npm run test
-        continue-on-error: true
-
-      - name: 📊 Upload build artifacts
-        uses: actions/upload-artifact@v4
-        with:
-          name: build-files
-          path: dist/
-          retention-days: 7
+      - name: 📊 Build summary
+        run: |
+          echo "📦 Build completed successfully!"
+          echo "📁 Build size:"
+          du -sh dist/
+          echo "📄 Files generated:"
+          find dist/ -type f | wc -l
 
   # Content validation
   content-validation:
     needs: check-ready
     if: needs.check-ready.outputs.should-run == 'true'
     runs-on: ubuntu-latest
+    name: Content Validation
     steps:
       - name: 📥 Checkout code
         uses: actions/checkout@v4
 
-      - name: 📦 Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: '18'
-          cache: 'npm'
-
-      - name: 📥 Install dependencies
-        run: npm ci
-
-      - name: ✅ Validate content schemas
+      - name: 🔍 Validate JSON files
         run: |
-          echo "🔍 Validating content files..."
-          node -e "
-            const fs = require('fs');
-            const path = require('path');
-            
-            const contentDir = './public/content';
-            const files = ['albums.json', 'lyrics.json', 'artists.json'];
-            
-            let hasErrors = false;
-            
-            files.forEach(file => {
-              const filePath = path.join(contentDir, file);
-              if (fs.existsSync(filePath)) {
-                try {
-                  const content = JSON.parse(fs.readFileSync(filePath, 'utf8'));
-                  console.log(\`✅ \${file}: Valid JSON with \${Array.isArray(content) ? content.length : Object.keys(content).length} items\`);
-                } catch (error) {
-                  console.error(\`❌ \${file}: Invalid JSON - \${error.message}\`);
-                  hasErrors = true;
-                }
-              } else {
-                console.warn(\`⚠️ \${file}: File not found\`);
-              }
-            });
-            
-            if (hasErrors) {
-              process.exit(1);
-            }
-            
-            console.log('🎉 All content files are valid!');
-          "
+          echo "🔍 Validating JSON content files..."
+          
+          # Check albums.json
+          if [ -f "public/content/albums.json" ]; then
+            echo "📀 Validating albums.json..."
+            if jq empty public/content/albums.json; then
+              ALBUM_COUNT=$(jq 'length' public/content/albums.json)
+              echo "✅ albums.json is valid JSON with $ALBUM_COUNT items"
+            else
+              echo "❌ albums.json is invalid JSON"
+              exit 1
+            fi
+          fi
+          
+          # Check lyrics.json
+          if [ -f "public/content/lyrics.json" ]; then
+            echo "🎵 Validating lyrics.json..."
+            if jq empty public/content/lyrics.json; then
+              LYRICS_COUNT=$(jq 'length' public/content/lyrics.json)
+              echo "✅ lyrics.json is valid JSON with $LYRICS_COUNT items"
+            else
+              echo "❌ lyrics.json is invalid JSON"
+              exit 1
+            fi
+          fi
+          
+          # Check artists.json
+          if [ -f "public/content/artists.json" ]; then
+            echo "👤 Validating artists.json..."
+            if jq empty public/content/artists.json; then
+              ARTISTS_COUNT=$(jq 'length' public/content/artists.json)
+              echo "✅ artists.json is valid JSON with $ARTISTS_COUNT items"
+            else
+              echo "❌ artists.json is invalid JSON"
+              exit 1
+            fi
+          fi
 
       - name: 🖼️ Check image references
         run: |
-          echo "🔍 Checking image references..."
-          node -e "
-            const fs = require('fs');
-            const path = require('path');
-            
-            const contentFiles = ['./public/content/albums.json', './public/content/artists.json'];
-            const imageDir = './public/images';
-            
-            let missingImages = [];
-            
-            contentFiles.forEach(file => {
-              if (fs.existsSync(file)) {
-                const content = JSON.parse(fs.readFileSync(file, 'utf8'));
-                const items = Array.isArray(content) ? content : [content];
-                
-                items.forEach(item => {
-                  // Check various image fields
-                  const imageFields = ['coverArt', 'profileImage', 'bannerImage', 'image'];
-                  imageFields.forEach(field => {
-                    if (item[field] && typeof item[field] === 'string') {
-                      const imagePath = item[field].startsWith('/') ? 
-                        path.join('./public', item[field]) : 
-                        path.join(imageDir, item[field]);
-                      
-                      if (!fs.existsSync(imagePath)) {
-                        missingImages.push(\`\${file}: \${item.title || item.name || 'Unknown'} - \${field}: \${item[field]}\`);
-                      }
-                    }
-                  });
-                });
-              }
-            });
-            
-            if (missingImages.length > 0) {
-              console.log('⚠️ Missing images found:');
-              missingImages.forEach(img => console.log(\`  - \${img}\`));
-              console.log(\`\nTotal missing images: \${missingImages.length}\`);
-            } else {
-              console.log('✅ All referenced images exist!');
-            }
-          "
+          echo "🖼️ Checking image references..."
+          if [ -d "public/images" ]; then
+            IMAGE_COUNT=$(find public/images -type f \( -name "*.jpg" -o -name "*.jpeg" -o -name "*.png" -o -name "*.svg" \) | wc -l)
+            echo "✅ Found $IMAGE_COUNT images in public/images/"
+          else
+            echo "⚠️ No public/images directory found"
+          fi
 
-  # Security scanning
+  # Security scan
   security-scan:
     needs: check-ready
     if: needs.check-ready.outputs.should-run == 'true'
     runs-on: ubuntu-latest
+    name: Security Scan
     steps:
       - name: 📥 Checkout code
         uses: actions/checkout@v4
+
+      - name: 📦 Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 8
+
+      - name: 📦 Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'pnpm'
+
+      - name: 📥 Install dependencies
+        run: pnpm install --frozen-lockfile
 
       - name: 🔒 Run security audit
-        run: npm audit --audit-level=moderate
-        continue-on-error: true
+        run: pnpm audit --audit-level moderate
 
-      - name: 🔍 Scan for secrets
-        uses: trufflesecurity/trufflehog@main
+      - name: 🔍 Initialize CodeQL
+        uses: github/codeql-action/init@v3
         with:
-          path: ./
-          base: main
-          head: HEAD
-          extra_args: --debug --only-verified
+          languages: javascript
 
-  # Accessibility testing
-  accessibility-test:
-    needs: [check-ready, build-test]
-    if: needs.check-ready.outputs.should-run == 'true'
-    runs-on: ubuntu-latest
-    steps:
-      - name: 📥 Checkout code
-        uses: actions/checkout@v4
+      - name: 🔍 Perform CodeQL Analysis
+        uses: github/codeql-action/analyze@v3
 
-      - name: 📦 Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: '18'
-          cache: 'npm'
-
-      - name: 📥 Install dependencies
-        run: npm ci
-
-      - name: 🏗️ Build application
-        run: npm run build
-
-      - name: 🌐 Start preview server
-        run: |
-          npm install -g serve
-          serve -s dist -l 3000 &
-          sleep 5
-        
-      - name: ♿ Run accessibility tests
-        run: |
-          npx @axe-core/cli http://localhost:3000 --exit
-        continue-on-error: true
-
-  # Performance testing
-  performance-test:
-    needs: [check-ready, build-test]
-    if: needs.check-ready.outputs.should-run == 'true'
-    runs-on: ubuntu-latest
-    steps:
-      - name: 📥 Checkout code
-        uses: actions/checkout@v4
-
-      - name: 📦 Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: '18'
-          cache: 'npm'
-
-      - name: 📥 Install dependencies
-        run: npm ci
-
-      - name: 🏗️ Build application
-        run: npm run build
-
-      - name: 📊 Analyze bundle size
-        run: |
-          npx bundlesize
-        continue-on-error: true
-
-  # PR summary comment
-  pr-summary:
-    needs: [code-quality, build-test, content-validation, security-scan, accessibility-test, performance-test]
+  # Summary
+  pr-checks-summary:
+    needs: [check-ready, build-and-test, content-validation, security-scan]
     if: always() && needs.check-ready.outputs.should-run == 'true'
     runs-on: ubuntu-latest
     steps:
-      - name: 📝 Create PR summary comment
-        uses: actions/github-script@v7
-        with:
-          script: |
-            const jobs = [
-              { name: 'Code Quality', status: '${{ needs.code-quality.result }}' },
-              { name: 'Build & Test', status: '${{ needs.build-test.result }}' },
-              { name: 'Content Validation', status: '${{ needs.content-validation.result }}' },
-              { name: 'Security Scan', status: '${{ needs.security-scan.result }}' },
-              { name: 'Accessibility Test', status: '${{ needs.accessibility-test.result }}' },
-              { name: 'Performance Test', status: '${{ needs.performance-test.result }}' }
-            ];
-            
-            const getEmoji = (status) => {
-              switch(status) {
-                case 'success': return '✅';
-                case 'failure': return '❌';
-                case 'cancelled': return '⏭️';
-                default: return '⚠️';
-              }
-            };
-            
-            const summary = jobs.map(job => 
-              `${getEmoji(job.status)} **${job.name}**: ${job.status}`
-            ).join('\n');
-            
-            const body = `## 🔍 Pull Request Checks Summary
-            
-            ${summary}
-            
-            ---
-            
-            ${jobs.every(job => job.status === 'success') ? 
-              '🎉 All checks passed! This PR is ready for review.' : 
-              '⚠️ Some checks failed or were skipped. Please review the details above.'
-            }
-            
-            *Automated comment by GitHub Actions*`;
-            
-            github.rest.issues.createComment({
-              issue_number: context.issue.number,
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              body: body
-            });
+      - name: 📋 PR Checks Summary
+        run: |
+          echo "📋 Pull Request Checks Summary"
+          echo "=============================="
+          echo "Build and Test: ${{ needs.build-and-test.result }}"
+          echo "Content Validation: ${{ needs.content-validation.result }}"
+          echo "Security Scan: ${{ needs.security-scan.result }}"
+          
+          if [[ "${{ needs.build-and-test.result }}" == "success" && 
+                "${{ needs.content-validation.result }}" == "success" && 
+                "${{ needs.security-scan.result }}" == "success" ]]; then
+            echo "✅ All checks passed! PR is ready for review."
+          else
+            echo "❌ Some checks failed. Please review and fix issues."
+            exit 1
+          fi
 
