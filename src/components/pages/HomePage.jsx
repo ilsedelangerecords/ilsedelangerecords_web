@@ -14,10 +14,12 @@ const HomePage = () => {
 
   // Calculate statistics
   const stats = {
-    totalAlbums: albums?.length || 0,
-    totalLyrics: lyrics?.length || 0,
-    totalArtists: artists?.length || 0,
-    totalYears: albums ? new Date().getFullYear() - Math.min(...albums.map(a => a.year)) + 1 : 0
+    totalAlbums: Array.isArray(albums) ? albums.length : 0,
+    totalLyrics: Array.isArray(lyrics) ? lyrics.length : 0,
+    totalArtists: Array.isArray(artists) ? artists.length : 0,
+    totalYears: Array.isArray(albums) && albums.length > 0 ? 
+      new Date().getFullYear() - Math.min(...albums.map(a => a.year || new Date().getFullYear())) + 1 : 
+      0
   };
 
   const loading = albumsLoading || lyricsLoading || artistsLoading;

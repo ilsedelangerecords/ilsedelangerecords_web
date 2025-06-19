@@ -1,0 +1,84 @@
+version: 2
+updates:
+  # Enable version updates for npm
+  - package-ecosystem: "npm"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "09:00"
+    open-pull-requests-limit: 10
+    reviewers:
+      - "ilsedelangerecords"
+    assignees:
+      - "ilsedelangerecords"
+    commit-message:
+      prefix: "⬆️"
+      prefix-development: "⬆️ dev"
+      include: "scope"
+    labels:
+      - "dependencies"
+      - "automated"
+    # Group updates by type
+    groups:
+      production-dependencies:
+        patterns:
+          - "react*"
+          - "vite*"
+          - "@vitejs/*"
+          - "typescript"
+        update-types:
+          - "minor"
+          - "patch"
+      development-dependencies:
+        patterns:
+          - "eslint*"
+          - "@types/*"
+          - "prettier"
+          - "@typescript-eslint/*"
+        update-types:
+          - "minor"
+          - "patch"
+      security-updates:
+        patterns:
+          - "*"
+        update-types:
+          - "security"
+    # Ignore specific packages if needed
+    ignore:
+      # Ignore major version updates for React (manual review needed)
+      - dependency-name: "react"
+        update-types: ["version-update:semver-major"]
+      - dependency-name: "react-dom"
+        update-types: ["version-update:semver-major"]
+    # Auto-merge configuration for patch updates
+    auto-merge:
+      - match:
+          update-type: "security"
+      - match:
+          update-type: "semver:patch"
+          dependency-type: "development"
+
+  # Enable version updates for GitHub Actions
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "09:00"
+    open-pull-requests-limit: 5
+    reviewers:
+      - "ilsedelangerecords"
+    assignees:
+      - "ilsedelangerecords"
+    commit-message:
+      prefix: "🔄"
+      include: "scope"
+    labels:
+      - "github-actions"
+      - "automated"
+    # Auto-merge patch updates for actions
+    auto-merge:
+      - match:
+          update-type: "semver:patch"
+

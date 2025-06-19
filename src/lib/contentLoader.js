@@ -18,6 +18,7 @@ class ContentLoader {
       if (!response.ok) {
         throw new Error(`Failed to load ${type}: ${response.status}`);
       }
+      
       const data = await response.json();
       this.cache.set(type, data);
       return data;
@@ -66,7 +67,7 @@ class ContentLoader {
 
   // Helper method to get image URL
   getImageUrl(imagePath) {
-    if (!imagePath) return '/images/placeholder.jpg';
+    if (!imagePath) return '/images/placeholder.svg';
     
     // Handle different image path formats
     if (imagePath.startsWith('http')) {
@@ -84,17 +85,22 @@ class ContentLoader {
 
   // Helper method to format album data
   formatAlbumData(albumData) {
+    if (!albumData || typeof albumData !== 'object') return [];
+    
     return Object.entries(albumData).map(([id, album]) => ({
       id,
       ...album,
       slug: this.createSlug(album.title),
       coverArt: this.getImageUrl(album.images?.cover_art),
-      artistSlug: this.createSlug(album.artist)
+      artistSlug: this.createSlug(album.artist),
+      year: album.release_date ? new Date(album.release_date).getFullYear() : new Date().getFullYear()
     }));
   }
 
   // Helper method to format lyrics data
   formatLyricsData(lyricsData) {
+    if (!lyricsData || typeof lyricsData !== 'object') return [];
+    
     return Object.entries(lyricsData).map(([id, lyrics]) => ({
       id,
       ...lyrics,
@@ -105,6 +111,8 @@ class ContentLoader {
 
   // Helper method to format artist data
   formatArtistData(artistData) {
+    if (!artistData || typeof artistData !== 'object') return [];
+    
     return Object.entries(artistData).map(([id, artist]) => ({
       id,
       ...artist,
@@ -125,7 +133,7 @@ class ContentLoader {
 
   // Search functionality
   searchContent(data, searchTerm, fields = ['title', 'name']) {
-    if (!searchTerm) return data;
+    if (!searchTerm || !Array.isArray(data)) return data;
     
     const term = searchTerm.toLowerCase();
     return data.filter(item => 
@@ -137,6 +145,8 @@ class ContentLoader {
 
   // Filter functionality
   filterContent(data, filters) {
+    if (!Array.isArray(data)) return [];
+    
     return data.filter(item => {
       return Object.entries(filters).every(([key, value]) => {
         if (!value || value === 'all') return true;
@@ -147,6 +157,8 @@ class ContentLoader {
 
   // Sort functionality
   sortContent(data, sortBy) {
+    if (!Array.isArray(data)) return [];
+    
     const [field, direction] = sortBy.split('-');
     const multiplier = direction === 'desc' ? -1 : 1;
 
@@ -173,7 +185,7 @@ const contentLoader = new ContentLoader();
 
 // Custom hook for loading content
 export const useContent = (type) => {
-  const [data, setData] = useState(null);
+  const [data, setData] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
@@ -201,10 +213,11 @@ export const useContent = (type) => {
             result = await contentLoader.loadContent(type);
         }
         
-        setData(result);
+        setData(Array.isArray(result) ? result : []);
       } catch (err) {
         setError(err.message);
         console.error(`Error loading ${type}:`, err);
+        setData([]);
       } finally {
         setLoading(false);
       }
@@ -223,7 +236,7 @@ export const useContentSearch = (data, initialFilters = {}) => {
   const [sortBy, setSortBy] = useState('title-asc');
 
   const filteredData = React.useMemo(() => {
-    if (!data) return [];
+    if (!Array.isArray(data)) return [];
     
     let result = data;
     
