@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useContent, useContentSearch } from '../lib/contentLoader';
+import { useContent, useContentSearch } from '../../lib/contentLoader';
 import { Search, Filter, Music, User, Globe, ExternalLink, Copy, Share2 } from 'lucide-react';
 
 const LyricsPage = () => {

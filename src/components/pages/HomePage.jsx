@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useContent } from '../lib/contentLoader';
+import { useContent } from '../../lib/contentLoader';
 import { Music, Users, Calendar, Award, ExternalLink, Globe, Heart, Play } from 'lucide-react';
 
 const HomePage = () => {

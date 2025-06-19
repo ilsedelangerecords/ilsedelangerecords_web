@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useContent, useContentSearch } from '../lib/contentLoader';
+import { useContent, useContentSearch } from '../../lib/contentLoader';
 import { Search, Filter, Calendar, User, Music, ExternalLink } from 'lucide-react';
 
 const AlbumsPage = () => {
