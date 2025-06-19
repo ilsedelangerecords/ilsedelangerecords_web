@@ -12,64 +12,103 @@ class ContentLoader {
     }
 
     try {
-      // In development, load from public directory
-      // In production, this would be from an API or static files
+      console.log(`Loading content type: ${type}`);
       const response = await fetch(`/content/${type}.json`);
       if (!response.ok) {
         throw new Error(`Failed to load ${type}: ${response.status}`);
       }
       
       const data = await response.json();
+      console.log(`Loaded ${type}:`, Object.keys(data).length, 'items');
       this.cache.set(type, data);
       return data;
     } catch (error) {
       console.error(`Error loading ${type}:`, error);
-      // Return fallback data structure
-      return this.getFallbackData(type);
+      return {};
     }
   }
 
-  getFallbackData(type) {
-    const fallbacks = {
-      albums: {},
-      lyrics: {},
-      artists: {},
-      image_assets: {},
-      url_mapping: {},
-      image_mapping: {}
-    };
-    return fallbacks[type] || {};
+  // Helper method to format album data
+  formatAlbumData(albumData) {
+    if (!albumData || typeof albumData !== 'object') {
+      console.log('No album data to format');
+      return [];
+    }
+    
+    const formatted = Object.entries(albumData).map(([id, album]) => ({
+      id,
+      title: album.title || 'Untitled Album',
+      slug: album.slug || this.createSlug(album.title),
+      artist: album.artist || 'Unknown Artist',
+      artist_id: album.artist_id,
+      album_type: album.album_type || 'studio',
+      release_date: album.release_date,
+      year: album.release_date ? new Date(album.release_date).getFullYear() : new Date().getFullYear(),
+      record_label: album.record_label,
+      description: album.description,
+      coverArt: this.getImageUrl(album.images?.cover_art),
+      images: album.images || {},
+      chart_performance: album.chart_performance || [],
+      production_credits: album.production_credits || []
+    }));
+    
+    console.log(`Formatted ${formatted.length} albums`);
+    return formatted;
   }
 
-  async loadAlbums() {
-    return await this.loadContent('albums');
+  // Helper method to format lyrics data
+  formatLyricsData(lyricsData) {
+    if (!lyricsData || typeof lyricsData !== 'object') {
+      console.log('No lyrics data to format');
+      return [];
+    }
+    
+    const formatted = Object.entries(lyricsData).map(([id, lyrics]) => ({
+      id,
+      title: lyrics.title || 'Untitled Song',
+      slug: lyrics.slug || this.createSlug(lyrics.title),
+      content: lyrics.content || '',
+      language: lyrics.language || 'en',
+      structure: lyrics.structure || [],
+      verified: lyrics.verified || false,
+      artist: lyrics.artist || 'Unknown Artist',
+      album: lyrics.album,
+      seo: lyrics.seo || {}
+    }));
+    
+    console.log(`Formatted ${formatted.length} lyrics`);
+    return formatted;
   }
 
-  async loadLyrics() {
-    return await this.loadContent('lyrics');
-  }
-
-  async loadArtists() {
-    return await this.loadContent('artists');
-  }
-
-  async loadImageAssets() {
-    return await this.loadContent('image_assets');
-  }
-
-  async loadUrlMapping() {
-    return await this.loadContent('url_mapping');
-  }
-
-  async loadImageMapping() {
-    return await this.loadContent('image_mapping');
+  // Helper method to format artist data
+  formatArtistData(artistData) {
+    if (!artistData || typeof artistData !== 'object') {
+      console.log('No artist data to format');
+      return [];
+    }
+    
+    const formatted = Object.entries(artistData).map(([id, artist]) => ({
+      id,
+      name: artist.name || 'Unknown Artist',
+      slug: artist.slug || this.createSlug(artist.name),
+      type: artist.type || 'solo',
+      biography: artist.biography || '',
+      origin: artist.origin || '',
+      genres: artist.genres || [],
+      social_media: artist.social_media || {},
+      profileImage: this.getImageUrl(artist.images?.profile_image),
+      bannerImage: this.getImageUrl(artist.images?.banner_image),
+      images: artist.images || {}
+    }));
+    
+    console.log(`Formatted ${formatted.length} artists`);
+    return formatted;
   }
 
   // Helper method to get image URL
   getImageUrl(imagePath) {
     if (!imagePath) return '/images/placeholder.svg';
     
-    // Handle different image path formats
     if (imagePath.startsWith('http')) {
       return imagePath;
     }
@@ -78,48 +117,8 @@ class ContentLoader {
       return imagePath;
     }
     
-    // Convert old image paths to new optimized paths
     const filename = imagePath.split('/').pop();
     return `/images/${filename}`;
-  }
-
-  // Helper method to format album data
-  formatAlbumData(albumData) {
-    if (!albumData || typeof albumData !== 'object') return [];
-    
-    return Object.entries(albumData).map(([id, album]) => ({
-      id,
-      ...album,
-      slug: this.createSlug(album.title),
-      coverArt: this.getImageUrl(album.images?.cover_art),
-      artistSlug: this.createSlug(album.artist),
-      year: album.release_date ? new Date(album.release_date).getFullYear() : new Date().getFullYear()
-    }));
-  }
-
-  // Helper method to format lyrics data
-  formatLyricsData(lyricsData) {
-    if (!lyricsData || typeof lyricsData !== 'object') return [];
-    
-    return Object.entries(lyricsData).map(([id, lyrics]) => ({
-      id,
-      ...lyrics,
-      slug: this.createSlug(lyrics.title),
-      artistSlug: this.createSlug(lyrics.artist)
-    }));
-  }
-
-  // Helper method to format artist data
-  formatArtistData(artistData) {
-    if (!artistData || typeof artistData !== 'object') return [];
-    
-    return Object.entries(artistData).map(([id, artist]) => ({
-      id,
-      ...artist,
-      slug: this.createSlug(artist.name),
-      profileImage: this.getImageUrl(artist.images?.profile_image),
-      bannerImage: this.getImageUrl(artist.images?.banner_image)
-    }));
   }
 
   // Create URL-friendly slugs
@@ -166,7 +165,6 @@ class ContentLoader {
       let aVal = a[field];
       let bVal = b[field];
 
-      // Handle different data types
       if (typeof aVal === 'string') {
         return aVal.localeCompare(bVal) * multiplier;
       }
@@ -194,29 +192,30 @@ export const useContent = (type) => {
       try {
         setLoading(true);
         setError(null);
+        console.log(`useContent: Loading ${type}`);
         
-        let result;
+        let rawData = await contentLoader.loadContent(type);
+        let result = [];
+        
         switch (type) {
           case 'albums':
-            result = await contentLoader.loadAlbums();
-            result = contentLoader.formatAlbumData(result);
+            result = contentLoader.formatAlbumData(rawData);
             break;
           case 'lyrics':
-            result = await contentLoader.loadLyrics();
-            result = contentLoader.formatLyricsData(result);
+            result = contentLoader.formatLyricsData(rawData);
             break;
           case 'artists':
-            result = await contentLoader.loadArtists();
-            result = contentLoader.formatArtistData(result);
+            result = contentLoader.formatArtistData(rawData);
             break;
           default:
-            result = await contentLoader.loadContent(type);
+            result = Array.isArray(rawData) ? rawData : Object.values(rawData || {});
         }
         
-        setData(Array.isArray(result) ? result : []);
+        console.log(`useContent: Setting ${type} data:`, result.length, 'items');
+        setData(result);
       } catch (err) {
+        console.error(`useContent: Error loading ${type}:`, err);
         setError(err.message);
-        console.error(`Error loading ${type}:`, err);
         setData([]);
       } finally {
         setLoading(false);
@@ -240,17 +239,14 @@ export const useContentSearch = (data, initialFilters = {}) => {
     
     let result = data;
     
-    // Apply search
     if (searchTerm) {
       result = contentLoader.searchContent(result, searchTerm);
     }
     
-    // Apply filters
     if (Object.keys(filters).length > 0) {
       result = contentLoader.filterContent(result, filters);
     }
     
-    // Apply sorting
     if (sortBy) {
       result = contentLoader.sortContent(result, sortBy);
     }
@@ -269,6 +265,5 @@ export const useContentSearch = (data, initialFilters = {}) => {
   };
 };
 
-// Export the content loader instance for direct use
 export default contentLoader;
 

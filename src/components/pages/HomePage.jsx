@@ -12,15 +12,21 @@ const HomePage = () => {
   const recentLyrics = lyrics?.slice(0, 4) || [];
   const mainArtists = artists || [];
 
-  // Calculate statistics
+  // Calculate statistics with debugging
   const stats = {
     totalAlbums: Array.isArray(albums) ? albums.length : 0,
     totalLyrics: Array.isArray(lyrics) ? lyrics.length : 0,
     totalArtists: Array.isArray(artists) ? artists.length : 0,
     totalYears: Array.isArray(albums) && albums.length > 0 ? 
-      new Date().getFullYear() - Math.min(...albums.map(a => a.year || new Date().getFullYear())) + 1 : 
+      Math.max(1, new Date().getFullYear() - Math.min(...albums.map(a => a.year || new Date().getFullYear())) + 1) : 
       0
   };
+
+  // Debug logging
+  console.log('HomePage stats:', stats);
+  console.log('Albums data:', albums?.length, albums);
+  console.log('Lyrics data:', lyrics?.length);
+  console.log('Artists data:', artists?.length);
 
   const loading = albumsLoading || lyricsLoading || artistsLoading;
 
