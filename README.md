@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # Ilse DeLange Records - Modern Website
 
 ## 🎵 Complete Discography Website Migration
@@ -161,3 +162,7 @@ This project contains fan-created content for archival purposes. All music, lyri
 **Content**: 100% preserved from original website  
 **Performance**: Optimized for speed and accessibility
 
+=======
+# ilsedelangerecords_web
+New Website allowing collaboration
+>>>>>>> 02164bd556fbfdd17b69709a5e6e8dcb8541d3b0
