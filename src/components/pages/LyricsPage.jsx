@@ -1,321 +1,241 @@
 import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
-import { Search, Heart, Music, Globe, ArrowRight } from 'lucide-react';
+import { useContent, useContentSearch } from '../lib/contentLoader';
+import { Search, Filter, Music, User, Globe, ExternalLink, Copy, Share2 } from 'lucide-react';
 
 const LyricsPage = () => {
-  const [lyrics, setLyrics] = useState([]);
-  const [filteredLyrics, setFilteredLyrics] = useState([]);
-  const [searchTerm, setSearchTerm] = useState('');
-  const [selectedArtist, setSelectedArtist] = useState('all');
-  const [selectedLanguage, setSelectedLanguage] = useState('all');
-  const [sortBy, setSortBy] = useState('title-asc');
+  const { data: lyrics, loading, error } = useContent('lyrics');
+  const { data: artists } = useContent('artists');
+  
+  const {
+    filteredData,
+    searchTerm,
+    setSearchTerm,
+    filters,
+    setFilters,
+    sortBy,
+    setSortBy
+  } = useContentSearch(lyrics, { artist: 'all', language: 'all', verified: 'all' });
 
-  useEffect(() => {
-    loadLyrics();
-  }, []);
+  // Get unique values for filters
+  const uniqueArtists = lyrics ? [...new Set(lyrics.map(lyric => lyric.artist))] : [];
+  const uniqueLanguages = lyrics ? [...new Set(lyrics.map(lyric => lyric.language))] : [];
 
-  useEffect(() => {
-    filterAndSortLyrics();
-  }, [lyrics, searchTerm, selectedArtist, selectedLanguage, sortBy]);
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-50 p-4">
+        <div className="max-w-7xl mx-auto">
+          <div className="text-center py-12">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
+            <p className="mt-4 text-gray-600">Loading lyrics...</p>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
-  const loadLyrics = async () => {
-    // In production, this would load from the migrated lyrics content
-    const sampleLyrics = [
-      {
-        id: '1',
-        title: 'I\'m Not So Tough',
-        artist: 'Ilse DeLange',
-        artistId: 'ilse-delange',
-        album: 'World of Hurt',
-        language: 'en',
-        verified: true,
-        preview: 'I can\'t sleep, I can\'t eat, I can\'t do anything right...',
-        wordCount: 156
-      },
-      {
-        id: '2',
-        title: 'Calm After the Storm',
-        artist: 'The Common Linnets',
-        artistId: 'the-common-linnets',
-        album: 'The Common Linnets',
-        language: 'en',
-        verified: true,
-        preview: 'Driving in the fast lane, counting mile marker signs...',
-        wordCount: 142
-      },
-      {
-        id: '3',
-        title: 'Miracle',
-        artist: 'Ilse DeLange',
-        artistId: 'ilse-delange',
-        album: 'Clean Up',
-        language: 'en',
-        verified: true,
-        preview: 'It\'s a miracle, how you changed my world...',
-        wordCount: 128
-      },
-      {
-        id: '4',
-        title: 'Kalverliefde',
-        artist: 'Ilse DeLange',
-        artistId: 'ilse-delange',
-        album: 'World of Hurt',
-        language: 'nl',
-        verified: true,
-        preview: 'Het was kalverliefde, zo puur en zo echt...',
-        wordCount: 134
-      },
-      {
-        id: '5',
-        title: 'Hearts on Fire',
-        artist: 'The Common Linnets',
-        artistId: 'the-common-linnets',
-        album: 'The Common Linnets',
-        language: 'en',
-        verified: true,
-        preview: 'We got hearts on fire, burning bright tonight...',
-        wordCount: 167
-      },
-      {
-        id: '6',
-        title: 'Learning to Swim',
-        artist: 'Ilse DeLange',
-        artistId: 'ilse-delange',
-        album: 'World of Hurt',
-        language: 'en',
-        verified: true,
-        preview: 'I\'m learning to swim in the deep end...',
-        wordCount: 145
-      }
-    ];
-
-    setLyrics(sampleLyrics);
-  };
-
-  const filterAndSortLyrics = () => {
-    let filtered = lyrics.filter(lyric => {
-      const matchesSearch = lyric.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                           lyric.artist.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                           lyric.album.toLowerCase().includes(searchTerm.toLowerCase());
-      const matchesArtist = selectedArtist === 'all' || lyric.artistId === selectedArtist;
-      const matchesLanguage = selectedLanguage === 'all' || lyric.language === selectedLanguage;
-      
-      return matchesSearch && matchesArtist && matchesLanguage;
-    });
-
-    // Sort lyrics
-    filtered.sort((a, b) => {
-      switch (sortBy) {
-        case 'title-asc':
-          return a.title.localeCompare(b.title);
-        case 'title-desc':
-          return b.title.localeCompare(a.title);
-        case 'artist-asc':
-          return a.artist.localeCompare(b.artist);
-        case 'artist-desc':
-          return b.artist.localeCompare(a.artist);
-        default:
-          return 0;
-      }
-    });
-
-    setFilteredLyrics(filtered);
-  };
-
-  const getLanguageFlag = (language) => {
-    switch (language) {
-      case 'en':
-        return '🇺🇸';
-      case 'nl':
-        return '🇳🇱';
-      default:
-        return '🌐';
-    }
-  };
-
-  const getLanguageName = (language) => {
-    switch (language) {
-      case 'en':
-        return 'English';
-      case 'nl':
-        return 'Dutch';
-      default:
-        return 'Unknown';
-    }
-  };
+  if (error) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-50 p-4">
+        <div className="max-w-7xl mx-auto">
+          <div className="text-center py-12">
+            <p className="text-red-600">Error loading lyrics: {error}</p>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
-    <div className="space-y-8">
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-50">
       {/* Header */}
-      <div className="text-center space-y-4">
-        <h1 className="text-4xl font-bold text-slate-800">Song Lyrics</h1>
-        <p className="text-lg text-slate-600 max-w-2xl mx-auto">
-          Complete collection of song lyrics from Ilse DeLange and The Common Linnets, 
-          featuring both English and Dutch songs with verified transcriptions.
-        </p>
-      </div>
-
-      {/* Filters and Search */}
-      <div className="bg-white rounded-xl p-6 shadow-lg border border-slate-200">
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-          {/* Search */}
-          <div className="relative">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-slate-400" />
-            <input
-              type="text"
-              placeholder="Search lyrics..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full pl-10 pr-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-            />
+      <div className="bg-white shadow-sm border-b">
+        <div className="max-w-7xl mx-auto px-4 py-6">
+          <div className="flex flex-col md:flex-row md:items-center md:justify-between">
+            <div>
+              <h1 className="text-3xl font-bold text-gray-900">Song Lyrics</h1>
+              <p className="mt-2 text-gray-600">
+                Complete lyrics collection with {lyrics?.length || 0} songs
+              </p>
+            </div>
+            
+            {/* GitHub Edit Button */}
+            <a
+              href="https://github.com/ilsedelangerecords/ilsedelangerecords_web/edit/main/src/components/pages/LyricsPage.jsx"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="mt-4 md:mt-0 inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+            >
+              <ExternalLink className="w-4 h-4 mr-2" />
+              Edit on GitHub
+            </a>
           </div>
-
-          {/* Artist Filter */}
-          <select
-            value={selectedArtist}
-            onChange={(e) => setSelectedArtist(e.target.value)}
-            className="px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-          >
-            <option value="all">All Artists</option>
-            <option value="ilse-delange">Ilse DeLange</option>
-            <option value="the-common-linnets">The Common Linnets</option>
-          </select>
-
-          {/* Language Filter */}
-          <select
-            value={selectedLanguage}
-            onChange={(e) => setSelectedLanguage(e.target.value)}
-            className="px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-          >
-            <option value="all">All Languages</option>
-            <option value="en">English</option>
-            <option value="nl">Dutch</option>
-          </select>
-
-          {/* Sort */}
-          <select
-            value={sortBy}
-            onChange={(e) => setSortBy(e.target.value)}
-            className="px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-          >
-            <option value="title-asc">Title A-Z</option>
-            <option value="title-desc">Title Z-A</option>
-            <option value="artist-asc">Artist A-Z</option>
-            <option value="artist-desc">Artist Z-A</option>
-          </select>
-        </div>
-
-        <div className="mt-4 text-sm text-slate-600">
-          Showing {filteredLyrics.length} of {lyrics.length} songs
         </div>
       </div>
 
-      {/* Lyrics Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {filteredLyrics.map((lyric) => (
-          <Link
-            key={lyric.id}
-            to={`/lyrics/${lyric.title.toLowerCase().replace(/\\s+/g, '-').replace(/'/g, '')}`}
-            className="bg-white rounded-xl p-6 shadow-lg border border-slate-200 hover:shadow-xl transition-shadow group"
-          >
-            <div className="space-y-4">
-              {/* Header */}
-              <div className="flex items-start justify-between">
-                <div className="flex-1">
-                  <h3 className="text-lg font-bold text-slate-800 group-hover:text-blue-600 transition-colors line-clamp-2">
-                    {lyric.title}
-                  </h3>
-                  <p className="text-slate-600 font-medium">{lyric.artist}</p>
-                  <p className="text-sm text-slate-500">{lyric.album}</p>
-                </div>
-                <div className="flex flex-col items-end space-y-2">
-                  <span className="text-2xl" title={getLanguageName(lyric.language)}>
-                    {getLanguageFlag(lyric.language)}
-                  </span>
-                  {lyric.verified && (
-                    <div className="flex items-center space-x-1 text-green-600">
-                      <Heart className="w-3 h-3 fill-current" />
-                      <span className="text-xs font-medium">Verified</span>
-                    </div>
+      <div className="max-w-7xl mx-auto px-4 py-8">
+        {/* Search and Filters */}
+        <div className="bg-white rounded-lg shadow-sm p-6 mb-8">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
+            {/* Search */}
+            <div className="lg:col-span-2">
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                <Search className="w-4 h-4 inline mr-1" />
+                Search Lyrics
+              </label>
+              <input
+                type="text"
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                placeholder="Search by song title..."
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              />
+            </div>
+
+            {/* Artist Filter */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                <User className="w-4 h-4 inline mr-1" />
+                Artist
+              </label>
+              <select
+                value={filters.artist}
+                onChange={(e) => setFilters({...filters, artist: e.target.value})}
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              >
+                <option value="all">All Artists</option>
+                {uniqueArtists.map(artist => (
+                  <option key={artist} value={artist}>{artist}</option>
+                ))}
+              </select>
+            </div>
+
+            {/* Language Filter */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                <Globe className="w-4 h-4 inline mr-1" />
+                Language
+              </label>
+              <select
+                value={filters.language}
+                onChange={(e) => setFilters({...filters, language: e.target.value})}
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              >
+                <option value="all">All Languages</option>
+                {uniqueLanguages.map(lang => (
+                  <option key={lang} value={lang}>
+                    {lang === 'en' ? 'English' : lang === 'nl' ? 'Dutch' : lang}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            {/* Sort */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                <Filter className="w-4 h-4 inline mr-1" />
+                Sort By
+              </label>
+              <select
+                value={sortBy}
+                onChange={(e) => setSortBy(e.target.value)}
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              >
+                <option value="title-asc">Title A-Z</option>
+                <option value="title-desc">Title Z-A</option>
+                <option value="artist-asc">Artist A-Z</option>
+                <option value="wordCount-desc">Longest First</option>
+                <option value="wordCount-asc">Shortest First</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        {/* Results Count */}
+        <div className="mb-6">
+          <p className="text-gray-600">
+            Showing {filteredData?.length || 0} of {lyrics?.length || 0} songs
+          </p>
+        </div>
+
+        {/* Lyrics Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {filteredData?.map((lyric) => (
+            <div key={lyric.id} className="bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow duration-200">
+              <div className="p-6">
+                {/* Song Title */}
+                <h3 className="font-semibold text-gray-900 mb-2 text-lg">
+                  {lyric.title}
+                </h3>
+                
+                {/* Artist and Album */}
+                <div className="text-sm text-gray-600 mb-3">
+                  <p className="flex items-center mb-1">
+                    <User className="w-4 h-4 mr-1" />
+                    {lyric.artist}
+                  </p>
+                  {lyric.album && (
+                    <p className="flex items-center">
+                      <Music className="w-4 h-4 mr-1" />
+                      {lyric.album}
+                    </p>
                   )}
                 </div>
-              </div>
 
-              {/* Preview */}
-              <div className="space-y-3">
-                <p className="text-slate-600 text-sm leading-relaxed line-clamp-3 italic">
-                  "{lyric.preview}"
-                </p>
-                
-                <div className="flex items-center justify-between text-xs text-slate-500">
-                  <span>{lyric.wordCount} words</span>
-                  <div className="flex items-center space-x-1">
-                    <ArrowRight className="w-3 h-3 group-hover:translate-x-1 transition-transform" />
-                    <span>Read full lyrics</span>
+                {/* Language and Verification */}
+                <div className="flex items-center justify-between mb-4">
+                  <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                    <Globe className="w-3 h-3 mr-1" />
+                    {lyric.language === 'en' ? 'English' : lyric.language === 'nl' ? 'Dutch' : lyric.language}
+                  </span>
+                  
+                  {lyric.verified && (
+                    <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                      ✓ Verified
+                    </span>
+                  )}
+                </div>
+
+                {/* Lyrics Preview */}
+                {lyric.content && (
+                  <div className="bg-gray-50 rounded-md p-3 mb-4">
+                    <p className="text-sm text-gray-700 line-clamp-4">
+                      {lyric.content.substring(0, 200)}...
+                    </p>
                   </div>
+                )}
+
+                {/* Stats */}
+                <div className="flex items-center justify-between text-xs text-gray-500 mb-4">
+                  {lyric.wordCount && (
+                    <span>{lyric.wordCount} words</span>
+                  )}
+                  {lyric.writers && lyric.writers.length > 0 && (
+                    <span>By: {lyric.writers.join(', ')}</span>
+                  )}
+                </div>
+
+                {/* Action Buttons */}
+                <div className="flex space-x-2">
+                  <button className="flex-1 bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 transition-colors duration-200 text-sm font-medium">
+                    Read Full Lyrics
+                  </button>
+                  <button className="p-2 border border-gray-300 rounded-md hover:bg-gray-50 transition-colors duration-200">
+                    <Share2 className="w-4 h-4 text-gray-600" />
+                  </button>
                 </div>
               </div>
-
-              {/* Footer */}
-              <div className="pt-3 border-t border-slate-100">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center space-x-2">
-                    <Music className="w-4 h-4 text-slate-400" />
-                    <span className="text-sm text-slate-500">Song Lyrics</span>
-                  </div>
-                  <div className="flex items-center space-x-1 text-slate-400 group-hover:text-blue-600 transition-colors">
-                    <Heart className="w-4 h-4" />
-                    <span className="text-sm">View</span>
-                  </div>
-                </div>
-              </div>
             </div>
-          </Link>
-        ))}
-      </div>
-
-      {/* Empty State */}
-      {filteredLyrics.length === 0 && (
-        <div className="text-center py-12">
-          <Heart className="w-16 h-16 text-slate-400 mx-auto mb-4" />
-          <h3 className="text-xl font-semibold text-slate-600 mb-2">No lyrics found</h3>
-          <p className="text-slate-500">Try adjusting your search or filter criteria.</p>
+          ))}
         </div>
-      )}
 
-      {/* Language Stats */}
-      <div className="bg-gradient-to-r from-blue-50 to-purple-50 rounded-xl p-6">
-        <h3 className="text-xl font-bold text-slate-800 mb-4">Language Distribution</h3>
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-          <div className="text-center">
-            <div className="text-3xl mb-2">🇺🇸</div>
-            <div className="text-2xl font-bold text-slate-800">
-              {lyrics.filter(l => l.language === 'en').length}
-            </div>
-            <div className="text-sm text-slate-600">English Songs</div>
+        {/* No Results */}
+        {filteredData?.length === 0 && (
+          <div className="text-center py-12">
+            <Music className="w-12 h-12 text-gray-400 mx-auto mb-4" />
+            <h3 className="text-lg font-medium text-gray-900 mb-2">No lyrics found</h3>
+            <p className="text-gray-600">Try adjusting your search or filter criteria.</p>
           </div>
-          <div className="text-center">
-            <div className="text-3xl mb-2">🇳🇱</div>
-            <div className="text-2xl font-bold text-slate-800">
-              {lyrics.filter(l => l.language === 'nl').length}
-            </div>
-            <div className="text-sm text-slate-600">Dutch Songs</div>
-          </div>
-          <div className="text-center">
-            <div className="text-3xl mb-2">✅</div>
-            <div className="text-2xl font-bold text-slate-800">
-              {lyrics.filter(l => l.verified).length}
-            </div>
-            <div className="text-sm text-slate-600">Verified Lyrics</div>
-          </div>
-          <div className="text-center">
-            <div className="text-3xl mb-2">📝</div>
-            <div className="text-2xl font-bold text-slate-800">
-              {Math.round(lyrics.reduce((sum, l) => sum + l.wordCount, 0) / lyrics.length)}
-            </div>
-            <div className="text-sm text-slate-600">Avg. Words</div>
-          </div>
-        </div>
+        )}
       </div>
     </div>
   );

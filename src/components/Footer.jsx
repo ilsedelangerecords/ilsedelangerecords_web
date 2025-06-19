@@ -1,63 +1,143 @@
 import React from 'react';
-import { Heart, Facebook, ExternalLink } from 'lucide-react';
+import { Link } from 'react-router-dom';
+import { ExternalLink, Heart, Github, Mail, Globe } from 'lucide-react';
 
 const Footer = () => {
   return (
-    <footer className="bg-slate-900 text-slate-300 mt-16">
-      <div className="container mx-auto px-4 py-12">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+    <footer className="bg-gray-900 text-white">
+      <div className="max-w-7xl mx-auto px-4 py-12">
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
+          
           {/* About Section */}
-          <div className="space-y-4">
-            <h3 className="text-xl font-bold text-white flex items-center space-x-2">
-              <Heart className="w-5 h-5 text-red-500" />
-              <span>About This Site</span>
+          <div className="md:col-span-2">
+            <h3 className="text-lg font-semibold mb-4 flex items-center">
+              <Heart className="w-5 h-5 mr-2 text-red-500" />
+              Ilse DeLange Records Archive
             </h3>
-            <p className="text-slate-400 leading-relaxed">
-              The most comprehensive discography site for Ilse DeLange and The Common Linnets. 
-              Featuring detailed album information, complete lyrics, and extensive visual documentation 
-              of one of the Netherlands' most beloved country artists.
+            <p className="text-gray-300 mb-4 leading-relaxed">
+              A fan-maintained archive dedicated to preserving the musical legacy of 
+              Ilse DeLange and The Common Linnets. This community-driven project 
+              celebrates their artistry and makes their discography accessible to fans worldwide.
             </p>
+            <div className="flex items-center space-x-4">
+              <a
+                href="https://github.com/ilsedelangerecords/ilsedelangerecords_web"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center text-gray-300 hover:text-white transition-colors"
+              >
+                <Github className="w-5 h-5 mr-2" />
+                GitHub
+              </a>
+              <a
+                href="https://github.com/ilsedelangerecords/ilsedelangerecords_web/edit/main/src/components/Footer.jsx"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center text-gray-300 hover:text-white transition-colors"
+              >
+                <ExternalLink className="w-4 h-4 mr-2" />
+                Edit Footer
+              </a>
+            </div>
           </div>
 
           {/* Quick Links */}
-          <div className="space-y-4">
-            <h3 className="text-xl font-bold text-white">Quick Links</h3>
-            <div className="grid grid-cols-2 gap-2">
-              <a href="/albums" className="text-slate-400 hover:text-white transition-colors">Albums</a>
-              <a href="/lyrics" className="text-slate-400 hover:text-white transition-colors">Lyrics</a>
-              <a href="/artist/ilse-delange" className="text-slate-400 hover:text-white transition-colors">Ilse DeLange</a>
-              <a href="/artist/the-common-linnets" className="text-slate-400 hover:text-white transition-colors">The Common Linnets</a>
-            </div>
+          <div>
+            <h3 className="text-lg font-semibold mb-4">Explore</h3>
+            <ul className="space-y-2">
+              <li>
+                <Link to="/albums" className="text-gray-300 hover:text-white transition-colors">
+                  Albums & Singles
+                </Link>
+              </li>
+              <li>
+                <Link to="/lyrics" className="text-gray-300 hover:text-white transition-colors">
+                  Song Lyrics
+                </Link>
+              </li>
+              <li>
+                <Link to="/artist/ilse-delange" className="text-gray-300 hover:text-white transition-colors">
+                  Ilse DeLange
+                </Link>
+              </li>
+              <li>
+                <Link to="/artist/the-common-linnets" className="text-gray-300 hover:text-white transition-colors">
+                  The Common Linnets
+                </Link>
+              </li>
+            </ul>
           </div>
 
-          {/* Connect Section */}
-          <div className="space-y-4">
-            <h3 className="text-xl font-bold text-white">Connect</h3>
-            <div className="space-y-3">
-              <a 
-                href="http://www.facebook.com/ilsedelangerecords" 
-                target="_blank" 
-                rel="noopener noreferrer"
-                className="flex items-center space-x-3 text-slate-400 hover:text-white transition-colors group"
-              >
-                <Facebook className="w-5 h-5 group-hover:text-blue-500" />
-                <span>Follow on Facebook</span>
-                <ExternalLink className="w-4 h-4" />
-              </a>
-              <p className="text-sm text-slate-500">
-                Stay updated with the latest releases and news
-              </p>
-            </div>
+          {/* Community */}
+          <div>
+            <h3 className="text-lg font-semibold mb-4">Community</h3>
+            <ul className="space-y-2">
+              <li>
+                <Link to="/contribute" className="text-gray-300 hover:text-white transition-colors">
+                  Contribute
+                </Link>
+              </li>
+              <li>
+                <a
+                  href="https://github.com/ilsedelangerecords/ilsedelangerecords_web/issues"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-gray-300 hover:text-white transition-colors"
+                >
+                  Report Issues
+                </a>
+              </li>
+              <li>
+                <a
+                  href="https://github.com/ilsedelangerecords/ilsedelangerecords_web/discussions"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-gray-300 hover:text-white transition-colors"
+                >
+                  Discussions
+                </a>
+              </li>
+              <li>
+                <Link to="/disclaimer" className="text-gray-300 hover:text-white transition-colors">
+                  Disclaimer
+                </Link>
+              </li>
+            </ul>
           </div>
         </div>
 
-        {/* Bottom Bar */}
-        <div className="border-t border-slate-800 mt-8 pt-8 flex flex-col md:flex-row justify-between items-center space-y-4 md:space-y-0">
-          <div className="text-sm text-slate-500">
-            © 2025 Ilse DeLange Records Discography. Fan-maintained archive.
+        {/* Bottom Section */}
+        <div className="border-t border-gray-800 mt-8 pt-8">
+          <div className="flex flex-col md:flex-row items-center justify-between">
+            <div className="text-gray-400 text-sm mb-4 md:mb-0">
+              <p className="mb-1">
+                © 2025 Ilse DeLange Records Archive. Fan-maintained project.
+              </p>
+              <p>
+                All music and lyrics remain the property of their respective copyright holders.
+              </p>
+            </div>
+            
+            <div className="flex items-center space-x-4 text-sm">
+              <span className="text-gray-400">Built with</span>
+              <span className="text-red-500">❤️</span>
+              <span className="text-gray-400">by fans, for fans</span>
+            </div>
           </div>
-          <div className="text-sm text-slate-500">
-            Migrated with ❤️ to modern web technologies
+          
+          {/* Technical Info */}
+          <div className="mt-4 pt-4 border-t border-gray-800 text-center text-xs text-gray-500">
+            <p>
+              Open source project • React + TypeScript • 
+              <a 
+                href="https://github.com/ilsedelangerecords/ilsedelangerecords_web" 
+                className="ml-1 text-blue-400 hover:text-blue-300"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                View source code
+              </a>
+            </p>
           </div>
         </div>
       </div>
