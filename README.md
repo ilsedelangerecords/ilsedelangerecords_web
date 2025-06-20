@@ -50,6 +50,9 @@ pnpm run dev
 # Build for production
 pnpm run build
 
+# Build with content validation
+pnpm run build:validate
+
 # Preview production build
 pnpm run preview
 ```
