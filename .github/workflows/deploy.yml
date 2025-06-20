@@ -75,14 +75,22 @@ jobs:
       - name: 📦 Copy content files to dist
         run: |
           mkdir -p dist/content
-          cp -r public/content/* dist/content/
+          if [ -d "public/content" ]; then
+            cp -r public/content/* dist/content/
+          else
+            echo "⚠️ No content to copy"
+          fi
 
       - name: "🔍 Debug: List public directory contents before copy"
         run: |
           echo "Listing public/ directory:"
-          ls -F public/
+          ls -F public/ || echo "No public directory"
           echo "Listing public/content/ directory:"
-          ls -F public/content/
+          if [ -d "public/content" ]; then
+            ls -F public/content/
+          else
+            echo "No content directory"
+          fi
 
       - name: 🔍 List dist directory contents
         run: ls -R dist/
