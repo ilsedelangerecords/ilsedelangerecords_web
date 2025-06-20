@@ -72,25 +72,28 @@ jobs:
       - name: 🏗️ Build application
         run: pnpm run build
 
+      - name: 🔍 List dist directory contents
+        run: ls -R dist/
+
       - name: ✅ Validate content files exist
         run: |
           echo "🔍 Checking content files..."
-          if [ -f "dist/albums.json" ]; then
-            ALBUM_COUNT=$(cat dist/albums.json | jq 'length // (. | keys | length)')
+          if [ -f "dist/content/albums.json" ]; then
+            ALBUM_COUNT=$(cat dist/content/albums.json | jq 'length // (. | keys | length)')
             echo "📀 Albums found: $ALBUM_COUNT"
           else
             echo "❌ albums.json not found in dist/content"
             exit 1
           fi
-          if [ -f "dist/lyrics.json" ]; then
-            LYRICS_COUNT=$(cat dist/lyrics.json | jq 'length // (. | keys | length)')
+          if [ -f "dist/content/lyrics.json" ]; then
+            LYRICS_COUNT=$(cat dist/content/lyrics.json | jq 'length // (. | keys | length)')
             echo "🎵 Lyrics found: $LYRICS_COUNT"
           else
             echo "❌ lyrics.json not found in dist/content"
             exit 1
           fi
-          if [ -f "dist/artists.json" ]; then
-            ARTISTS_COUNT=$(cat dist/artists.json | jq 'length // (. | keys | length)')
+          if [ -f "dist/content/artists.json" ]; then
+            ARTISTS_COUNT=$(cat dist/content/artists.json | jq 'length // (. | keys | length)')
             echo "👤 Artists found: $ARTISTS_COUNT"
           else
             echo "❌ artists.json not found in dist/content"
