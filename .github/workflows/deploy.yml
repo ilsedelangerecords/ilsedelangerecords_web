@@ -67,6 +67,11 @@ jobs:
       - name: 📥 Install dependencies
         run: pnpm install --frozen-lockfile
 
+      - name: 📦 Copy content files to public directory
+        run: |
+          mkdir -p public/content
+          cp -r migration_data/content/* public/content/
+
       - name: 🏗️ Build application
         run: pnpm run build
 
