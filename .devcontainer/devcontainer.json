@@ -1,0 +1,120 @@
+{
+  "name": "Ilse DeLange Records Web Development",
+  "image": "mcr.microsoft.com/devcontainers/typescript-node:1-18-bullseye",
+  
+  "features": {
+    "ghcr.io/devcontainers/features/git:1": {},
+    "ghcr.io/devcontainers/features/github-cli:1": {},
+    "ghcr.io/devcontainers/features/node:1": {
+      "nodeGypDependencies": true,
+      "version": "18"
+    }
+  },
+
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        // JavaScript/TypeScript Development
+        "ms-vscode.vscode-typescript-next",
+        "bradlc.vscode-tailwindcss",
+        "formulahendry.auto-rename-tag",
+        "christian-kohler.path-intellisense",
+        
+        // React Development
+        "ms-vscode.vscode-react-native",
+        "dsznajder.es7-react-js-snippets",
+        
+        // JSON & YAML
+        "ms-vscode.vscode-json",
+        "redhat.vscode-yaml",
+        
+        // Git & GitHub
+        "github.vscode-pull-request-github",
+        "github.copilot",
+        "github.copilot-chat",
+        
+        // Development Tools
+        "ms-vscode.vscode-eslint",
+        "esbenp.prettier-vscode",
+        "ms-vscode.vscode-npm-script",
+        
+        // Markdown & Documentation
+        "yzhang.markdown-all-in-one",
+        "davidanson.vscode-markdownlint",
+        
+        // Utilities
+        "ms-vscode.vscode-thunder-client",
+        "ms-vscode.live-server"
+      ],
+      
+      "settings": {
+        "terminal.integrated.defaultProfile.linux": "bash",
+        "terminal.integrated.profiles.linux": {
+          "bash": {
+            "path": "/bin/bash"
+          }
+        },
+          // Editor settings
+        "editor.formatOnSave": true,
+        "editor.codeActionsOnSave": {
+          "source.fixAll.eslint": "explicit"
+        },
+        "editor.tabSize": 2,
+        "editor.insertSpaces": true,
+        
+        // File associations
+        "files.associations": {
+          "*.json": "jsonc"
+        },
+        
+        // Tailwind CSS
+        "tailwindCSS.includeLanguages": {
+          "javascript": "javascript",
+          "html": "HTML"
+        },
+        "tailwindCSS.experimental.classRegex": [
+          ["clsx\\(([^)]*)\\)", "(?:'|\"|`)([^']*)(?:'|\"|`)"],
+          ["classnames\\(([^)]*)\\)", "'([^']*)'"],
+          ["cn\\(([^)]*)\\)", "(?:'|\"|`)([^']*)(?:'|\"|`)"]
+        ],
+        
+        // npm/pnpm
+        "npm.packageManager": "pnpm",
+        "typescript.preferences.npmScriptRunner": "pnpm",
+        
+        // Git
+        "git.autofetch": true,
+        "git.enableCommitSigning": false
+      }
+    }
+  },
+
+  "forwardPorts": [
+    3000,  // Vite dev server
+    5173,  // Vite alternative port
+    4173   // Vite preview
+  ],
+  
+  "portsAttributes": {
+    "3000": {
+      "label": "Development Server",
+      "onAutoForward": "notify"
+    },
+    "5173": {
+      "label": "Vite Dev Server",
+      "onAutoForward": "notify"
+    },
+    "4173": {
+      "label": "Vite Preview",
+      "onAutoForward": "ignore"
+    }
+  },
+
+  "postCreateCommand": "bash .devcontainer/setup.sh",
+  
+  "remoteUser": "node",
+  
+  "mounts": [
+    "source=ilsedelange-node_modules,target=${containerWorkspaceFolder}/node_modules,type=volume"
+  ]
+}

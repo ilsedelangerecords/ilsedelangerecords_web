@@ -39,7 +39,17 @@ dist/
 - Node.js 18+
 - pnpm (specified in package.json)
 
-### Setup
+### Quick Start with GitHub Codespaces
+
+The fastest way to start developing:
+
+1. **Click "Code" → "Create codespace on main"** in GitHub
+2. **Wait for automatic setup** (dependencies install automatically)
+3. **Run `pnpm run dev`** and start coding!
+
+See [.devcontainer/README.md](.devcontainer/README.md) for full details.
+
+### Local Development Setup
 ```bash
 # Install dependencies
 pnpm install
