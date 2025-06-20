@@ -86,7 +86,7 @@ jobs:
           else
             echo "❌ lyrics.json not found in dist/content"
             exit 1
-          Sfi
+          fi
           if [ -f "dist/content/artists.json" ]; then
             ARTISTS_COUNT=$(cat dist/content/artists.json | jq 'length // (. | keys | length)')
             echo "👤 Artists found: $ARTISTS_COUNT"

@@ -13,14 +13,11 @@ export default defineConfig({
   },
   build: {
     // Ensure all assets are included in the build
-    assetsInclude: ['**/*.json', '**/*.png', '**/*.jpg', '**/*.jpeg', '**/*.gif', '**/*.svg', '**/*.webp', '**/*.ico'],
+    assetsInclude: ['**/*.png', '**/*.jpg', '**/*.jpeg', '**/*.gif', '**/*.svg', '**/*.webp', '**/*.ico'],
     rollupOptions: {
       output: {
         // Ensure content files are copied to the output
         assetFileNames: (assetInfo) => {
-          if (assetInfo.name?.endsWith('.json')) {
-            return 'content/[name][extname]';
-          }
           if (assetInfo.name?.match(/\.(jpg|jpeg|png|svg|gif|webp|ico)$/)) {
             return 'images/[name][extname]';
           }
