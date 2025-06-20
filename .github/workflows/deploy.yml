@@ -72,6 +72,11 @@ jobs:
       - name: 🏗️ Build application
         run: pnpm run build
 
+      - name: 📦 Copy content files to dist
+        run: |
+          mkdir -p dist/content
+          cp -r public/content/* dist/content/
+
       - name: 🔍 List dist directory contents
         run: ls -R dist/
 
