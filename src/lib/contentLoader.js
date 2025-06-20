@@ -3,23 +3,26 @@ class ContentLoader {
   constructor() {
     this.cache = new Map();
   }
-
   async loadContent(type) {
-    if (this.cache.has(type)) {
-      return this.cache.get(type);
+    if (!type || typeof type !== 'string' || type.trim() === '') {
+      console.warn('loadContent called with invalid type:', type);
+      return [];
     }
-
-    try {
-      console.log(`Loading content type: ${type}`);
+    
+    const trimmedType = type.trim();
+    if (this.cache.has(trimmedType)) {
+      return this.cache.get(trimmedType);
+    }    try {
+      console.log(`Loading content type: ${trimmedType}`);
       
       // Use relative path for static files
-      const response = await fetch(`./content/${type}.json`);
+      const response = await fetch(`./content/${trimmedType}.json`);
       if (!response.ok) {
-        throw new Error(`Failed to load ${type}: ${response.status}`);
+        throw new Error(`Failed to load ${trimmedType}: ${response.status}`);
       }
       
       const data = await response.json();
-      console.log(`Loaded ${type}:`, Object.keys(data || {}).length, 'items');
+      console.log(`Loaded ${trimmedType}:`, Object.keys(data || {}).length, 'items');
       
       // Convert object to array if needed
       let processedData = data;
@@ -27,11 +30,11 @@ class ContentLoader {
         processedData = Object.values(data);
       }
       
-      console.log(`Formatted ${processedData?.length || 0} ${type}`);
-      this.cache.set(type, processedData || []);
+      console.log(`Formatted ${processedData?.length || 0} ${trimmedType}`);
+      this.cache.set(trimmedType, processedData || []);
       return processedData || [];
     } catch (error) {
-      console.error(`Error loading ${type}:`, error);
+      console.error(`Error loading ${trimmedType}:`, error);
       return [];
     }
   }
@@ -55,6 +58,14 @@ export function useContent(type) {
   const [error, setError] = useState(null);
 
   useEffect(() => {
+    if (!type || typeof type !== 'string' || type.trim() === '') {
+      console.warn('useContent called with invalid type:', type);
+      setData([]);
+      setLoading(false);
+      setError('Invalid content type');
+      return;
+    }
+
     async function loadData() {
       try {
         setLoading(true);
@@ -90,8 +101,9 @@ export function useContentSearch(type, searchTerm = '', filters = {}) {
     let filtered = [...data];
 
     // Apply search term
-    if (searchTerm) {
-      const term = searchTerm.toLowerCase();
+    const safeSearchTerm = typeof searchTerm === 'string' ? searchTerm : '';
+    if (safeSearchTerm) {
+      const term = safeSearchTerm.toLowerCase();
       filtered = filtered.filter(item => {
         const searchableText = [
           item.title,

@@ -6,19 +6,34 @@ const LyricsPage = () => {
   const { data: lyrics, loading, error } = useContent('lyrics');
   const { data: artists } = useContent('artists');
   
-  const {
-    filteredData,
-    searchTerm,
-    setSearchTerm,
-    filters,
-    setFilters,
-    sortBy,
-    setSortBy
-  } = useContentSearch(lyrics, { artist: 'all', language: 'all', verified: 'all' });
+  const [searchTerm, setSearchTerm] = useState('');
+  const [filters, setFilters] = useState({ artist: 'all', language: 'all', verified: 'all' });
+  const [sortBy, setSortBy] = useState('title');
 
-  // Get unique values for filters
-  const uniqueArtists = lyrics ? [...new Set(lyrics.map(lyric => lyric.artist))] : [];
-  const uniqueLanguages = lyrics ? [...new Set(lyrics.map(lyric => lyric.language))] : [];
+  // Get unique values for filters - with safer null checks
+  const uniqueArtists = (lyrics && Array.isArray(lyrics)) ? 
+    [...new Set(lyrics.filter(lyric => lyric?.artist).map(lyric => lyric.artist))] : [];
+  const uniqueLanguages = (lyrics && Array.isArray(lyrics)) ? 
+    [...new Set(lyrics.filter(lyric => lyric?.language).map(lyric => lyric.language))] : [];
+
+  // Apply filtering and searching manually - with safer null checks
+  const filteredData = (lyrics && Array.isArray(lyrics)) ? lyrics.filter(lyric => {
+    // Ensure lyric exists and has basic properties
+    if (!lyric) return false;
+    
+    const matchesSearch = !searchTerm || 
+      (lyric.title && lyric.title.toLowerCase().includes(searchTerm.toLowerCase())) ||
+      (lyric.artist && lyric.artist.toLowerCase().includes(searchTerm.toLowerCase())) ||
+      (lyric.album && lyric.album.toLowerCase().includes(searchTerm.toLowerCase()));
+    
+    const matchesArtist = filters.artist === 'all' || (lyric.artist && lyric.artist === filters.artist);
+    const matchesLanguage = filters.language === 'all' || (lyric.language && lyric.language === filters.language);
+    const matchesVerified = filters.verified === 'all' || 
+      (filters.verified === 'verified' && lyric.verified === true) ||
+      (filters.verified === 'unverified' && lyric.verified !== true);
+    
+    return matchesSearch && matchesArtist && matchesLanguage && matchesVerified;
+  }) : [];
 
   if (loading) {
     return (

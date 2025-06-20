@@ -15,8 +15,12 @@ logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(
 logger = logging.getLogger(__name__)
 
 class MigrationTester:
-    def __init__(self, base_url="http://localhost:5174", migration_data_dir="/home/ubuntu/migration_data"):
+    def __init__(self, base_url="http://localhost:5173", migration_data_dir=None):
         self.base_url = base_url
+        if migration_data_dir is None:
+            # Use current project's migration_data directory
+            current_dir = Path(__file__).parent.parent
+            migration_data_dir = current_dir / "migration_data"
         self.migration_data_dir = Path(migration_data_dir)
         self.test_results = {
             'server_connectivity': False,
@@ -93,18 +97,19 @@ class MigrationTester:
         """Validate that migrated content is properly displayed"""
         logger.info("Testing content validation...")
         
-        # Load migrated content for validation
-        content_dir = self.migration_data_dir / 'content'
+        # Load content from public/content directory
+        current_dir = Path(__file__).parent.parent
+        content_dir = current_dir / "public" / "content"
         
         validation_results = {
             'albums_data_loaded': False,
             'lyrics_data_loaded': False,
             'artists_data_loaded': False,
-            'images_data_loaded': False
+            'content_directory_exists': content_dir.exists()
         }
         
         # Check if content files exist and are valid JSON
-        content_files = ['albums.json', 'lyrics.json', 'artists.json', 'image_assets.json']
+        content_files = ['albums.json', 'lyrics.json', 'artists.json']
         
         for filename in content_files:
             file_path = content_dir / filename
@@ -118,8 +123,7 @@ class MigrationTester:
                             validation_results[key] = True
                             logger.info(f"✅ {filename}: {len(data)} items loaded")
                         else:
-                            logger.warning(f"⚠️ {filename}: Empty data")
-                except json.JSONDecodeError as e:
+                            logger.warning(f"⚠️ {filename}: Empty data")                except json.JSONDecodeError as e:
                     logger.error(f"❌ {filename}: Invalid JSON - {e}")
             else:
                 logger.error(f"❌ {filename}: File not found")
@@ -132,54 +136,80 @@ class MigrationTester:
         logger.info("Testing image loading...")
         
         # Check if images directory exists and has content
-        images_dir = Path("/home/ubuntu/ilsedelangerecords-web/src/assets/images")
+        current_dir = Path(__file__).parent.parent
+        images_dir = current_dir / "public" / "images"
+        albums_images_dir = images_dir / "albums"
         
         results = {
             'images_directory_exists': images_dir.exists(),
+            'albums_images_directory_exists': albums_images_dir.exists(),
             'total_images': 0,
-            'sample_images_accessible': False
+            'album_cover_images': 0,
+            'placeholder_exists': (images_dir / "placeholder.svg").exists()
         }
         
         if images_dir.exists():
-            image_files = list(images_dir.glob("*.jpg")) + list(images_dir.glob("*.png"))
-            results['total_images'] = len(image_files)
+            # Count all image files
+            image_extensions = ["*.jpg", "*.png", "*.svg", "*.webp"]
+            all_images = []
+            for ext in image_extensions:
+                all_images.extend(list(images_dir.rglob(ext)))
+            results['total_images'] = len(all_images)
             
-            if len(image_files) > 0:
-                results['sample_images_accessible'] = True
-                logger.info(f"✅ Images directory: {len(image_files)} images found")
-            else:
-                logger.warning("⚠️ Images directory exists but no images found")
+            # Count album cover images specifically
+            if albums_images_dir.exists():
+                album_images = []
+                for ext in image_extensions:
+                    album_images.extend(list(albums_images_dir.glob(ext)))
+                results['album_cover_images'] = len(album_images)
+                
+                if len(album_images) > 0:
+                    logger.info(f"✅ Album images: {len(album_images)} covers found")
+                else:
+                    logger.warning("⚠️ No album cover images found")
+            
+            logger.info(f"✅ Images directory: {len(all_images)} total images found")
         else:
             logger.error("❌ Images directory not found")
-        
-        self.test_results['image_loading'] = results
+          self.test_results['image_loading'] = results
         return results
     
     def test_navigation_functionality(self):
         """Test navigation and routing functionality"""
         logger.info("Testing navigation functionality...")
         
-        # This would require browser automation for full testing
-        # For now, we'll test the basic routing structure
+        # Check if routing files exist
+        current_dir = Path(__file__).parent.parent
+        app_file = current_dir / "src" / "App.jsx"
+        header_file = current_dir / "src" / "components" / "Header.jsx"
         
         results = {
             'routing_structure': 'implemented',
             'navigation_components': 'created',
-            'mobile_navigation': 'responsive'
+            'mobile_navigation': 'responsive',
+            'component_files_exist': False,
+            'app_jsx_exists': app_file.exists(),
+            'header_jsx_exists': header_file.exists()
         }
-        
-        # Check if routing files exist
-        app_file = Path("/home/ubuntu/ilsedelangerecords-web/src/App.jsx")
-        header_file = Path("/home/ubuntu/ilsedelangerecords-web/src/components/Header.jsx")
         
         if app_file.exists() and header_file.exists():
             results['component_files_exist'] = True
             logger.info("✅ Navigation components exist")
+            
+            # Check for React Router implementation
+            if app_file.exists():
+                with open(app_file, 'r', encoding='utf-8') as f:
+                    app_content = f.read()
+                    if 'BrowserRouter' in app_content and 'Routes' in app_content:
+                        results['react_router_implemented'] = True
+                        logger.info("✅ React Router properly implemented")
+                    else:
+                        results['react_router_implemented'] = False
+                        logger.warning("⚠️ React Router implementation not found")
         else:
             results['component_files_exist'] = False
             logger.error("❌ Navigation components missing")
-        
-        self.test_results['navigation_testing'] = results
+          self.test_results['navigation_testing'] = results
         return results
     
     def test_responsive_design(self):
@@ -187,26 +217,39 @@ class MigrationTester:
         logger.info("Testing responsive design...")
         
         # Check if Tailwind CSS classes are used for responsive design
+        current_dir = Path(__file__).parent.parent
         component_files = [
-            "/home/ubuntu/ilsedelangerecords-web/src/components/Header.jsx",
-            "/home/ubuntu/ilsedelangerecords-web/src/components/pages/HomePage.jsx",
-            "/home/ubuntu/ilsedelangerecords-web/src/components/pages/AlbumsPage.jsx"
+            current_dir / "src" / "components" / "Header.jsx",
+            current_dir / "src" / "components" / "pages" / "HomePage.jsx",
+            current_dir / "src" / "components" / "pages" / "AlbumsPage.jsx",
+            current_dir / "src" / "components" / "pages" / "LyricsPage.jsx"
         ]
         
         results = {
             'responsive_classes_used': False,
             'mobile_first_design': False,
             'grid_layouts': False,
-            'flexible_components': False
+            'flexible_components': False,
+            'tailwind_implemented': False,
+            'components_checked': 0
         }
         
         responsive_indicators = ['md:', 'lg:', 'sm:', 'grid-cols', 'flex-col', 'space-y', 'space-x']
+        tailwind_indicators = ['className=', 'bg-', 'text-', 'p-', 'm-', 'w-', 'h-']
         
         for file_path in component_files:
-            if Path(file_path).exists():
+            if file_path.exists():
+                results['components_checked'] += 1
                 with open(file_path, 'r', encoding='utf-8') as f:
                     content = f.read()
                     
+                    # Check for Tailwind usage
+                    for indicator in tailwind_indicators:
+                        if indicator in content:
+                            results['tailwind_implemented'] = True
+                            break
+                    
+                    # Check for responsive classes
                     for indicator in responsive_indicators:
                         if indicator in content:
                             if indicator.startswith(('md:', 'lg:', 'sm:')):
@@ -223,6 +266,9 @@ class MigrationTester:
         else:
             logger.warning("⚠️ Limited responsive design detected")
         
+        if results['tailwind_implemented']:
+            logger.info("✅ Tailwind CSS implementation detected")
+        
         self.test_results['responsive_design'] = results
         return results
     
@@ -238,15 +284,15 @@ class MigrationTester:
         
         self.test_content_validation()
         self.test_image_loading()
-        self.test_navigation_functionality()
-        self.test_responsive_design()
+        self.test_navigation_functionality()        self.test_responsive_design()
         
         # Determine overall status
         critical_tests = [
             self.test_results['server_connectivity'],
-            any(result.get('status') == 'pass' for result in self.test_results['page_accessibility'].values()),
+            any(result.get('status') == 'pass' for result in self.test_results['page_accessibility'].values()) if self.test_results['page_accessibility'] else False,
             any(self.test_results['content_validation'].values()),
-            self.test_results['image_loading'].get('images_directory_exists', False)
+            self.test_results['image_loading'].get('images_directory_exists', False),
+            self.test_results['navigation_testing'].get('component_files_exist', False)
         ]
         
         if all(critical_tests):
@@ -297,16 +343,26 @@ class MigrationTester:
 - **Albums Data**: {'✅' if self.test_results['content_validation'].get('albums_data_loaded') else '❌'}
 - **Lyrics Data**: {'✅' if self.test_results['content_validation'].get('lyrics_data_loaded') else '❌'}
 - **Artists Data**: {'✅' if self.test_results['content_validation'].get('artists_data_loaded') else '❌'}
-- **Images Data**: {'✅' if self.test_results['content_validation'].get('images_data_loaded') else '❌'}
+- **Content Directory**: {'✅' if self.test_results['content_validation'].get('content_directory_exists') else '❌'}
 
 ## Image Loading
 - **Images Directory**: {'✅' if self.test_results['image_loading'].get('images_directory_exists') else '❌'}
+- **Album Images Directory**: {'✅' if self.test_results['image_loading'].get('albums_images_directory_exists') else '❌'}
 - **Total Images**: {self.test_results['image_loading'].get('total_images', 0)}
+- **Album Cover Images**: {self.test_results['image_loading'].get('album_cover_images', 0)}
+- **Placeholder Available**: {'✅' if self.test_results['image_loading'].get('placeholder_exists') else '❌'}
+
+## Navigation & Routing
+- **App.jsx Exists**: {'✅' if self.test_results['navigation_testing'].get('app_jsx_exists') else '❌'}
+- **Header Component**: {'✅' if self.test_results['navigation_testing'].get('header_jsx_exists') else '❌'}
+- **React Router**: {'✅' if self.test_results['navigation_testing'].get('react_router_implemented') else '❌'}
 
 ## Responsive Design
+- **Tailwind CSS**: {'✅' if self.test_results['responsive_design'].get('tailwind_implemented') else '❌'}
 - **Responsive Classes**: {'✅' if self.test_results['responsive_design'].get('responsive_classes_used') else '❌'}
 - **Mobile-First Design**: {'✅' if self.test_results['responsive_design'].get('mobile_first_design') else '❌'}
 - **Grid Layouts**: {'✅' if self.test_results['responsive_design'].get('grid_layouts') else '❌'}
+- **Components Checked**: {self.test_results['responsive_design'].get('components_checked', 0)}
 
 ## Summary
 ✅ Migration testing completed

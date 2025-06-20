@@ -1,25 +1,38 @@
 import React, { useState, useEffect } from 'react';
 import { useContent, useContentSearch } from '../../lib/contentLoader';
 import { Search, Filter, Calendar, User, Music, ExternalLink } from 'lucide-react';
+import OptimizedImage from '../OptimizedImage';
 
 const AlbumsPage = () => {
   const { data: albums, loading, error } = useContent('albums');
   const { data: artists } = useContent('artists');
   
-  const {
-    filteredData,
-    searchTerm,
-    setSearchTerm,
-    filters,
-    setFilters,
-    sortBy,
-    setSortBy
-  } = useContentSearch(albums, { artist: 'all', year: 'all', type: 'all' });
-
-  // Get unique values for filters
-  const uniqueArtists = albums ? [...new Set(albums.map(album => album.artist))] : [];
-  const uniqueYears = albums ? [...new Set(albums.map(album => album.year))].sort((a, b) => b - a) : [];
-  const uniqueTypes = albums ? [...new Set(albums.map(album => album.type))] : [];
+  const [searchTerm, setSearchTerm] = useState('');
+  const [filters, setFilters] = useState({ artist: 'all', year: 'all', type: 'all' });
+  const [sortBy, setSortBy] = useState('title');
+    // Get unique values for filters - with safer null checks
+  const uniqueArtists = (albums && Array.isArray(albums)) ? 
+    [...new Set(albums.filter(album => album?.artist).map(album => album.artist))] : [];
+  const uniqueYears = (albums && Array.isArray(albums)) ? 
+    [...new Set(albums.filter(album => album?.year).map(album => album.year))].sort((a, b) => b - a) : [];
+  const uniqueTypes = (albums && Array.isArray(albums)) ? 
+    [...new Set(albums.filter(album => album?.type).map(album => album.type))] : [];
+    // Apply filtering and searching manually - with safer null checks
+  const filteredData = (albums && Array.isArray(albums)) ? albums.filter(album => {
+    // Ensure album exists and has basic properties
+    if (!album) return false;
+    
+    const matchesSearch = !searchTerm || 
+      (album.title && album.title.toLowerCase().includes(searchTerm.toLowerCase())) ||
+      (album.artist && album.artist.toLowerCase().includes(searchTerm.toLowerCase())) ||
+      (album.description && album.description.toLowerCase().includes(searchTerm.toLowerCase()));
+    
+    const matchesArtist = filters.artist === 'all' || (album.artist && album.artist === filters.artist);
+    const matchesYear = filters.year === 'all' || (album.year && album.year === parseInt(filters.year));
+    const matchesType = filters.type === 'all' || (album.type && album.type === filters.type);
+    
+    return matchesSearch && matchesArtist && matchesYear && matchesType;
+  }) : [];
 
   if (loading) {
     return (
@@ -159,16 +172,13 @@ const AlbumsPage = () => {
         {/* Albums Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
           {filteredData?.map((album) => (
-            <div key={album.id} className="bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow duration-200">
-              {/* Album Cover */}
+            <div key={album.id} className="bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow duration-200">              {/* Album Cover */}
               <div className="aspect-square bg-gray-200 rounded-t-lg overflow-hidden">
-                <img
-                  src={album.coverArt || '/images/placeholder.jpg'}
+                <OptimizedImage
+                  src={album.coverArt}
                   alt={`${album.title} cover art`}
                   className="w-full h-full object-cover hover:scale-105 transition-transform duration-200"
-                  onError={(e) => {
-                    e.target.src = '/images/placeholder.jpg';
-                  }}
+                  fallback="/images/placeholder.svg"
                 />
               </div>
 

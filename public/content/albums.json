@@ -9,9 +9,8 @@
     "type": "studio",
     "releaseDate": "1998-05-15",
     "recordLabel": "Warner Music",
-    "catalogNumber": "WM001",
-    "description": "Ilse DeLange's debut studio album 'World of Hurt' marked the beginning of her international career. The album showcases her powerful vocals and country-influenced sound that would become her signature style.",
-    "coverArt": "/images/albums/world-of-hurt-cover.jpg",
+    "catalogNumber": "WM001",    "description": "Ilse DeLange's debut studio album 'World of Hurt' marked the beginning of her international career. The album showcases her powerful vocals and country-influenced sound that would become her signature style.",
+    "coverArt": "/images/albums/world-of-hurt-cover.svg",
     "trackCount": 12,
     "duration": "45:32",
     "chartPerformance": [
@@ -69,9 +68,8 @@
     "type": "studio",
     "releaseDate": "1999-10-18",
     "recordLabel": "Warner Music",
-    "catalogNumber": "WM002",
-    "description": "The follow-up to her successful debut, 'Dear John' showcases Ilse's evolution as a songwriter and performer.",
-    "coverArt": "/images/albums/dear-john-cover.jpg",
+    "catalogNumber": "WM002",    "description": "The follow-up to her successful debut, 'Dear John' showcases Ilse's evolution as a songwriter and performer.",
+    "coverArt": "/images/albums/dear-john-cover.svg",
     "trackCount": 11,
     "duration": "42:15",
     "chartPerformance": [

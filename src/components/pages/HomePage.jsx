@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useContent } from '../../lib/contentLoader';
 import { Music, Users, Calendar, Award, ExternalLink, Globe, Heart, Play } from 'lucide-react';
+import OptimizedImage from '../OptimizedImage';
 
 const HomePage = () => {
   const { data: albums, loading: albumsLoading } = useContent('albums');
@@ -106,15 +107,12 @@ const HomePage = () => {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
             {mainArtists.map((artist) => (
               <div key={artist.id} className="bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-xl transition-shadow duration-300">
-                <div className="md:flex">
-                  <div className="md:w-1/3">
-                    <img
-                      src={artist.profileImage || '/images/placeholder.jpg'}
+                <div className="md:flex">                  <div className="md:w-1/3">
+                    <OptimizedImage
+                      src={artist.profileImage}
                       alt={artist.name}
                       className="w-full h-48 md:h-full object-cover"
-                      onError={(e) => {
-                        e.target.src = '/images/placeholder.jpg';
-                      }}
+                      fallback="/images/placeholder.svg"
                     />
                   </div>
                   <div className="md:w-2/3 p-6">
@@ -176,15 +174,12 @@ const HomePage = () => {
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
             {featuredAlbums.map((album) => (
-              <div key={album.id} className="bg-white rounded-lg shadow-lg overflow-hidden hover:shadow-xl transition-shadow duration-300">
-                <div className="aspect-square bg-gray-200 overflow-hidden">
-                  <img
-                    src={album.coverArt || '/images/placeholder.jpg'}
+              <div key={album.id} className="bg-white rounded-lg shadow-lg overflow-hidden hover:shadow-xl transition-shadow duration-300">                <div className="aspect-square bg-gray-200 overflow-hidden">
+                  <OptimizedImage
+                    src={album.coverArt}
                     alt={`${album.title} cover art`}
                     className="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
-                    onError={(e) => {
-                      e.target.src = '/images/placeholder.jpg';
-                    }}
+                    fallback="/images/placeholder.svg"
                   />
                 </div>
                 <div className="p-6">
