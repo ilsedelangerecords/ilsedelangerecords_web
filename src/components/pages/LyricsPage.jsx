@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import { useContent, useContentSearch } from '../../lib/contentLoader';
 import { Search, Filter, Music, User, Globe, ExternalLink, Copy, Share2 } from 'lucide-react';
 
@@ -208,14 +209,12 @@ const LyricsPage = () => {
                       ✓ Verified
                     </span>
                   )}
-                </div>
-
-                {/* Lyrics Preview */}
+                </div>                {/* Full Lyrics Content */}
                 {lyric.content && (
-                  <div className="bg-gray-50 rounded-md p-3 mb-4">
-                    <p className="text-sm text-gray-700 line-clamp-4">
-                      {lyric.content.substring(0, 200)}...
-                    </p>
+                  <div className="bg-gray-50 rounded-md p-4 mb-4 max-h-96 overflow-y-auto">
+                    <pre className="text-sm text-gray-700 whitespace-pre-wrap font-sans leading-relaxed">
+                      {lyric.content}
+                    </pre>
                   </div>
                 )}
 
@@ -227,12 +226,23 @@ const LyricsPage = () => {
                   {lyric.writers && lyric.writers.length > 0 && (
                     <span>By: {lyric.writers.join(', ')}</span>
                   )}
-                </div>
-
-                {/* Action Buttons */}
+                </div>                {/* Action Buttons */}
                 <div className="flex space-x-2">
-                  <button className="flex-1 bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 transition-colors duration-200 text-sm font-medium">
-                    Read Full Lyrics
+                  <Link 
+                    to={`/lyrics/${lyric.id || lyric.title.toLowerCase().replace(/[^a-z0-9]/g, '-').replace(/-+/g, '-')}`}
+                    className="flex-1 bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 transition-colors duration-200 text-sm font-medium text-center"
+                  >
+                    View Details
+                  </Link>
+                  <button 
+                    onClick={() => {
+                      navigator.clipboard.writeText(lyric.content);
+                      // Could add a toast notification here
+                    }}
+                    className="p-2 border border-gray-300 rounded-md hover:bg-gray-50 transition-colors duration-200"
+                    title="Copy lyrics"
+                  >
+                    <Copy className="w-4 h-4 text-gray-600" />
                   </button>
                   <button className="p-2 border border-gray-300 rounded-md hover:bg-gray-50 transition-colors duration-200">
                     <Share2 className="w-4 h-4 text-gray-600" />

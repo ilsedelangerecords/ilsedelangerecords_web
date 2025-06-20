@@ -137,6 +137,50 @@ Automated deployment is configured via GitHub Actions:
 - **Mobile optimized**: Responsive design with touch support
 - **Progressive enhancement**: Works without JavaScript for basic content
 
+## 🏗️ Static Site Generation
+
+For SEO optimization and faster loading, this project supports generating a completely static HTML version:
+
+### Generate Static Site
+
+```bash
+# Generate static HTML files for all pages
+npm run build:static
+
+# Serve the static site locally
+npm run serve:static
+```
+
+This creates:
+- **Flat HTML structure**: Each album gets its own `/album/[slug]/index.html`
+- **SEO optimized**: Proper meta tags, Open Graph, and structured data
+- **No JavaScript required**: Content is server-side rendered in HTML
+- **Fast indexing**: Search engines can crawl all content immediately
+
+### Static Site Structure
+
+```
+dist/
+├── index.html                          # Homepage
+├── albums/index.html                   # Albums listing page
+├── album/                              # Individual album pages
+│   ├── 2-original-albums/index.html    # Album detail pages
+│   ├── flying-blind/index.html
+│   └── ...32 more albums
+├── images/                             # All album cover images
+│   └── albums/*.jpg
+└── content/                            # JSON data files
+    └── albums.json
+```
+
+### Benefits of Static Generation
+
+✅ **SEO-friendly**: All content is in HTML, easily crawled by search engines  
+✅ **Fast loading**: No client-side JavaScript needed for content  
+✅ **Better indexing**: Search engines can index all albums immediately  
+✅ **Works without JS**: Accessible even when JavaScript is disabled  
+✅ **CDN ready**: Can be deployed to any static hosting (GitHub Pages, Netlify, Vercel)
+
 ## 📝 Contributing
 
 See [CONTRIBUTING.md](CONTRIBUTING.md) for detailed contribution guidelines.

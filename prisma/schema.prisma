@@ -1,0 +1,194 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = "file:./dev.db"
+}
+
+model Artist {
+  id         String   @id @default(uuid())
+  name       String   @unique
+  country    String?
+  activeFrom Int?
+  activeTo   Int?
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  // Relations
+  releases Release[]
+
+  @@map("artists")
+}
+
+model Label {
+  id          String   @id @default(uuid())
+  name        String   @unique
+  country     String?
+  foundedYear Int?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Relations
+  releases Release[]
+
+  @@map("labels")
+}
+
+model Release {
+  id              String      @id @default(uuid())
+  title           String
+  releaseType     ReleaseType
+  primaryArtistId String
+  releaseDate     DateTime?
+  labelId         String?
+  description     String?
+  coverId         String?
+  createdAt       DateTime    @default(now())
+  updatedAt       DateTime    @updatedAt
+
+  // Relations
+  primaryArtist Artist       @relation(fields: [primaryArtistId], references: [id])
+  label         Label?       @relation(fields: [labelId], references: [id])
+  editions      Edition[]
+  chartEntries  ChartEntry[]
+  mediaAssets   MediaAsset[]
+
+  @@map("releases")
+}
+
+model Edition {
+  id            String   @id @default(uuid())
+  releaseId     String
+  catalogNumber String?
+  format        Format
+  region        String?
+  extraNotes    String?
+  coverId       String?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  // Relations
+  release Release @relation(fields: [releaseId], references: [id])
+  tracks  Track[]
+
+  @@map("editions")
+}
+
+model Song {
+  id        String   @id @default(uuid())
+  title     String
+  language  String
+  lyricsId  String?  @unique
+  writers   String? // JSON string in SQLite
+  isCover   Boolean  @default(false)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  lyrics Lyrics? @relation(fields: [lyricsId], references: [id])
+  tracks Track[]
+
+  @@map("songs")
+}
+
+model Track {
+  id           String   @id @default(uuid())
+  editionId    String
+  position     Int
+  songId       String
+  duration     Int? // Duration in seconds
+  isBonus      Boolean  @default(false)
+  guestArtists String? // JSON string in SQLite
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  // Relations
+  edition Edition @relation(fields: [editionId], references: [id])
+  song    Song    @relation(fields: [songId], references: [id])
+
+  @@unique([editionId, position])
+  @@map("tracks")
+}
+
+model Lyrics {
+  id        String   @id @default(uuid())
+  songId    String?  @unique
+  text      String
+  language  String
+  sourceUrl String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  song Song?
+
+  @@map("lyrics")
+}
+
+model ChartEntry {
+  id        String   @id @default(uuid())
+  releaseId String
+  chartName String
+  country   String
+  entryDate DateTime
+  position  Int
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  release Release @relation(fields: [releaseId], references: [id])
+
+  @@map("chart_entries")
+}
+
+model MediaAsset {
+  id          String          @id @default(uuid())
+  url         String
+  type        MediaAssetType
+  width       Int?
+  height      Int?
+  description String?
+  entityType  String // "Release", "Edition", etc.
+  entityId    String
+  createdAt   DateTime        @default(now())
+  updatedAt   DateTime        @updatedAt
+
+  // Relations
+  release Release? @relation(fields: [entityId], references: [id])
+
+  @@map("media_assets")
+}
+
+// Enums
+enum ReleaseType {
+  ALBUM
+  SINGLE
+  EP
+  COMPILATION
+  LIVE
+  SOUNDTRACK
+  OTHER
+}
+
+enum Format {
+  CD
+  VINYL
+  CASSETTE
+  DIGITAL
+  DVD
+  BLU_RAY
+  OTHER
+}
+
+enum MediaAssetType {
+  COVER
+  PHOTO
+  ARTWORK
+  VIDEO
+  OTHER
+}
