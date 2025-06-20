@@ -1,6 +1,4 @@
-import React, { useState, useEffect } from 'react';
-
-// Content loader utility to load actual migrated data
+// Static content loader for pre-compiled data
 class ContentLoader {
   constructor() {
     this.cache = new Map();
@@ -13,257 +11,130 @@ class ContentLoader {
 
     try {
       console.log(`Loading content type: ${type}`);
-      const response = await fetch(`/content/${type}.json`);
+      
+      // Use relative path for static files
+      const response = await fetch(`./content/${type}.json`);
       if (!response.ok) {
         throw new Error(`Failed to load ${type}: ${response.status}`);
       }
       
       const data = await response.json();
-      console.log(`Loaded ${type}:`, Object.keys(data).length, 'items');
-      this.cache.set(type, data);
-      return data;
-    } catch (error) {
-      console.error(`Error loading ${type}:`, error);
-      return {};
-    }
-  }
-
-  // Helper method to format album data
-  formatAlbumData(albumData) {
-    if (!albumData || typeof albumData !== 'object') {
-      console.log('No album data to format');
-      return [];
-    }
-    
-    const formatted = Object.entries(albumData).map(([id, album]) => ({
-      id,
-      title: album.title || 'Untitled Album',
-      slug: album.slug || this.createSlug(album.title),
-      artist: album.artist || 'Unknown Artist',
-      artist_id: album.artist_id,
-      album_type: album.album_type || 'studio',
-      release_date: album.release_date,
-      year: album.release_date ? new Date(album.release_date).getFullYear() : new Date().getFullYear(),
-      record_label: album.record_label,
-      description: album.description,
-      coverArt: this.getImageUrl(album.images?.cover_art),
-      images: album.images || {},
-      chart_performance: album.chart_performance || [],
-      production_credits: album.production_credits || []
-    }));
-    
-    console.log(`Formatted ${formatted.length} albums`);
-    return formatted;
-  }
-
-  // Helper method to format lyrics data
-  formatLyricsData(lyricsData) {
-    if (!lyricsData || typeof lyricsData !== 'object') {
-      console.log('No lyrics data to format');
-      return [];
-    }
-    
-    const formatted = Object.entries(lyricsData).map(([id, lyrics]) => ({
-      id,
-      title: lyrics.title || 'Untitled Song',
-      slug: lyrics.slug || this.createSlug(lyrics.title),
-      content: lyrics.content || '',
-      language: lyrics.language || 'en',
-      structure: lyrics.structure || [],
-      verified: lyrics.verified || false,
-      artist: lyrics.artist || 'Unknown Artist',
-      album: lyrics.album,
-      seo: lyrics.seo || {}
-    }));
-    
-    console.log(`Formatted ${formatted.length} lyrics`);
-    return formatted;
-  }
-
-  // Helper method to format artist data
-  formatArtistData(artistData) {
-    if (!artistData || typeof artistData !== 'object') {
-      console.log('No artist data to format');
-      return [];
-    }
-    
-    const formatted = Object.entries(artistData).map(([id, artist]) => ({
-      id,
-      name: artist.name || 'Unknown Artist',
-      slug: artist.slug || this.createSlug(artist.name),
-      type: artist.type || 'solo',
-      biography: artist.biography || '',
-      origin: artist.origin || '',
-      genres: artist.genres || [],
-      social_media: artist.social_media || {},
-      profileImage: this.getImageUrl(artist.images?.profile_image),
-      bannerImage: this.getImageUrl(artist.images?.banner_image),
-      images: artist.images || {}
-    }));
-    
-    console.log(`Formatted ${formatted.length} artists`);
-    return formatted;
-  }
-
-  // Helper method to get image URL
-  getImageUrl(imagePath) {
-    if (!imagePath) return '/images/placeholder.svg';
-    
-    if (imagePath.startsWith('http')) {
-      return imagePath;
-    }
-    
-    if (imagePath.startsWith('/')) {
-      return imagePath;
-    }
-    
-    const filename = imagePath.split('/').pop();
-    return `/images/${filename}`;
-  }
-
-  // Create URL-friendly slugs
-  createSlug(text) {
-    if (!text) return '';
-    return text
-      .toLowerCase()
-      .replace(/[^a-z0-9]+/g, '-')
-      .replace(/^-+|-+$/g, '');
-  }
-
-  // Search functionality
-  searchContent(data, searchTerm, fields = ['title', 'name']) {
-    if (!searchTerm || !Array.isArray(data)) return data;
-    
-    const term = searchTerm.toLowerCase();
-    return data.filter(item => 
-      fields.some(field => 
-        item[field]?.toLowerCase().includes(term)
-      )
-    );
-  }
-
-  // Filter functionality
-  filterContent(data, filters) {
-    if (!Array.isArray(data)) return [];
-    
-    return data.filter(item => {
-      return Object.entries(filters).every(([key, value]) => {
-        if (!value || value === 'all') return true;
-        return item[key] === value;
-      });
-    });
-  }
-
-  // Sort functionality
-  sortContent(data, sortBy) {
-    if (!Array.isArray(data)) return [];
-    
-    const [field, direction] = sortBy.split('-');
-    const multiplier = direction === 'desc' ? -1 : 1;
-
-    return [...data].sort((a, b) => {
-      let aVal = a[field];
-      let bVal = b[field];
-
-      if (typeof aVal === 'string') {
-        return aVal.localeCompare(bVal) * multiplier;
+      console.log(`Loaded ${type}:`, Object.keys(data || {}).length, 'items');
+      
+      // Convert object to array if needed
+      let processedData = data;
+      if (data && typeof data === 'object' && !Array.isArray(data)) {
+        processedData = Object.values(data);
       }
       
-      if (typeof aVal === 'number') {
-        return (aVal - bVal) * multiplier;
-      }
+      console.log(`Formatted ${processedData?.length || 0} ${type}`);
+      this.cache.set(type, processedData || []);
+      return processedData || [];
+    } catch (error) {
+      console.error(`Error loading ${type}:`, error);
+      return [];
+    }
+  }
 
-      return 0;
-    });
+  // Pre-load all content for static generation
+  async preloadAll() {
+    const types = ['albums', 'lyrics', 'artists'];
+    const promises = types.map(type => this.loadContent(type));
+    await Promise.all(promises);
   }
 }
 
-// Create singleton instance
 const contentLoader = new ContentLoader();
 
-// Custom hook for loading content
-export const useContent = (type) => {
+// React hooks for content loading
+import React, { useState, useEffect } from 'react';
+
+export function useContent(type) {
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
   useEffect(() => {
-    const loadData = async () => {
+    async function loadData() {
       try {
         setLoading(true);
+        const result = await contentLoader.loadContent(type);
+        console.log(`useContent: Setting ${type} data:`, result?.length || 0, 'items');
+        setData(result || []);
         setError(null);
-        console.log(`useContent: Loading ${type}`);
-        
-        let rawData = await contentLoader.loadContent(type);
-        let result = [];
-        
-        switch (type) {
-          case 'albums':
-            result = contentLoader.formatAlbumData(rawData);
-            break;
-          case 'lyrics':
-            result = contentLoader.formatLyricsData(rawData);
-            break;
-          case 'artists':
-            result = contentLoader.formatArtistData(rawData);
-            break;
-          default:
-            result = Array.isArray(rawData) ? rawData : Object.values(rawData || {});
-        }
-        
-        console.log(`useContent: Setting ${type} data:`, result.length, 'items');
-        setData(result);
       } catch (err) {
-        console.error(`useContent: Error loading ${type}:`, err);
-        setError(err.message);
+        console.error(`useContent error for ${type}:`, err);
+        setError(err);
         setData([]);
       } finally {
         setLoading(false);
       }
-    };
+    }
 
     loadData();
   }, [type]);
 
   return { data, loading, error };
-};
+}
 
-// Custom hook for searching and filtering content
-export const useContentSearch = (data, initialFilters = {}) => {
-  const [searchTerm, setSearchTerm] = useState('');
-  const [filters, setFilters] = useState(initialFilters);
-  const [sortBy, setSortBy] = useState('title-asc');
+export function useContentSearch(type, searchTerm = '', filters = {}) {
+  const { data, loading, error } = useContent(type);
+  const [filteredData, setFilteredData] = useState([]);
 
-  const filteredData = React.useMemo(() => {
-    if (!Array.isArray(data)) return [];
-    
-    let result = data;
-    
+  useEffect(() => {
+    if (!data || !Array.isArray(data)) {
+      setFilteredData([]);
+      return;
+    }
+
+    let filtered = [...data];
+
+    // Apply search term
     if (searchTerm) {
-      result = contentLoader.searchContent(result, searchTerm);
+      const term = searchTerm.toLowerCase();
+      filtered = filtered.filter(item => {
+        const searchableText = [
+          item.title,
+          item.name,
+          item.artist,
+          item.album,
+          item.lyrics,
+          item.description
+        ].filter(Boolean).join(' ').toLowerCase();
+        
+        return searchableText.includes(term);
+      });
     }
-    
-    if (Object.keys(filters).length > 0) {
-      result = contentLoader.filterContent(result, filters);
-    }
-    
-    if (sortBy) {
-      result = contentLoader.sortContent(result, sortBy);
-    }
-    
-    return result;
-  }, [data, searchTerm, filters, sortBy]);
 
-  return {
-    filteredData,
-    searchTerm,
-    setSearchTerm,
-    filters,
-    setFilters,
-    sortBy,
-    setSortBy
-  };
-};
+    // Apply filters
+    Object.entries(filters).forEach(([key, value]) => {
+      if (value && value !== 'all') {
+        filtered = filtered.filter(item => {
+          if (key === 'year') {
+            return item.year === parseInt(value);
+          }
+          if (key === 'language') {
+            return item.language === value;
+          }
+          if (key === 'artist') {
+            return item.artist === value || item.name === value;
+          }
+          if (key === 'type') {
+            return item.type === value;
+          }
+          return item[key] === value;
+        });
+      }
+    });
 
-export default contentLoader;
+    setFilteredData(filtered);
+  }, [data, searchTerm, filters]);
+
+  return { data: filteredData, loading, error, totalCount: data?.length || 0 };
+}
+
+// Pre-load content for static generation
+if (typeof window !== 'undefined') {
+  contentLoader.preloadAll().catch(console.error);
+}
 
