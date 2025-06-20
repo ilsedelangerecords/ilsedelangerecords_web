@@ -77,7 +77,7 @@ jobs:
           mkdir -p dist/content
           cp -r public/content/* dist/content/
 
-      - name: 🔍 Debug: List public directory contents before copy
+      - name: "🔍 Debug: List public directory contents before copy"
         run: |
           echo "Listing public/ directory:"
           ls -F public/
