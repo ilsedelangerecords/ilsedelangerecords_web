@@ -70,18 +70,6 @@ jobs:
       - name: 🏗️ Build application
         run: pnpm run build
 
-      - name: 📦 Copy public assets
-        run: |
-          mkdir -p dist/content
-          mkdir -p dist/images
-          cp -r public/content/* dist/content/
-          cp -r public/images/* dist/images/
-          cp public/react.svg dist/
-          # Add favicon if it exists in public directory
-          if [ -f "public/favicon.ico" ]; then
-            cp public/favicon.ico dist/
-          fi
-
       - name: ✅ Validate content files exist
         run: |
           echo "🔍 Checking content files..."
@@ -98,7 +86,7 @@ jobs:
           else
             echo "❌ lyrics.json not found in dist/content"
             exit 1
-          fi
+          Sfi
           if [ -f "dist/content/artists.json" ]; then
             ARTISTS_COUNT=$(cat dist/content/artists.json | jq 'length // (. | keys | length)')
             echo "👤 Artists found: $ARTISTS_COUNT"
