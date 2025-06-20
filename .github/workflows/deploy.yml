@@ -16,17 +16,17 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
-  # Pre-deployment checks
-  pre-deploy-checks:
+  # Pre-deployment checks and build
+  build:
     runs-on: ubuntu-latest
     outputs:
-      should-deploy: ${{ steps.changes.outputs.should-deploy }}
       version: ${{ steps.version.outputs.version }}
+      should-deploy: ${{ steps.changes.outputs.should-deploy }}
     steps:
       - name: 📥 Checkout code
         uses: actions/checkout@v4
         with:
-          fetch-depth: 0 # Fetch all history to ensure all files are present
+          fetch-depth: 1 # Only need latest commit for most operations
 
       - name: 🔍 Check for relevant changes
         id: changes
@@ -46,17 +46,6 @@ jobs:
           echo "version=$VERSION" >> $GITHUB_OUTPUT
           echo "📦 Version: $VERSION"
 
-  # Build and test
-  build:
-    needs: pre-deploy-checks
-    if: needs.pre-deploy-checks.outputs.should-deploy == 'true'
-    runs-on: ubuntu-latest
-    steps:
-      - name: 📥 Checkout code
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0 # Fetch all history to ensure all files are present
-
       - name: 📦 Setup pnpm
         uses: pnpm/action-setup@v4
 
@@ -69,103 +58,34 @@ jobs:
       - name: 📥 Install dependencies
         run: pnpm install --frozen-lockfile
 
-      - name: 🏗️ Build application
-        run: pnpm run build
+      - name: 🏗️ Build and validate
+        run: pnpm run build:validate
 
-      - name: 📦 Copy content files to dist
-        run: |
-          mkdir -p dist/content
-          if [ -d "public/content" ]; then
-            cp -r public/content/* dist/content/
-          else
-            echo "⚠️ No content to copy"
-          fi
-
-      - name: "🔍 Debug: List public directory contents before copy"
-        run: |
-          echo "Listing public/ directory:"
-          ls -F public/ || echo "No public directory"
-          echo "Listing public/content/ directory:"
-          if [ -d "public/content" ]; then
-            ls -F public/content/
-          else
-            echo "No content directory"
-          fi
-
-      - name: 🔍 List dist directory contents
-        run: ls -R dist/
-
-      - name: ✅ Validate content files exist
-        run: |
-          echo "🔍 Checking content files..."
-          if [ -f "dist/content/albums.json" ]; then
-            ALBUM_COUNT=$(cat dist/content/albums.json | jq 'length // (. | keys | length)')
-            echo "📀 Albums found: $ALBUM_COUNT"
-          else
-            echo "❌ albums.json not found in dist/content"
-            exit 1
-          fi
-          if [ -f "dist/content/lyrics.json" ]; then
-            LYRICS_COUNT=$(cat dist/content/lyrics.json | jq 'length // (. | keys | length)')
-            echo "🎵 Lyrics found: $LYRICS_COUNT"
-          else
-            echo "❌ lyrics.json not found in dist/content"
-            exit 1
-          fi
-          if [ -f "dist/content/artists.json" ]; then
-            ARTISTS_COUNT=$(cat dist/content/artists.json | jq 'length // (. | keys | length)')
-            echo "👤 Artists found: $ARTISTS_COUNT"
-          else
-            echo "❌ artists.json not found in dist/content"
-            exit 1
-          fi
-
-      - name: ✅ Verify build output
+      - name: 📊 Build summary
         run: |
           echo "📦 Build completed successfully!"
-          echo "📁 Build size:"
-          du -sh dist/
-          echo "📄 Files generated:"
-          find dist/ -type f | wc -l
-          echo "🔍 Checking critical files:"
-          ls -la dist/index.html
-          ls -la dist/content/ || echo "⚠️ No content directory in build"
-          ls -la dist/images/ || echo "⚠️ No images directory in build"
-          ls -la dist/favicon.ico || echo "⚠️ No favicon in build"
+          echo "📁 Build size: $(du -sh dist/ | cut -f1)"
+          echo "📄 Files generated: $(find dist/ -type f | wc -l)"
 
       - name: 📤 Upload build artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: build-${{ needs.pre-deploy-checks.outputs.version }}
+          name: build-${{ steps.version.outputs.version }}
           path: dist/
           retention-days: 30
 
-  # Deploy to staging
+  # Deploy to production
   deploy:
-    needs: [pre-deploy-checks, build]
-    if: needs.pre-deploy-checks.outputs.should-deploy == 'true'
+    needs: build
+    if: needs.build.outputs.should-deploy == 'true'
     runs-on: ubuntu-latest
     environment: production
     steps:
-      - name: 📥 Checkout code
-        uses: actions/checkout@v4
+      - name: 📥 Download build artifacts
+        uses: actions/download-artifact@v4
         with:
-          fetch-depth: 0 # Fetch all history to ensure all files are present
-
-      - name: 📦 Setup pnpm
-        uses: pnpm/action-setup@v4
-
-      - name: 📦 Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: '18'
-          cache: 'pnpm'
-
-      - name: 📥 Install dependencies
-        run: pnpm install --frozen-lockfile
-
-      - name: 🏗️ Build for production
-        run: pnpm run build
+          name: build-${{ needs.build.outputs.version }}
+          path: dist/
 
       - name: 🔐 Prepare SSH key
         run: |
@@ -176,15 +96,7 @@ jobs:
 
       - name: 🚀 Deploy via rsync
         run: |
-          echo "🚀 Deploying to staging server..."
-          echo "📊 Pre-deployment verification:"
-          ls -la dist/
-          echo "📁 Content files:"
-          ls -la dist/content/ || echo "No content directory"
-          echo "🖼️ Image files:"
-          ls -la dist/images/ | head -5 || echo "No images directory"
-          
-          echo "🔄 Starting rsync deployment..."
+          echo "🚀 Deploying to production server..."
           rsync -avz --delete --progress \
             -e "ssh -i ~/.ssh/id_ed25519 -p ${{ secrets.SSH_PORT || '22' }}" \
             dist/ \
@@ -194,26 +106,27 @@ jobs:
       - name: 🌐 Deployment summary
         run: |
           echo "🎉 Deployment successful!"
-          echo "🔗 Staging URL: https://staging.ilsedelangerecords.nl/"
-          echo "📦 Version: ${{ needs.pre-deploy-checks.outputs.version }}"
+          echo "🔗 Production URL: https://staging.ilsedelangerecords.nl/"
+          echo "📦 Version: ${{ needs.build.outputs.version }}"
           echo "⏰ Deployed at: $(date)"
 
       - name: 🧪 Post-deployment verification
         run: |
           echo "🔍 Verifying deployment..."
           sleep 15
-          echo "🌐 Testing staging site..."
+          
+          # Test main site
           if curl -f -s https://staging.ilsedelangerecords.nl/ > /dev/null; then
-            echo "✅ Staging site is responding"
+            echo "✅ Site is responding"
           else
-            echo "⚠️ Staging site may not be ready yet"
+            echo "❌ Site is not responding"
+            exit 1
           fi
           
-          echo "📊 Testing content files..."
+          # Test content API
           if curl -f -s https://staging.ilsedelangerecords.nl/content/albums.json > /dev/null; then
-            echo "✅ Albums content is accessible"
+            echo "✅ Content API is accessible"
           else
-            echo "⚠️ Albums content not accessible"
+            echo "❌ Content API not accessible"
+            exit 1
           fi
-
-

@@ -15,20 +15,23 @@ jobs:
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
 
+      - name: 📦 Setup pnpm
+        uses: pnpm/action-setup@v4
+
       - name: 📦 Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: '18'
-          cache: 'npm'
+          cache: 'pnpm'
 
       - name: 🔍 Check for outdated packages
         id: outdated
         run: |
-          npm outdated --json > outdated.json || true
-          if [ -s outdated.json ]; then
+          pnpm outdated --format json > outdated.json || true
+          if [ -s outdated.json ] && [ "$(cat outdated.json)" != "{}" ]; then
             echo "has-updates=true" >> $GITHUB_OUTPUT
             echo "📦 Found outdated packages:"
-            cat outdated.json | jq -r 'keys[]'
+            cat outdated.json | jq -r 'keys[]?' || echo "No specific packages listed"
           else
             echo "has-updates=false" >> $GITHUB_OUTPUT
             echo "✅ All packages are up to date"
@@ -38,15 +41,14 @@ jobs:
         if: steps.outdated.outputs.has-updates == 'true'
         run: |
           echo "🔄 Updating dependencies..."
-          npm update
-          npm audit fix --audit-level=moderate || true
+          pnpm update
+          pnpm audit fix --audit-level=moderate || true
 
       - name: 🧪 Test updated dependencies
         if: steps.outdated.outputs.has-updates == 'true'
         run: |
-          npm ci
-          npm run build
-          npm run test
+          pnpm install --frozen-lockfile
+          pnpm run build:validate
 
       - name: 📝 Create Pull Request
         if: steps.outdated.outputs.has-updates == 'true'
@@ -65,13 +67,13 @@ jobs:
             The following packages have been updated to their latest versions:
             
             ```json
-            $(cat outdated.json | jq '.')
+            $(cat outdated.json 2>/dev/null || echo "{}")
             ```
             
             ### ✅ Verification
             
             - [x] Build passes
-            - [x] Tests pass
+            - [x] Content validation passes
             - [x] Security audit clean
             
             ### 🔍 Review Notes
@@ -90,4 +92,3 @@ jobs:
             dependencies
             automated
             maintenance
-

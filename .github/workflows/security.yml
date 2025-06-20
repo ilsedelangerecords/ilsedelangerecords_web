@@ -6,8 +6,15 @@ on:
     - cron: '0 2 * * *'
   push:
     branches: [ main ]
+    paths:
+      - 'package*.json'
+      - 'pnpm-lock.yaml'
+      - '.github/workflows/security.yml'
   pull_request:
     branches: [ main ]
+    paths:
+      - 'package*.json'
+      - 'pnpm-lock.yaml'
   workflow_dispatch:
 
 jobs:
@@ -17,26 +24,28 @@ jobs:
       - name: 📥 Checkout code
         uses: actions/checkout@v4
 
+      - name: 📦 Setup pnpm
+        uses: pnpm/action-setup@v4
+
       - name: 📦 Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: '18'
-          cache: 'npm'
+          cache: 'pnpm'
 
       - name: 📥 Install dependencies
-        run: npm ci
+        run: pnpm install --frozen-lockfile
 
-      - name: 🔒 Run npm audit
+      - name: 🔒 Run security audit
         run: |
-          echo "🔍 Running npm security audit..."
-          npm audit --audit-level=moderate --json > audit-results.json || true
+          echo "🔍 Running pnpm security audit..."
+          pnpm audit --audit-level=moderate --json > audit-results.json || true
           
           # Check if there are any vulnerabilities
-          VULN_COUNT=$(cat audit-results.json | jq '.metadata.vulnerabilities.total // 0')
-          
-          if [ "$VULN_COUNT" -gt 0 ]; then
-            echo "⚠️ Found $VULN_COUNT vulnerabilities"
-            npm audit --audit-level=moderate
+          if [ -s audit-results.json ]; then
+            echo "⚠️ Found vulnerabilities"
+            pnpm audit --audit-level=moderate
+            exit 1
           else
             echo "✅ No vulnerabilities found"
           fi
@@ -64,9 +73,20 @@ jobs:
         with:
           languages: javascript
 
-      - name: 🏗️ Autobuild
-        uses: github/codeql-action/autobuild@v3
+      - name: 📦 Setup pnpm
+        uses: pnpm/action-setup@v4
+
+      - name: 📦 Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'pnpm'
+
+      - name: 📥 Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: 🏗️ Build for analysis
+        run: pnpm run build
 
       - name: 🔍 Perform CodeQL Analysis
         uses: github/codeql-action/analyze@v3
-

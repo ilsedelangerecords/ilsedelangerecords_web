@@ -10,29 +10,10 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  # Skip checks for draft PRs unless specifically requested
-  check-ready:
+  # Single job that handles all checks efficiently
+  pr-checks:
     runs-on: ubuntu-latest
-    outputs:
-      should-run: ${{ steps.check.outputs.should-run }}
-    steps:
-      - name: Check if PR is ready
-        id: check
-        run: |
-          if [[ "${{ github.event.pull_request.draft }}" == "true" ]]; then
-            echo "should-run=false" >> $GITHUB_OUTPUT
-            echo "⏭️ Skipping checks for draft PR"
-          else
-            echo "should-run=true" >> $GITHUB_OUTPUT
-            echo "✅ PR is ready for checks"
-          fi
-
-  # Build and test
-  build-and-test:
-    needs: check-ready
-    if: needs.check-ready.outputs.should-run == 'true'
-    runs-on: ubuntu-latest
-    name: Build and Test
+    if: github.event.pull_request.draft == false
     steps:
       - name: 📥 Checkout code
         uses: actions/checkout@v4
@@ -49,121 +30,11 @@ jobs:
       - name: 📥 Install dependencies
         run: pnpm install --frozen-lockfile
 
-      - name: ✅ Validate content
-        run: |
-          echo "🔍 Checking content files..."
-          if [ -f "public/content/albums.json" ]; then
-            ALBUM_COUNT=$(cat public/content/albums.json | jq 'length')
-            echo "📀 Albums found: $ALBUM_COUNT"
-            if [ "$ALBUM_COUNT" -eq 0 ]; then
-              echo "❌ No albums found in content"
-              exit 1
-            fi
-          fi
-          if [ -f "public/content/lyrics.json" ]; then
-            LYRICS_COUNT=$(cat public/content/lyrics.json | jq 'length')
-            echo "🎵 Lyrics found: $LYRICS_COUNT"
-          fi
-          if [ -f "public/content/artists.json" ]; then
-            ARTISTS_COUNT=$(cat public/content/artists.json | jq 'length')
-            echo "👤 Artists found: $ARTISTS_COUNT"
-          fi
-
-      - name: 🏗️ Build application
-        run: pnpm run build
-
-      - name: 📊 Build summary
-        run: |
-          echo "📦 Build completed successfully!"
-          echo "📁 Build size:"
-          du -sh dist/
-          echo "📄 Files generated:"
-          find dist/ -type f | wc -l
-
-  # Content validation
-  content-validation:
-    needs: check-ready
-    if: needs.check-ready.outputs.should-run == 'true'
-    runs-on: ubuntu-latest
-    name: Content Validation
-    steps:
-      - name: 📥 Checkout code
-        uses: actions/checkout@v4
-
-      - name: 🔍 Validate JSON files
-        run: |
-          echo "🔍 Validating JSON content files..."
-          
-          # Check albums.json
-          if [ -f "public/content/albums.json" ]; then
-            echo "📀 Validating albums.json..."
-            if jq empty public/content/albums.json; then
-              ALBUM_COUNT=$(jq 'length' public/content/albums.json)
-              echo "✅ albums.json is valid JSON with $ALBUM_COUNT items"
-            else
-              echo "❌ albums.json is invalid JSON"
-              exit 1
-            fi
-          fi
-          
-          # Check lyrics.json
-          if [ -f "public/content/lyrics.json" ]; then
-            echo "🎵 Validating lyrics.json..."
-            if jq empty public/content/lyrics.json; then
-              LYRICS_COUNT=$(jq 'length' public/content/lyrics.json)
-              echo "✅ lyrics.json is valid JSON with $LYRICS_COUNT items"
-            else
-              echo "❌ lyrics.json is invalid JSON"
-              exit 1
-            fi
-          fi
-          
-          # Check artists.json
-          if [ -f "public/content/artists.json" ]; then
-            echo "👤 Validating artists.json..."
-            if jq empty public/content/artists.json; then
-              ARTISTS_COUNT=$(jq 'length' public/content/artists.json)
-              echo "✅ artists.json is valid JSON with $ARTISTS_COUNT items"
-            else
-              echo "❌ artists.json is invalid JSON"
-              exit 1
-            fi
-          fi
-
-      - name: 🖼️ Check image references
-        run: |
-          echo "🖼️ Checking image references..."
-          if [ -d "public/images" ]; then
-            IMAGE_COUNT=$(find public/images -type f \( -name "*.jpg" -o -name "*.jpeg" -o -name "*.png" -o -name "*.svg" \) | wc -l)
-            echo "✅ Found $IMAGE_COUNT images in public/images/"
-          else
-            echo "⚠️ No public/images directory found"
-          fi
-
-  # Security scan
-  security-scan:
-    needs: check-ready
-    if: needs.check-ready.outputs.should-run == 'true'
-    runs-on: ubuntu-latest
-    name: Security Scan
-    steps:
-      - name: 📥 Checkout code
-        uses: actions/checkout@v4
-
-      - name: 📦 Setup pnpm
-        uses: pnpm/action-setup@v4
-
-      - name: 📦 Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: '18'
-          cache: 'pnpm'
-
-      - name: 📥 Install dependencies
-        run: pnpm install --frozen-lockfile
-
-      - name: 🔒 Run security audit
+      - name: 🔒 Security audit
         run: pnpm audit --audit-level moderate
+
+      - name: 🏗️ Build and validate content
+        run: pnpm run build:validate
 
       - name: 🔍 Initialize CodeQL
         uses: github/codeql-action/init@v3
@@ -173,26 +44,8 @@ jobs:
       - name: 🔍 Perform CodeQL Analysis
         uses: github/codeql-action/analyze@v3
 
-  # Summary
-  pr-checks-summary:
-    needs: [check-ready, build-and-test, content-validation, security-scan]
-    if: always() && needs.check-ready.outputs.should-run == 'true'
-    runs-on: ubuntu-latest
-    steps:
-      - name: 📋 PR Checks Summary
+      - name: 📊 PR Summary
         run: |
-          echo "📋 Pull Request Checks Summary"
-          echo "=============================="
-          echo "Build and Test: ${{ needs.build-and-test.result }}"
-          echo "Content Validation: ${{ needs.content-validation.result }}"
-          echo "Security Scan: ${{ needs.security-scan.result }}"
-          
-          if [[ "${{ needs.build-and-test.result }}" == "success" && 
-                "${{ needs.content-validation.result }}" == "success" && 
-                "${{ needs.security-scan.result }}" == "success" ]]; then
-            echo "✅ All checks passed! PR is ready for review."
-          else
-            echo "❌ Some checks failed. Please review and fix issues."
-            exit 1
-          fi
-
+          echo "✅ All checks passed!"
+          echo "📦 Build size: $(du -sh dist/ | cut -f1)"
+          echo "📄 Files generated: $(find dist/ -type f | wc -l)"
