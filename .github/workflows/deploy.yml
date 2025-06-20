@@ -67,33 +67,45 @@ jobs:
       - name: 📥 Install dependencies
         run: pnpm install --frozen-lockfile
 
+      - name: 🏗️ Build application
+        run: pnpm run build
+
+      - name: 📦 Copy public assets
+        run: |
+          mkdir -p dist/content
+          mkdir -p dist/images
+          cp -r public/content/* dist/content/
+          cp -r public/images/* dist/images/
+          cp public/react.svg dist/
+          # Add favicon if it exists in public directory
+          if [ -f "public/favicon.ico" ]; then
+            cp public/favicon.ico dist/
+          fi
+
       - name: ✅ Validate content files exist
         run: |
           echo "🔍 Checking content files..."
-          if [ -f "public/content/albums.json" ]; then
-            ALBUM_COUNT=$(cat public/content/albums.json | jq 'length // (. | keys | length)')
+          if [ -f "dist/content/albums.json" ]; then
+            ALBUM_COUNT=$(cat dist/content/albums.json | jq 'length // (. | keys | length)')
             echo "📀 Albums found: $ALBUM_COUNT"
           else
-            echo "❌ albums.json not found"
+            echo "❌ albums.json not found in dist/content"
             exit 1
           fi
-          if [ -f "public/content/lyrics.json" ]; then
-            LYRICS_COUNT=$(cat public/content/lyrics.json | jq 'length // (. | keys | length)')
+          if [ -f "dist/content/lyrics.json" ]; then
+            LYRICS_COUNT=$(cat dist/content/lyrics.json | jq 'length // (. | keys | length)')
             echo "🎵 Lyrics found: $LYRICS_COUNT"
           else
-            echo "❌ lyrics.json not found"
+            echo "❌ lyrics.json not found in dist/content"
             exit 1
           fi
-          if [ -f "public/content/artists.json" ]; then
-            ARTISTS_COUNT=$(cat public/content/artists.json | jq 'length // (. | keys | length)')
+          if [ -f "dist/content/artists.json" ]; then
+            ARTISTS_COUNT=$(cat dist/content/artists.json | jq 'length // (. | keys | length)')
             echo "👤 Artists found: $ARTISTS_COUNT"
           else
-            echo "❌ artists.json not found"
+            echo "❌ artists.json not found in dist/content"
             exit 1
           fi
-
-      - name: 🏗️ Build application
-        run: pnpm run build
 
       - name: ✅ Verify build output
         run: |
@@ -188,4 +200,6 @@ jobs:
           else
             echo "⚠️ Albums content not accessible"
           fi
+
+
 

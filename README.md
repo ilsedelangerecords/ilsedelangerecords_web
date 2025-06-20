@@ -59,9 +59,10 @@ pnpm run preview
 All content is stored as static JSON files in `public/content/`:
 
 - **Albums**: Complete discography with release dates, labels, chart positions
-- **Lyrics**: Song lyrics with language detection and structure preservation  
+- **Lyrics**: Add entries to `public/content/lyrics.json`  
 - **Artists**: Artist profiles with biographies and social media links
-- **Images**: Optimized album artwork and promotional photos
+- **Images**: Place in `public/images/` directory
+- **Favicon**: Place `favicon.ico` in `public/` directory
 
 ## 🚀 Deployment
 
@@ -79,6 +80,7 @@ Automated deployment is configured via GitHub Actions:
 ```yaml
 # Builds and deploys on every push to main
 - Build with pnpm
+- Copy public assets to dist
 - Validate content integrity
 - Deploy via rsync to production server
 ```
@@ -94,7 +96,8 @@ Automated deployment is configured via GitHub Actions:
 1. **Albums**: Add entries to `public/content/albums.json`
 2. **Lyrics**: Add entries to `public/content/lyrics.json`  
 3. **Images**: Place in `public/images/` directory
-4. **Commit changes**: GitHub Actions will rebuild and deploy
+4. **Favicon**: Place `favicon.ico` in `public/` directory
+5. **Commit changes**: GitHub Actions will rebuild and deploy
 
 ### Content Validation
 - JSON schema validation in CI/CD
@@ -136,4 +139,5 @@ This project contains copyrighted music content. See individual files for licens
 ---
 
 **🎵 Preserving musical heritage through modern web technology 🎵**
+
 
