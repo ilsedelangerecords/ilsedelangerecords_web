@@ -1,0 +1,53 @@
+[
+  {
+    "id": "1",
+    "title": "I'm Not So Tough",
+    "slug": "im-not-so-tough",
+    "artist": "Ilse DeLange",
+    "artistId": "ilse-delange",
+    "album": "World of Hurt",
+    "albumId": "world-of-hurt",
+    "year": 1998,
+    "language": "English",
+    "verified": true,
+    "writers": ["Ilse DeLange", "John Doe"],
+    "lyrics": "Verse 1:\nI'm not so tough\nI just act that way\nTo keep my heart from breaking\nEvery single day\n\nChorus:\nBut when you look at me\nWith those eyes so blue\nI'm not so tough\nWhen it comes to you\n\nVerse 2:\nI built these walls so high\nTo keep the pain away\nBut love keeps finding ways\nTo sneak in anyway\n\n(Repeat Chorus)\n\nBridge:\nAll my defenses fall\nWhen you call my name\nI'm not so tough at all\nLove is a dangerous game",
+    "featured": true,
+    "viewCount": 1250,
+    "lastUpdated": "2024-01-15"
+  },
+  {
+    "id": "2",
+    "title": "World of Hurt",
+    "slug": "world-of-hurt",
+    "artist": "Ilse DeLange",
+    "artistId": "ilse-delange",
+    "album": "World of Hurt",
+    "albumId": "world-of-hurt",
+    "year": 1998,
+    "language": "English",
+    "verified": true,
+    "writers": ["Ilse DeLange", "Jane Smith"],
+    "lyrics": "Verse 1:\nLiving in a world of hurt\nWhere love comes last\nHolding onto broken dreams\nFrom a distant past\n\nChorus:\nIn this world of hurt\nI'm searching for the light\nIn this world of hurt\nTrying to make it right\n\nVerse 2:\nEvery scar tells a story\nOf the pain I've known\nBut I keep on believing\nI won't walk alone\n\n(Repeat Chorus)\n\nBridge:\nSomewhere beyond the darkness\nThere's a brighter day\nI'll find my way out of here\nI'll find another way",
+    "featured": true,
+    "viewCount": 2150,
+    "lastUpdated": "2024-01-15"
+  },
+  {
+    "id": "3",
+    "title": "Dear John",
+    "slug": "dear-john",
+    "artist": "Ilse DeLange",
+    "artistId": "ilse-delange",
+    "album": "Dear John",
+    "albumId": "dear-john",
+    "year": 1999,
+    "language": "English",
+    "verified": true,
+    "writers": ["Ilse DeLange"],
+    "lyrics": "Dear John,\nI'm writing this letter\nTo tell you goodbye\nI thought you should know\nThe reason why\n\nChorus:\nDear John,\nI can't stay\nDear John,\nI'm walking away\nYou broke my heart too many times\nDear John, this is goodbye\n\nVerse 2:\nI gave you my everything\nBut it wasn't enough\nNow I'm taking back my life\nI'm calling your bluff\n\n(Repeat Chorus)\n\nBridge:\nDon't come looking for me\nI won't be there\nI'm done with the lies\nI'm done with your tears",
+    "featured": false,
+    "viewCount": 890,
+    "lastUpdated": "2024-01-15"
+  }
+]

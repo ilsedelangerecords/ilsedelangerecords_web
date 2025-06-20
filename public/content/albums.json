@@ -1,0 +1,106 @@
+[
+  {
+    "id": "1",
+    "title": "World of Hurt",
+    "slug": "world-of-hurt",
+    "artist": "Ilse DeLange",
+    "artistId": "ilse-delange",
+    "year": 1998,
+    "type": "studio",
+    "releaseDate": "1998-05-15",
+    "recordLabel": "Warner Music",
+    "catalogNumber": "WM001",
+    "description": "Ilse DeLange's debut studio album 'World of Hurt' marked the beginning of her international career. The album showcases her powerful vocals and country-influenced sound that would become her signature style.",
+    "coverArt": "/images/albums/world-of-hurt-cover.jpg",
+    "trackCount": 12,
+    "duration": "45:32",
+    "chartPerformance": [
+      {
+        "country": "Netherlands",
+        "chart": "Album Top 100",
+        "peakPosition": 1,
+        "weeksOnChart": 24
+      },
+      {
+        "country": "Belgium",
+        "chart": "Ultratop 200",
+        "peakPosition": 3,
+        "weeksOnChart": 18
+      }
+    ],
+    "productionCredits": [
+      {
+        "role": "Producer",
+        "person": "John Doe"
+      },
+      {
+        "role": "Executive Producer",
+        "person": "Jane Smith"
+      }
+    ],
+    "tracks": [
+      {
+        "number": 1,
+        "title": "I'm Not So Tough",
+        "duration": "3:45",
+        "hasLyrics": true
+      },
+      {
+        "number": 2,
+        "title": "World of Hurt",
+        "duration": "4:12",
+        "hasLyrics": true
+      },
+      {
+        "number": 3,
+        "title": "When It's You",
+        "duration": "3:28",
+        "hasLyrics": true
+      }
+    ]
+  },
+  {
+    "id": "2",
+    "title": "Dear John",
+    "slug": "dear-john",
+    "artist": "Ilse DeLange",
+    "artistId": "ilse-delange",
+    "year": 1999,
+    "type": "studio",
+    "releaseDate": "1999-10-18",
+    "recordLabel": "Warner Music",
+    "catalogNumber": "WM002",
+    "description": "The follow-up to her successful debut, 'Dear John' showcases Ilse's evolution as a songwriter and performer.",
+    "coverArt": "/images/albums/dear-john-cover.jpg",
+    "trackCount": 11,
+    "duration": "42:15",
+    "chartPerformance": [
+      {
+        "country": "Netherlands",
+        "chart": "Album Top 100",
+        "peakPosition": 2,
+        "weeksOnChart": 20
+      }
+    ],
+    "productionCredits": [
+      {
+        "role": "Producer",
+        "person": "Mike Thompson"
+      }
+    ],
+    "tracks": [
+      {
+        "number": 1,
+        "title": "Dear John",
+        "duration": "4:02",
+        "hasLyrics": true
+      },
+      {
+        "number": 2,
+        "title": "I Still Cry",
+        "duration": "3:55",
+        "hasLyrics": true
+      }
+    ]
+  }
+]

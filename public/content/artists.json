@@ -1,0 +1,73 @@
+[
+  {
+    "id": "ilse-delange",
+    "name": "Ilse DeLange",
+    "slug": "ilse-delange",
+    "type": "solo",
+    "biography": "Ilse Annoeska de Lange, known professionally as Ilse DeLange, is a Dutch country and pop singer-songwriter. Born on May 13, 1977, in Almelo, Netherlands, she has become one of the most successful Dutch artists internationally. Her career spans over two decades, with multiple platinum albums and international recognition.",
+    "formedDate": "1996",
+    "origin": "Almelo, Netherlands",
+    "genres": ["Country", "Pop", "Folk", "Americana"],
+    "websiteUrl": "https://www.ilsedelange.com",
+    "socialMedia": {
+      "facebook": "http://www.facebook.com/ilsedelangerecords",
+      "instagram": "https://www.instagram.com/ilsedelange",
+      "twitter": "https://twitter.com/ilsedelange"
+    },
+    "images": {
+      "profileImage": "/images/artists/ilse-delange-profile.jpg",
+      "bannerImage": "/images/artists/ilse-delange-banner.jpg"
+    },
+    "achievements": [
+      "Multiple platinum albums in the Netherlands",
+      "International chart success",
+      "Eurovision Song Contest 2014 (2nd place with The Common Linnets)",
+      "Multiple Dutch Music Awards"
+    ],
+    "stats": {
+      "albumsCount": 8,
+      "singlesCount": 25,
+      "lyricsCount": 35
+    },
+    "featured": true
+  },
+  {
+    "id": "the-common-linnets",
+    "name": "The Common Linnets",
+    "slug": "the-common-linnets",
+    "type": "duo",
+    "biography": "The Common Linnets is a Dutch country duo consisting of Ilse DeLange and Waylon. They represented the Netherlands at the Eurovision Song Contest 2014 with their song 'Calm After the Storm', finishing in second place.",
+    "formedDate": "2013",
+    "origin": "Netherlands",
+    "genres": ["Country", "Folk", "Americana"],
+    "websiteUrl": "https://www.thecommonlinnets.com",
+    "socialMedia": {
+      "facebook": "https://www.facebook.com/TheCommonLinnets"
+    },
+    "images": {
+      "profileImage": "/images/artists/common-linnets-profile.jpg",
+      "bannerImage": "/images/artists/common-linnets-banner.jpg"
+    },
+    "achievements": [
+      "Eurovision Song Contest 2014 - 2nd place",
+      "Platinum album 'The Common Linnets'",
+      "Multiple chart successes across Europe"
+    ],
+    "stats": {
+      "albumsCount": 2,
+      "singlesCount": 8,
+      "lyricsCount": 15
+    },
+    "featured": true,
+    "members": [
+      {
+        "name": "Ilse DeLange",
+        "role": "Vocals, Guitar"
+      },
+      {
+        "name": "Waylon",
+        "role": "Vocals, Guitar"
+      }
+    ]
+  }
+]
