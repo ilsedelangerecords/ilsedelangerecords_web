@@ -72,6 +72,13 @@ jobs:
       - name: 🏗️ Build application
         run: pnpm run build
 
+      - name: 🔍 Debug: List public directory contents before copy
+        run: |
+          echo "Listing public/ directory:"
+          ls -F public/
+          echo "Listing public/content/ directory:"
+          ls -F public/content/
+
       - name: 📦 Copy content files to dist
         run: |
           mkdir -p dist/content
