@@ -14,14 +14,20 @@ const AlbumDetailPage = () => {
       loadAlbumDetails();
     }
   }, [slug, albums, albumsLoading]);
-
   const loadAlbumDetails = async () => {
     setLoading(true);
     
+    console.log('Loading album details for slug:', slug);
+    console.log('Available albums:', albums?.length);
+    
     // Find the album by slug
-    const foundAlbum = albums.find(a => 
-      a.title.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '') === slug
-    );
+    const foundAlbum = albums.find(a => {
+      const albumSlug = a.title.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '');
+      console.log(`Comparing album "${a.title}" slug "${albumSlug}" with "${slug}"`);
+      return albumSlug === slug;
+    });
+    
+    console.log('Found album:', foundAlbum);
     
     if (foundAlbum) {
       setAlbum(foundAlbum);

@@ -48,12 +48,14 @@ const HomePage = () => {
             <p className="text-xl sm:text-2xl mb-8 max-w-3xl mx-auto">
               Complete discography and lyrics collection featuring the music of Ilse DeLange and The Common Linnets
             </p>
-            
-            {/* GitHub Edit Button */}
+              {/* GitHub Edit Button */}
             <div className="flex flex-col sm:flex-row items-center justify-center space-y-4 sm:space-y-0 sm:space-x-4">
-              <button className="bg-white text-purple-600 px-8 py-3 rounded-lg font-semibold hover:bg-gray-100 transition-colors duration-200">
+              <Link
+                to="/albums"
+                className="bg-white text-purple-600 px-8 py-3 rounded-lg font-semibold hover:bg-gray-100 transition-colors duration-200"
+              >
                 Explore Music
-              </button>
+              </Link>
               <a
                 href="https://github.com/ilsedelangerecords/ilsedelangerecords_web/edit/main/src/components/pages/HomePage.jsx"
                 target="_blank"
@@ -130,9 +132,7 @@ const HomePage = () => {
                           Since {artist.formedDate}
                         </span>
                       )}
-                    </div>
-
-                    <div className="flex items-center justify-between">
+                    </div>                    <div className="flex items-center justify-between">
                       <div className="flex space-x-4 text-sm">
                         <span className="flex items-center text-purple-600">
                           <Music className="w-4 h-4 mr-1" />
@@ -143,9 +143,12 @@ const HomePage = () => {
                           {artist.stats?.lyricsCount || 0} Songs
                         </span>
                       </div>
-                      <button className="bg-purple-600 text-white px-4 py-2 rounded-lg hover:bg-purple-700 transition-colors duration-200">
+                      <Link
+                        to={`/artist/${artist.name === 'Ilse DeLange' ? 'ilse-delange' : artist.name === 'The Common Linnets' ? 'the-common-linnets' : artist.name.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '')}`}
+                        className="bg-purple-600 text-white px-4 py-2 rounded-lg hover:bg-purple-700 transition-colors duration-200"
+                      >
                         View Profile
-                      </button>
+                      </Link>
                     </div>
                   </div>
                 </div>
@@ -160,10 +163,13 @@ const HomePage = () => {
               <h2 className="text-3xl sm:text-4xl font-bold text-gray-900 mb-4">Latest Music</h2>
               <p className="text-xl text-gray-600">Discover the newest albums and singles</p>
             </div>
-            <button className="hidden sm:block bg-purple-600 text-white px-6 py-3 rounded-lg hover:bg-purple-700 transition-colors duration-200">
+            <Link
+              to="/albums"
+              className="hidden sm:block bg-purple-600 text-white px-6 py-3 rounded-lg hover:bg-purple-700 transition-colors duration-200"
+            >
               View All Albums
-            </button>
-          </div>          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+            </Link>
+          </div><div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
             {featuredAlbums.map((album) => {
               const albumSlug = album.title.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '');
               return (
@@ -203,12 +209,13 @@ const HomePage = () => {
                 </div>
               );
             })}
-          </div>
-
-          <div className="text-center mt-8 sm:hidden">
-            <button className="bg-purple-600 text-white px-6 py-3 rounded-lg hover:bg-purple-700 transition-colors duration-200">
+          </div>          <div className="text-center mt-8 sm:hidden">
+            <Link
+              to="/albums"
+              className="bg-purple-600 text-white px-6 py-3 rounded-lg hover:bg-purple-700 transition-colors duration-200"
+            >
               View All Albums
-            </button>
+            </Link>
           </div>
         </div>
       </div>      {/* Call to Action Section */}
@@ -217,14 +224,19 @@ const HomePage = () => {
           <h2 className="text-3xl sm:text-4xl font-bold mb-6">Explore the Complete Collection</h2>
           <p className="text-xl mb-8">
             Dive deep into the musical journey with complete albums, verified lyrics, and artist stories
-          </p>
-          <div className="flex flex-col sm:flex-row items-center justify-center space-y-4 sm:space-y-0 sm:space-x-6">
-            <button className="bg-white text-purple-600 px-8 py-3 rounded-lg font-semibold hover:bg-gray-100 transition-colors duration-200">
+          </p>          <div className="flex flex-col sm:flex-row items-center justify-center space-y-4 sm:space-y-0 sm:space-x-6">
+            <Link
+              to="/albums"
+              className="bg-white text-purple-600 px-8 py-3 rounded-lg font-semibold hover:bg-gray-100 transition-colors duration-200"
+            >
               Browse Albums
-            </button>
-            <button className="border-2 border-white px-8 py-3 rounded-lg font-semibold hover:bg-white hover:text-purple-600 transition-colors duration-200">
+            </Link>
+            <Link
+              to="/lyrics"
+              className="border-2 border-white px-8 py-3 rounded-lg font-semibold hover:bg-white hover:text-purple-600 transition-colors duration-200"
+            >
               Read Lyrics
-            </button>
+            </Link>
           </div>
         </div>
       </div>
