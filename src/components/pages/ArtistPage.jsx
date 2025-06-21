@@ -28,10 +28,8 @@ const ArtistPage = () => {
         biography: 'Ilse Annoeska de Lange, known professionally as Ilse DeLange, is a Dutch country and pop singer-songwriter. Born on May 13, 1977, in Almelo, Netherlands, she has become one of the most successful Dutch artists internationally. Her career spans over two decades, with multiple platinum albums and international recognition.',
         formedDate: '1996',
         origin: 'Almelo, Netherlands',
-        genres: ['Country', 'Pop', 'Folk', 'Americana'],
-        websiteUrl: 'https://www.ilsedelange.com',
+        genres: ['Country', 'Pop', 'Folk', 'Americana'],        websiteUrl: 'https://www.ilsedelange.com',
         socialMedia: {
-          facebook: 'http://www.facebook.com/ilsedelangerecords'
         },
         images: {
           profileImage: '/images/ilse-delange-profile.jpg',
@@ -196,12 +194,9 @@ const ArtistPage = () => {
                 <div className="text-3xl font-bold">{artist.stats.lyricsCount}</div>
                 <div className="text-white/80">Lyrics</div>
               </div>
-            </div>
-
-            {/* Social Links */}
-            {(artist.websiteUrl || artist.socialMedia.facebook) && (
-              <div className="flex items-center space-x-4">
-                {artist.websiteUrl && (
+            </div>            {/* Social Links */}
+            {artist.websiteUrl && (
+              <div className="flex items-center space-x-4">                {artist.websiteUrl && (
                   <a
                     href={artist.websiteUrl}
                     target="_blank"
@@ -210,17 +205,6 @@ const ArtistPage = () => {
                   >
                     <ExternalLink className="w-4 h-4" />
                     <span>Official Website</span>
-                  </a>
-                )}
-                {artist.socialMedia.facebook && (
-                  <a
-                    href={artist.socialMedia.facebook}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="flex items-center space-x-2 bg-white/20 hover:bg-white/30 px-4 py-2 rounded-lg transition-colors backdrop-blur-sm"
-                  >
-                    <span>Facebook</span>
-                    <ExternalLink className="w-4 h-4" />
                   </a>
                 )}
               </div>

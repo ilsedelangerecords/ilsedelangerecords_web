@@ -11,9 +11,7 @@ export interface Artist {
   disbanded_date?: Date;
   origin: string;
   genres: string[];
-  website_url?: string;
-  social_media: {
-    facebook?: string;
+  website_url?: string;  social_media: {
     twitter?: string;
     instagram?: string;
     youtube?: string;

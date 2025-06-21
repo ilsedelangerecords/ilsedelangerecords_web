@@ -61,15 +61,10 @@ export const imageMappings = {
   'after_the_storm': 'After_The_Storm,_Front-1_e9f97381.jpg',
   'common_linnets': 'Album_Artwork_\'The_Common_Linnets\'_7df6b537.jpg',
   'eurovision_2014': 'Eurovision_Song_Contest_2014,_Front-1_29bb6cb3.jpg',
-  '2in1': 'Ilse_DeLange,_2in1,_front-1_b65a13dd.jpg',
-  
+  '2in1': 'Ilse_DeLange,_2in1,_front-1_b65a13dd.jpg',  
   // Artist photos
   'ilse_delange_profile': 'ilsedelange2018_34e4bd79.jpg',
-  'ilse_delange_ok': 'ilse_delange_OK_a29f0a07.jpg',
-  
-  // Social media icons
-  'facebook': 'Facebook_4a6c4d63.png',
-  'facebook_icon': 'Facebook-1_cc0680c1.png'
+  'ilse_delange_ok': 'ilse_delange_OK_a29f0a07.jpg'
 };
 
 // Function to resolve image paths from the migrated content

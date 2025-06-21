@@ -16,9 +16,7 @@ const ArtistForm = () => {
   const [formData, setFormData] = useState({
     name: '',
     bio: '',
-    website: '',
-    socialLinks: {
-      facebook: '',
+    website: '',    socialLinks: {
       twitter: '',
       instagram: '',
       youtube: ''
@@ -41,9 +39,7 @@ const ArtistForm = () => {
       setFormData({
         name: artist.name || '',
         bio: artist.bio || '',
-        website: artist.website || '',
-        socialLinks: artist.socialLinks ? JSON.parse(artist.socialLinks) : {
-          facebook: '',
+        website: artist.website || '',        socialLinks: artist.socialLinks ? JSON.parse(artist.socialLinks) : {
           twitter: '',
           instagram: '',
           youtube: ''
@@ -206,21 +202,10 @@ const ArtistForm = () => {
           </CardContent>
         </Card>
 
-        <Card>
-          <CardHeader>
+        <Card>          <CardHeader>
             <CardTitle>Social Media Links</CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
-            <div>
-              <Label htmlFor="facebook">Facebook</Label>
-              <Input
-                id="facebook"
-                value={formData.socialLinks.facebook}
-                onChange={(e) => handleInputChange('socialLinks.facebook', e.target.value)}
-                placeholder="https://facebook.com/artist"
-              />
-            </div>
-
             <div>
               <Label htmlFor="twitter">Twitter</Label>
               <Input

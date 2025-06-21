@@ -12,9 +12,7 @@ export const ArtistSchema = z.object({
   disbanded_date: z.date().optional(),
   origin: z.string(),
   genres: z.array(z.string()),
-  website_url: z.string().url().optional(),
-  social_media: z.object({
-    facebook: z.string().url().optional(),
+  website_url: z.string().url().optional(),  social_media: z.object({
     twitter: z.string().url().optional(),
     instagram: z.string().url().optional(),
     youtube: z.string().url().optional(),
