@@ -8,11 +8,11 @@ const Header = () => {
   
   // Check if we're in development mode with admin enabled
   const isDevelopment = import.meta.env.DEV && import.meta.env.VITE_DEV_MODE === 'true';
-
   const navigation = [
     { name: 'Home', href: '/', icon: Music },
     { name: 'Albums', href: '/albums', icon: Disc3 },
     { name: 'Lyrics', href: '/lyrics', icon: Heart },
+    { name: 'Artists', href: '/artists', icon: null },
     { name: 'Ilse DeLange', href: '/artist/ilse-delange', icon: null },
     { name: 'The Common Linnets', href: '/artist/the-common-linnets', icon: null },
   ];

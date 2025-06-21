@@ -516,10 +516,155 @@ function generateLyricsDetailPage(lyric) {
           <h2 class="text-2xl font-bold text-slate-800 mb-6">Lyrics</h2>
           <div class="text-slate-800 leading-relaxed whitespace-pre-line text-lg">
             ${escapeHtml(lyric.content)}
-          </div>
-        </div>
+          </div>        </div>
       </div>
     `
+  );
+}
+
+function generateArtistsPage() {
+  // Extract unique artists from albums
+  const artistsMap = new Map();
+  
+  albums.forEach(album => {
+    if (!artistsMap.has(album.artist)) {
+      // Create artist slug from name
+      const slug = album.artist.toLowerCase()
+        .replace(/\s+/g, '-')
+        .replace(/[^a-z0-9-]/g, '');
+        
+      artistsMap.set(album.artist, {
+        name: album.artist,
+        slug: slug,
+        albumCount: 1,
+        albums: [album],
+        image: album.coverImage || album.image,
+        latestAlbum: album
+      });
+    } else {
+      const existingArtist = artistsMap.get(album.artist);
+      existingArtist.albumCount++;
+      existingArtist.albums.push(album);
+      
+      // Update latest album if this one is more recent
+      if (!existingArtist.latestAlbum.year || 
+          (album.year && album.year > existingArtist.latestAlbum.year)) {
+        existingArtist.latestAlbum = album;
+        existingArtist.image = album.coverImage || album.image;
+      }
+    }
+  });
+  
+  // Convert to array and sort by name
+  const artistsArray = Array.from(artistsMap.values())
+    .sort((a, b) => a.name.localeCompare(b.name));
+
+  const artistsGrid = artistsArray.map(artist => {
+    return `        <div class="group bg-white rounded-xl shadow-lg border border-gray-200 overflow-hidden hover:shadow-xl transition-all duration-300">
+            <div class="aspect-square bg-gradient-to-br from-gray-100 to-gray-200 relative overflow-hidden">
+                <a href="/artist/${artist.slug}" class="block w-full h-full">
+                    ${artist.image ? `
+                    <img
+                        src="/images/albums/${escapeHtml(artist.image)}"
+                        alt="${escapeHtml(artist.name)}"
+                        class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                        onerror="this.style.display='none'; this.nextElementSibling.style.display='flex'"
+                    />
+                    ` : ''}
+                    <div class="absolute inset-0 flex items-center justify-center bg-gradient-to-br from-blue-600 to-purple-600" ${artist.image ? 'style="display: none"' : ''}>
+                        <svg class="w-16 h-16 text-white opacity-50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19V6l12-3v13M9 19c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zm12-3c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zM9 10l12-3"></path>
+                        </svg>
+                    </div>
+                    
+                    <!-- Overlay -->
+                    <div class="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors duration-300"></div>
+                    
+                    <!-- Album Count Badge -->
+                    <div class="absolute top-4 right-4 bg-white/90 backdrop-blur-sm rounded-full px-3 py-1">
+                        <span class="text-sm font-medium text-gray-700">
+                            ${artist.albumCount} album${artist.albumCount !== 1 ? 's' : ''}
+                        </span>
+                    </div>
+                </a>
+            </div>
+
+            <div class="p-6">
+                <h3 class="text-xl font-bold text-gray-800 mb-2 group-hover:text-blue-600 transition-colors">
+                    <a href="/artist/${artist.slug}">${escapeHtml(artist.name)}</a>
+                </h3>
+                
+                ${artist.latestAlbum ? `
+                <div class="flex items-center space-x-2 text-gray-600 mb-3">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                    </svg>
+                    <span class="text-sm">
+                        Latest: ${escapeHtml(artist.latestAlbum.title)}
+                        ${artist.latestAlbum.year ? ` (${artist.latestAlbum.year})` : ''}
+                    </span>
+                </div>
+                ` : ''}
+                
+                <div class="flex items-center justify-between text-sm text-gray-500">
+                    <div class="flex items-center space-x-1">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19V6l12-3v13M9 19c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zm12-3c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zM9 10l12-3"></path>
+                        </svg>
+                        <span>${artist.albumCount} releases</span>
+                    </div>
+                    <div class="flex items-center space-x-1">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z"></path>
+                        </svg>
+                        <span>View Profile</span>
+                    </div>
+                </div>
+            </div>
+        </div>`;
+  }).join('');
+
+  const content = `
+    <div class="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-50">
+        <div class="container mx-auto px-4 py-12">
+            <!-- Page Header -->
+            <div class="text-center mb-12">
+                <div class="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-br from-blue-600 to-purple-600 rounded-full mb-6">
+                    <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0z"></path>
+                    </svg>
+                </div>
+                <h1 class="text-4xl font-bold text-gray-800 mb-4">Artists</h1>
+                <p class="text-lg text-gray-600 max-w-2xl mx-auto">
+                    Discover all the talented artists in our collection, from solo performers to collaborative groups.
+                </p>
+            </div>
+
+            <!-- Artists Grid -->
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+${artistsGrid}
+            </div>
+
+            ${artistsArray.length === 0 ? `
+            <!-- Empty State -->
+            <div class="text-center py-12">
+                <svg class="w-16 h-16 text-gray-400 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0z"></path>
+                </svg>
+                <h3 class="text-xl font-semibold text-gray-600 mb-2">No Artists Found</h3>
+                <p class="text-gray-500">
+                    No artists are available at the moment. Please check back later.
+                </p>
+            </div>
+            ` : ''}
+        </div>
+    </div>
+  `;
+
+  return createHtmlTemplate(
+    'Artists | Ilse DeLange Records',
+    'Discover all the talented artists in our collection, from solo performers to collaborative groups.',
+    content
   );
 }
 
@@ -530,7 +675,6 @@ function generateStaticSite() {
   const indexHtml = generateIndexPage();
   fs.writeFileSync(path.join(distDir, 'index.html'), indexHtml);
   console.log('✓ Generated index.html');
-
   // Generate albums listing page
   const albumsHtml = generateAlbumsPage();
   const albumsPageDir = path.join(distDir, 'albums');
@@ -539,6 +683,15 @@ function generateStaticSite() {
   }
   fs.writeFileSync(path.join(albumsPageDir, 'index.html'), albumsHtml);
   console.log('✓ Generated albums/index.html');
+
+  // Generate artists listing page
+  const artistsHtml = generateArtistsPage();
+  const artistsPageDir = path.join(distDir, 'artists');
+  if (!fs.existsSync(artistsPageDir)) {
+    fs.mkdirSync(artistsPageDir, { recursive: true });
+  }
+  fs.writeFileSync(path.join(artistsPageDir, 'index.html'), artistsHtml);
+  console.log('✓ Generated artists/index.html');
 
   // Generate individual album pages
   albums.forEach(album => {

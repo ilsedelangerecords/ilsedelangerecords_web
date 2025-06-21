@@ -6,17 +6,17 @@ import { Search, Filter, Music, User, Globe, ExternalLink } from 'lucide-react';
 const LyricsPage = () => {
   const { data: lyrics, loading, error } = useContent('lyrics');
   const { data: artists } = useContent('artists');
-  
-  const [searchTerm, setSearchTerm] = useState('');
-  const [filters, setFilters] = useState({ artist: 'all', language: 'all', verified: 'all' });
+    const [searchTerm, setSearchTerm] = useState('');
+  const [filters, setFilters] = useState({ artist: 'all', language: 'all', album: 'all', verified: 'all' });
   const [sortBy, setSortBy] = useState('title');
 
   // Get unique values for filters - with safer null checks
   const uniqueArtists = (lyrics && Array.isArray(lyrics)) ? 
-    [...new Set(lyrics.filter(lyric => lyric?.artist).map(lyric => lyric.artist))] : [];
+    [...new Set(lyrics.filter(lyric => lyric?.artist).map(lyric => lyric.artist))].sort() : [];
   const uniqueLanguages = (lyrics && Array.isArray(lyrics)) ? 
-    [...new Set(lyrics.filter(lyric => lyric?.language).map(lyric => lyric.language))] : [];
-
+    [...new Set(lyrics.filter(lyric => lyric?.language).map(lyric => lyric.language))].sort() : [];
+  const uniqueAlbums = (lyrics && Array.isArray(lyrics)) ? 
+    [...new Set(lyrics.filter(lyric => lyric?.album).map(lyric => lyric.album))].sort() : [];
   // Apply filtering and searching manually - with safer null checks
   const filteredData = (lyrics && Array.isArray(lyrics)) ? lyrics.filter(lyric => {
     // Ensure lyric exists and has basic properties
@@ -29,11 +29,34 @@ const LyricsPage = () => {
     
     const matchesArtist = filters.artist === 'all' || (lyric.artist && lyric.artist === filters.artist);
     const matchesLanguage = filters.language === 'all' || (lyric.language && lyric.language === filters.language);
+    const matchesAlbum = filters.album === 'all' || (lyric.album && lyric.album === filters.album);
     const matchesVerified = filters.verified === 'all' || 
       (filters.verified === 'verified' && lyric.verified === true) ||
       (filters.verified === 'unverified' && lyric.verified !== true);
     
-    return matchesSearch && matchesArtist && matchesLanguage && matchesVerified;
+    return matchesSearch && matchesArtist && matchesLanguage && matchesAlbum && matchesVerified;
+  }).sort((a, b) => {
+    // Apply sorting
+    switch (sortBy) {
+      case 'title-asc':
+        return (a.title || '').localeCompare(b.title || '');
+      case 'title-desc':
+        return (b.title || '').localeCompare(a.title || '');
+      case 'artist-asc':
+        return (a.artist || '').localeCompare(b.artist || '');
+      case 'artist-desc':
+        return (b.artist || '').localeCompare(a.artist || '');
+      case 'album-asc':
+        return (a.album || '').localeCompare(b.album || '');
+      case 'album-desc':
+        return (b.album || '').localeCompare(a.album || '');
+      case 'wordCount-desc':
+        return (b.wordCount || 0) - (a.wordCount || 0);
+      case 'wordCount-asc':
+        return (a.wordCount || 0) - (b.wordCount || 0);
+      default:
+        return (a.title || '').localeCompare(b.title || '');
+    }
   }) : [];
 
   if (loading) {
@@ -88,25 +111,25 @@ const LyricsPage = () => {
         </div>
       </div>
 
-      <div className="max-w-7xl mx-auto px-4 py-8">
-        {/* Search and Filters */}
+      <div className="max-w-7xl mx-auto px-4 py-8">        {/* Search and Filters */}
         <div className="bg-white rounded-lg shadow-sm p-6 mb-8">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
-            {/* Search */}
-            <div className="lg:col-span-2">
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                <Search className="w-4 h-4 inline mr-1" />
-                Search Lyrics
-              </label>
-              <input
-                type="text"
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                placeholder="Search by song title..."
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-              />
-            </div>
+          {/* Search Bar */}
+          <div className="mb-6">
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              <Search className="w-4 h-4 inline mr-1" />
+              Search Lyrics
+            </label>
+            <input
+              type="text"
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              placeholder="Search by song title, artist, or album..."
+              className="w-full px-4 py-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            />
+          </div>
 
+          {/* Filters Grid */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
             {/* Artist Filter */}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -118,9 +141,27 @@ const LyricsPage = () => {
                 onChange={(e) => setFilters({...filters, artist: e.target.value})}
                 className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
               >
-                <option value="all">All Artists</option>
+                <option value="all">All Artists ({uniqueArtists.length})</option>
                 {uniqueArtists.map(artist => (
                   <option key={artist} value={artist}>{artist}</option>
+                ))}
+              </select>
+            </div>
+
+            {/* Album Filter */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                <Music className="w-4 h-4 inline mr-1" />
+                Album
+              </label>
+              <select
+                value={filters.album}
+                onChange={(e) => setFilters({...filters, album: e.target.value})}
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              >
+                <option value="all">All Albums ({uniqueAlbums.length})</option>
+                {uniqueAlbums.map(album => (
+                  <option key={album} value={album}>{album}</option>
                 ))}
               </select>
             </div>
@@ -145,6 +186,23 @@ const LyricsPage = () => {
               </select>
             </div>
 
+            {/* Verification Filter */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                <Filter className="w-4 h-4 inline mr-1" />
+                Status
+              </label>
+              <select
+                value={filters.verified}
+                onChange={(e) => setFilters({...filters, verified: e.target.value})}
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              >
+                <option value="all">All Status</option>
+                <option value="verified">Verified Only</option>
+                <option value="unverified">Unverified Only</option>
+              </select>
+            </div>
+
             {/* Sort */}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -159,10 +217,27 @@ const LyricsPage = () => {
                 <option value="title-asc">Title A-Z</option>
                 <option value="title-desc">Title Z-A</option>
                 <option value="artist-asc">Artist A-Z</option>
+                <option value="artist-desc">Artist Z-A</option>
+                <option value="album-asc">Album A-Z</option>
+                <option value="album-desc">Album Z-A</option>
                 <option value="wordCount-desc">Longest First</option>
                 <option value="wordCount-asc">Shortest First</option>
               </select>
             </div>
+          </div>
+
+          {/* Clear Filters Button */}
+          <div className="mt-4 flex justify-end">
+            <button
+              onClick={() => {
+                setSearchTerm('');
+                setFilters({ artist: 'all', language: 'all', album: 'all', verified: 'all' });
+                setSortBy('title-asc');
+              }}
+              className="px-4 py-2 text-sm text-gray-600 hover:text-gray-800 hover:bg-gray-100 rounded-md transition-colors"
+            >
+              Clear All Filters
+            </button>
           </div>
         </div>
 

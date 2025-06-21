@@ -1,22 +1,27 @@
 import React, { useState, useEffect } from 'react';
 import { useContent } from '../../lib/contentLoader';
+import { Link } from 'react-router-dom';
 import { Music, Users, Calendar, Award, ExternalLink, Globe, Heart, Play } from 'lucide-react';
 import OptimizedImage from '../OptimizedImage';
 
 const HomePage = () => {
   const { data: albums, loading: albumsLoading } = useContent('albums');
-  const { data: lyrics, loading: lyricsLoading } = useContent('lyrics');
-  const { data: artists, loading: artistsLoading } = useContent('artists');
-
-  // Get featured content
-  const featuredAlbums = albums?.slice(0, 6) || [];
-  const recentLyrics = lyrics?.slice(0, 4) || [];
+  const { data: artists, loading: artistsLoading } = useContent('artists');  // Get featured content
+  const featuredAlbums = albums
+    ?.sort((a, b) => {
+      // Sort by year (newest first), then by title if years are the same
+      const yearA = a.year || 0;
+      const yearB = b.year || 0;
+      if (yearA !== yearB) {
+        return yearB - yearA; // Newest first
+      }
+      return (a.title || '').localeCompare(b.title || '');
+    })
+    .slice(0, 3) || [];
   const mainArtists = artists || [];
-
   // Calculate statistics with debugging
   const stats = {
     totalAlbums: Array.isArray(albums) ? albums.length : 0,
-    totalLyrics: Array.isArray(lyrics) ? lyrics.length : 0,
     totalArtists: Array.isArray(artists) ? artists.length : 0,
     totalYears: Array.isArray(albums) && albums.length > 0 ? 
       Math.max(1, new Date().getFullYear() - Math.min(...albums.map(a => a.year || new Date().getFullYear())) + 1) : 
@@ -26,10 +31,9 @@ const HomePage = () => {
   // Debug logging
   console.log('HomePage stats:', stats);
   console.log('Albums data:', albums?.length, albums);
-  console.log('Lyrics data:', lyrics?.length);
   console.log('Artists data:', artists?.length);
 
-  const loading = albumsLoading || lyricsLoading || artistsLoading;
+  const loading = albumsLoading || artistsLoading;
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-purple-50 via-pink-50 to-blue-50">
@@ -62,23 +66,15 @@ const HomePage = () => {
             </div>
           </div>
         </div>
-      </div>
-
-      {/* Statistics Section */}
+      </div>      {/* Statistics Section */}
       <div className="py-16 bg-white">
         <div className="max-w-7xl mx-auto px-4">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             <div className="text-center">
               <div className="text-3xl sm:text-4xl font-bold text-purple-600 mb-2">
                 {loading ? '...' : stats.totalAlbums}
               </div>
               <div className="text-gray-600 font-medium">Albums & Singles</div>
-            </div>
-            <div className="text-center">
-              <div className="text-3xl sm:text-4xl font-bold text-pink-600 mb-2">
-                {loading ? '...' : stats.totalLyrics}
-              </div>
-              <div className="text-gray-600 font-medium">Song Lyrics</div>
             </div>
             <div className="text-center">
               <div className="text-3xl sm:text-4xl font-bold text-blue-600 mb-2">
@@ -157,52 +153,56 @@ const HomePage = () => {
             ))}
           </div>
         </div>
-      </div>
-
-      {/* Featured Albums Section */}
+      </div>      {/* Latest Music Section */}
       <div className="py-16 bg-white">
-        <div className="max-w-7xl mx-auto px-4">
-          <div className="flex items-center justify-between mb-12">
+        <div className="max-w-7xl mx-auto px-4">          <div className="flex items-center justify-between mb-12">
             <div>
-              <h2 className="text-3xl sm:text-4xl font-bold text-gray-900 mb-4">Featured Albums</h2>
-              <p className="text-xl text-gray-600">Explore the latest and most popular releases</p>
+              <h2 className="text-3xl sm:text-4xl font-bold text-gray-900 mb-4">Latest Music</h2>
+              <p className="text-xl text-gray-600">Discover the newest albums and singles</p>
             </div>
             <button className="hidden sm:block bg-purple-600 text-white px-6 py-3 rounded-lg hover:bg-purple-700 transition-colors duration-200">
               View All Albums
             </button>
-          </div>
-
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
-            {featuredAlbums.map((album) => (
-              <div key={album.id} className="bg-white rounded-lg shadow-lg overflow-hidden hover:shadow-xl transition-shadow duration-300">                <div className="aspect-square bg-gray-200 overflow-hidden">
-                  <OptimizedImage
-                    src={album.coverArt}
-                    alt={`${album.title} cover art`}
-                    className="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
-                    fallback="/images/placeholder.svg"
-                  />
-                </div>
-                <div className="p-6">
-                  <h3 className="font-bold text-lg text-gray-900 mb-2 line-clamp-2">{album.title}</h3>
-                  <p className="text-gray-600 mb-3">{album.artist}</p>
-                  
-                  <div className="flex items-center justify-between text-sm text-gray-500 mb-4">
-                    <span className="flex items-center">
-                      <Calendar className="w-4 h-4 mr-1" />
-                      {album.year}
-                    </span>
-                    <span className="flex items-center">
-                      <Music className="w-4 h-4 mr-1" />
-                      {album.trackCount || album.tracks?.length || 0} tracks
-                    </span>
+          </div>          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+            {featuredAlbums.map((album) => {
+              const albumSlug = album.title.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '');
+              return (
+                <div key={album.id} className="bg-white rounded-lg shadow-lg overflow-hidden hover:shadow-xl transition-shadow duration-300">
+                  <div className="aspect-square bg-gray-200 overflow-hidden">
+                    <Link to={`/album/${albumSlug}`} className="block w-full h-full">
+                      <OptimizedImage
+                        src={album.coverImage || album.coverArt || album.image}
+                        alt={`${album.title} cover art`}
+                        className="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
+                        fallback="/images/placeholder.svg"
+                      />
+                    </Link>
                   </div>
+                  <div className="p-6">
+                    <h3 className="font-bold text-lg text-gray-900 mb-2 line-clamp-2">{album.title}</h3>
+                    <p className="text-gray-600 mb-3">{album.artist}</p>
+                    
+                    <div className="flex items-center justify-between text-sm text-gray-500 mb-4">
+                      <span className="flex items-center">
+                        <Calendar className="w-4 h-4 mr-1" />
+                        {album.year}
+                      </span>
+                      <span className="flex items-center">
+                        <Music className="w-4 h-4 mr-1" />
+                        {album.trackCount || album.tracks?.length || 0} tracks
+                      </span>
+                    </div>
 
-                  <button className="w-full bg-gradient-to-r from-purple-600 to-pink-600 text-white py-2 px-4 rounded-lg hover:from-purple-700 hover:to-pink-700 transition-colors duration-200 font-medium">
-                    View Album
-                  </button>
+                    <Link 
+                      to={`/album/${albumSlug}`}
+                      className="block w-full bg-gradient-to-r from-purple-600 to-pink-600 text-white py-2 px-4 rounded-lg hover:from-purple-700 hover:to-pink-700 transition-colors duration-200 font-medium text-center"
+                    >
+                      View Album
+                    </Link>
+                  </div>
                 </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
 
           <div className="text-center mt-8 sm:hidden">
@@ -211,72 +211,7 @@ const HomePage = () => {
             </button>
           </div>
         </div>
-      </div>
-
-      {/* Recent Lyrics Section */}
-      <div className="py-16 bg-gradient-to-r from-blue-50 to-indigo-50">
-        <div className="max-w-7xl mx-auto px-4">
-          <div className="flex items-center justify-between mb-12">
-            <div>
-              <h2 className="text-3xl sm:text-4xl font-bold text-gray-900 mb-4">Popular Lyrics</h2>
-              <p className="text-xl text-gray-600">Discover the words behind the music</p>
-            </div>
-            <button className="hidden sm:block bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition-colors duration-200">
-              View All Lyrics
-            </button>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-            {recentLyrics.map((lyric) => (
-              <div key={lyric.id} className="bg-white rounded-lg shadow-lg p-6 hover:shadow-xl transition-shadow duration-300">
-                <div className="flex items-start justify-between mb-4">
-                  <div>
-                    <h3 className="font-bold text-lg text-gray-900 mb-1">{lyric.title}</h3>
-                    <p className="text-gray-600">{lyric.artist}</p>
-                  </div>
-                  <div className="flex items-center space-x-2">
-                    {lyric.language && (
-                      <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
-                        {lyric.language === 'en' ? 'EN' : lyric.language === 'nl' ? 'NL' : lyric.language}
-                      </span>
-                    )}
-                    {lyric.verified && (
-                      <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
-                        ✓
-                      </span>
-                    )}
-                  </div>
-                </div>
-
-                {lyric.content && (
-                  <div className="bg-gray-50 rounded-lg p-4 mb-4">
-                    <p className="text-gray-700 text-sm line-clamp-4 italic">
-                      "{lyric.content.substring(0, 150)}..."
-                    </p>
-                  </div>
-                )}
-
-                <div className="flex items-center justify-between">
-                  <div className="text-sm text-gray-500">
-                    {lyric.wordCount && `${lyric.wordCount} words`}
-                  </div>
-                  <button className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors duration-200 text-sm font-medium">
-                    Read Full Lyrics
-                  </button>
-                </div>
-              </div>
-            ))}
-          </div>
-
-          <div className="text-center mt-8 sm:hidden">
-            <button className="bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition-colors duration-200">
-              View All Lyrics
-            </button>
-          </div>
-        </div>
-      </div>
-
-      {/* Call to Action Section */}
+      </div>      {/* Call to Action Section */}
       <div className="py-16 bg-gradient-to-r from-purple-600 to-pink-600 text-white">
         <div className="max-w-4xl mx-auto px-4 text-center">
           <h2 className="text-3xl sm:text-4xl font-bold mb-6">Explore the Complete Collection</h2>
