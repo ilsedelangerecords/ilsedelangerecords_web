@@ -1,84 +1,39 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { ArrowLeft, Heart, Music, Globe, Copy, Share, Check } from 'lucide-react';
+import { ArrowLeft, Heart, Music, Globe, Copy, Check } from 'lucide-react';
+import { useContent } from '../../lib/contentLoader';
 
 const LyricsDetailPage = () => {
   const { slug } = useParams();
+  const { data: allLyrics, loading: lyricsLoading, error } = useContent('lyrics');
   const [lyrics, setLyrics] = useState(null);
   const [loading, setLoading] = useState(true);
   const [copied, setCopied] = useState(false);
 
   useEffect(() => {
-    loadLyricsDetails();
-  }, [slug]);
+    if (!lyricsLoading && allLyrics && slug) {
+      loadLyricsDetails();
+    }
+  }, [slug, allLyrics, lyricsLoading]);
 
   const loadLyricsDetails = async () => {
     setLoading(true);
     
-    // In production, this would load from the migrated lyrics content based on slug
-    const lyricsDetails = {
-      id: '1',
-      title: 'I\'m Not So Tough',
-      artist: 'Ilse DeLange',
-      artistId: 'ilse-delange',
-      album: 'World of Hurt',
-      albumId: 'world-of-hurt',
-      language: 'en',
-      verified: true,
-      verifiedBy: 'Fan Community',
-      verifiedDate: '2024-01-15',
-      content: `I can't sleep, I can't eat
-I can't do anything right
-Since you left me here alone
-I just cry throughout the night
-
-I'm not so tough
-I'm not so tough
-Without your love
-I'm not so tough
-
-I used to be so strong
-I used to stand so tall
-But now I'm just a shadow
-Of who I used to be at all
-
-I'm not so tough
-I'm not so tough
-Without your love
-I'm not so tough
-
-Every morning when I wake
-I reach out for your hand
-But all I find is empty space
-Where you used to stand
-
-I'm not so tough
-I'm not so tough
-Without your love
-I'm not so tough
-
-No, I'm not so tough
-I'm not so tough
-Without your love
-I'm not so tough`,
-      structure: [
-        { section_type: 'verse', section_number: 1, content: 'I can\'t sleep, I can\'t eat\nI can\'t do anything right\nSince you left me here alone\nI just cry throughout the night' },
-        { section_type: 'chorus', content: 'I\'m not so tough\nI\'m not so tough\nWithout your love\nI\'m not so tough' },
-        { section_type: 'verse', section_number: 2, content: 'I used to be so strong\nI used to stand so tall\nBut now I\'m just a shadow\nOf who I used to be at all' },
-        { section_type: 'chorus', content: 'I\'m not so tough\nI\'m not so tough\nWithout your love\nI\'m not so tough' },
-        { section_type: 'verse', section_number: 3, content: 'Every morning when I wake\nI reach out for your hand\nBut all I find is empty space\nWhere you used to stand' },
-        { section_type: 'chorus', content: 'I\'m not so tough\nI\'m not so tough\nWithout your love\nI\'m not so tough' },
-        { section_type: 'outro', content: 'No, I\'m not so tough\nI\'m not so tough\nWithout your love\nI\'m not so tough' }
-      ],
-      writers: ['Ilse DeLange', 'John Doe'],
-      wordCount: 156,
-      translationNotes: null,
-      copyrightInfo: '© 1998 Warner Music',
-      transcriptionNotes: 'Transcribed from official album release'
-    };
-
-    setLyrics(lyricsDetails);
-    setLoading(false);
+    try {
+      // Find the lyrics item that matches the slug
+      const foundLyrics = allLyrics.find(lyric => lyric.id === slug);
+      
+      if (foundLyrics) {
+        setLyrics(foundLyrics);
+      } else {
+        console.warn('No lyrics found for slug:', slug);        setLyrics(null);
+      }
+    } catch (error) {
+      console.error('Error loading lyrics details:', error);
+      setLyrics(null);
+    } finally {
+      setLoading(false);
+    }
   };
 
   const copyLyrics = async () => {
@@ -89,20 +44,6 @@ I'm not so tough`,
         setTimeout(() => setCopied(false), 2000);
       } catch (err) {
         console.error('Failed to copy lyrics:', err);
-      }
-    }
-  };
-
-  const shareLyrics = async () => {
-    if (navigator.share && lyrics) {
-      try {
-        await navigator.share({
-          title: `${lyrics.title} - ${lyrics.artist}`,
-          text: `Check out the lyrics for "${lyrics.title}" by ${lyrics.artist}`,
-          url: window.location.href
-        });
-      } catch (err) {
-        console.error('Failed to share:', err);
       }
     }
   };
@@ -211,9 +152,7 @@ I'm not so tough`,
                 </Link>
               </p>
             </div>
-          </div>
-
-          <div className="flex items-center space-x-3">
+          </div>          <div className="flex items-center space-x-3">
             <button
               onClick={copyLyrics}
               className="flex items-center space-x-2 bg-slate-100 hover:bg-slate-200 text-slate-700 px-4 py-2 rounded-lg transition-colors"
@@ -230,16 +169,6 @@ I'm not so tough`,
                 </>
               )}
             </button>
-            
-            {navigator.share && (
-              <button
-                onClick={shareLyrics}
-                className="flex items-center space-x-2 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg transition-colors"
-              >
-                <Share className="w-4 h-4" />
-                <span>Share</span>
-              </button>
-            )}
           </div>
         </div>
       </div>

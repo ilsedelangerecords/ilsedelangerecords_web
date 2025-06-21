@@ -1,9 +1,13 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Menu, X, Music, Heart, Disc3 } from 'lucide-react';
+import { Menu, X, Music, Heart, Disc3, Settings } from 'lucide-react';
+import { Badge } from '@/components/ui/badge';
 
 const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  
+  // Check if we're in development mode with admin enabled
+  const isDevelopment = import.meta.env.DEV && import.meta.env.VITE_DEV_MODE === 'true';
 
   const navigation = [
     { name: 'Home', href: '/', icon: Music },
@@ -45,6 +49,18 @@ const Header = () => {
                 </Link>
               );
             })}
+            
+            {/* Admin Link - only shown in development */}
+            {isDevelopment && (
+              <Link
+                to="/admin"
+                className="flex items-center space-x-2 text-orange-600 hover:text-orange-700 transition-colors font-medium group"
+              >
+                <Settings className="w-4 h-4 group-hover:scale-110 transition-transform" />
+                <span>Admin</span>
+                <Badge variant="secondary" className="ml-1">DEV</Badge>
+              </Link>
+            )}
           </nav>
 
           {/* Mobile menu button */}
@@ -58,9 +74,7 @@ const Header = () => {
               <Menu className="w-6 h-6 text-slate-700" />
             )}
           </button>
-        </div>
-
-        {/* Mobile Navigation */}
+        </div>        {/* Mobile Navigation */}
         {isMenuOpen && (
           <div className="md:hidden py-4 border-t border-slate-200 bg-white/95 backdrop-blur-sm">
             <nav className="flex flex-col space-y-3">
@@ -78,6 +92,19 @@ const Header = () => {
                   </Link>
                 );
               })}
+              
+              {/* Admin Link - mobile */}
+              {isDevelopment && (
+                <Link
+                  to="/admin"
+                  onClick={() => setIsMenuOpen(false)}
+                  className="flex items-center space-x-3 px-3 py-2 rounded-lg text-orange-600 hover:text-orange-700 hover:bg-orange-50 transition-colors font-medium"
+                >
+                  <Settings className="w-5 h-5" />
+                  <span>Admin</span>
+                  <Badge variant="secondary" className="ml-auto">DEV</Badge>
+                </Link>
+              )}
             </nav>
           </div>
         )}

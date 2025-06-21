@@ -38,7 +38,7 @@ app.get('/api/artists', async (req, res) => {
     const artists = await prisma.artist.findMany({
       include: {
         _count: {
-          select: { releases: true, tracks: true }
+          select: { releases: true }
         }
       }
     });
@@ -54,12 +54,16 @@ app.get('/api/artists/:id', async (req, res) => {
     const artist = await prisma.artist.findUnique({
       where: { id: req.params.id },
       include: {
-        releases: true,
-        tracks: {
+        releases: {
           include: {
-            song: true,
-            edition: {
-              include: { release: true }
+            editions: {
+              include: {
+                tracks: {
+                  include: {
+                    song: true
+                  }
+                }
+              }
             }
           }
         }
@@ -166,7 +170,7 @@ app.get('/api/releases', async (req, res) => {
   try {
     const releases = await prisma.release.findMany({
       include: {
-        artist: true,
+        primaryArtist: true,
         label: true,
         editions: {
           include: {
@@ -189,7 +193,7 @@ app.get('/api/releases/:id', async (req, res) => {
     const release = await prisma.release.findUnique({
       where: { id: req.params.id },
       include: {
-        artist: true,
+        primaryArtist: true,
         label: true,
         editions: {
           include: {
@@ -245,7 +249,7 @@ app.get('/api/songs', async (req, res) => {
         tracks: {
           include: {
             edition: {
-              include: { release: { include: { artist: true } } }
+              include: { release: { include: { primaryArtist: true } } }
             }
           }
         }
@@ -267,7 +271,7 @@ app.get('/api/songs/:id', async (req, res) => {
         tracks: {
           include: {
             edition: {
-              include: { release: { include: { artist: true } } }
+              include: { release: { include: { primaryArtist: true } } }
             }
           }
         }

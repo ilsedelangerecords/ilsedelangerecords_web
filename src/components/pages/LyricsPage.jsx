@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { useContent, useContentSearch } from '../../lib/contentLoader';
-import { Search, Filter, Music, User, Globe, ExternalLink, Copy, Share2 } from 'lucide-react';
+import { Search, Filter, Music, User, Globe, ExternalLink } from 'lucide-react';
 
 const LyricsPage = () => {
   const { data: lyrics, loading, error } = useContent('lyrics');
@@ -230,23 +230,10 @@ const LyricsPage = () => {
                 <div className="flex space-x-2">
                   <Link 
                     to={`/lyrics/${lyric.id || lyric.title.toLowerCase().replace(/[^a-z0-9]/g, '-').replace(/-+/g, '-')}`}
-                    className="flex-1 bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 transition-colors duration-200 text-sm font-medium text-center"
+                    className="w-full bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 transition-colors duration-200 text-sm font-medium text-center"
                   >
                     View Details
                   </Link>
-                  <button 
-                    onClick={() => {
-                      navigator.clipboard.writeText(lyric.content);
-                      // Could add a toast notification here
-                    }}
-                    className="p-2 border border-gray-300 rounded-md hover:bg-gray-50 transition-colors duration-200"
-                    title="Copy lyrics"
-                  >
-                    <Copy className="w-4 h-4 text-gray-600" />
-                  </button>
-                  <button className="p-2 border border-gray-300 rounded-md hover:bg-gray-50 transition-colors duration-200">
-                    <Share2 className="w-4 h-4 text-gray-600" />
-                  </button>
                 </div>
               </div>
             </div>
