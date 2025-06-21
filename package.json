@@ -8,6 +8,8 @@
     "dev:admin": "npm run db:generate && node scripts/dev-server.js",
     "build": "vite build",
     "build:static": "node scripts/generate-static-site.js",
+    "build:staging": "npm run build:static",
+    "build:production": "npm run build:static && npm run generate:sitemap",
     "build:validate": "vite build && node scripts/validate-build.js",
     "serve:static": "cd dist && python -m http.server 8080",
     "generate:sitemap": "node scripts/generate-sitemap.js",
@@ -28,7 +30,9 @@
     "lint": "eslint .",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "deploy:staging": "npm run build:staging",
+    "deploy:production": "npm run build:production"
   },
   "dependencies": {
     "@hookform/resolvers": "^5.0.1",

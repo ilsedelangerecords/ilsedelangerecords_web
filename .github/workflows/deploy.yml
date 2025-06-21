@@ -1,12 +1,12 @@
 name: 🚀 Deploy to Production
 
 on:
-  push:
-    branches: [ main ]
+  release:
+    types: [published]
   workflow_dispatch:
     inputs:
       force_deploy:
-        description: 'Force deployment even if no changes detected'
+        description: 'Force deployment to production'
         required: false
         default: false
         type: boolean
@@ -16,117 +16,85 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
-  # Pre-deployment checks and build
-  build:
+  # Build and deploy to production
+  build-and-deploy:
     runs-on: ubuntu-latest
-    outputs:
-      version: ${{ steps.version.outputs.version }}
-      should-deploy: ${{ steps.changes.outputs.should-deploy }}
+    environment: production
     steps:
       - name: 📥 Checkout code
         uses: actions/checkout@v4
-        with:
-          fetch-depth: 1 # Only need latest commit for most operations
 
-      - name: 🔍 Check for relevant changes
-        id: changes
-        run: |
-          if [[ "${{ github.event.inputs.force_deploy }}" == "true" ]]; then
-            echo "should-deploy=true" >> $GITHUB_OUTPUT
-            echo "🔄 Force deployment requested"
-          else
-            echo "should-deploy=true" >> $GITHUB_OUTPUT
-            echo "✅ Deploying to ensure staging is up to date"
-          fi
-
-      - name: 📋 Generate version
-        id: version
-        run: |
-          VERSION=$(date +%Y%m%d-%H%M%S)-$(git rev-parse --short HEAD)
-          echo "version=$VERSION" >> $GITHUB_OUTPUT
-          echo "📦 Version: $VERSION"
-
-      - name: 📦 Setup pnpm
+      - name:  Setup pnpm
         uses: pnpm/action-setup@v4
 
       - name: 📦 Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '18'
+          node-version: '20'
           cache: 'pnpm'
 
       - name: 📥 Install dependencies
         run: pnpm install --frozen-lockfile
 
-      - name: 🏗️ Build and validate
-        run: pnpm run build:validate
-
-      - name: 📊 Build summary
+      - name: 🏗️ Generate optimized static site
         run: |
-          echo "📦 Build completed successfully!"
-          echo "📁 Build size: $(du -sh dist/ | cut -f1)"
-          echo "📄 Files generated: $(find dist/ -type f | wc -l)"
-
-      - name: 📤 Upload build artifacts
-        uses: actions/upload-artifact@v4
-        with:
-          name: build-${{ steps.version.outputs.version }}
-          path: dist/
-          retention-days: 30
-
-  # Deploy to production
-  deploy:
-    needs: build
-    if: needs.build.outputs.should-deploy == 'true'
-    runs-on: ubuntu-latest
-    environment: production
-    steps:
-      - name: 📥 Download build artifacts
-        uses: actions/download-artifact@v4
-        with:
-          name: build-${{ needs.build.outputs.version }}
-          path: dist/
-
-      - name: 🔐 Prepare SSH key
-        run: |
-          mkdir -p ~/.ssh
-          echo "${{ secrets.DEPLOY_SSH_KEY }}" > ~/.ssh/id_ed25519
-          chmod 600 ~/.ssh/id_ed25519
-          ssh-keyscan -p ${{ secrets.SSH_PORT || '22' }} ${{ secrets.SSH_HOST }} >> ~/.ssh/known_hosts
-
-      - name: 🚀 Deploy via rsync
-        run: |
-          echo "🚀 Deploying to production server..."
-          rsync -avz --delete --progress \
-            -e "ssh -i ~/.ssh/id_ed25519 -p ${{ secrets.SSH_PORT || '22' }}" \
-            dist/ \
-            ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}:${{ secrets.SSH_TARGET_PATH }}
-          echo "✅ Deployment completed!"
-
-      - name: 🌐 Deployment summary
-        run: |
-          echo "🎉 Deployment successful!"
-          echo "🔗 Production URL: https://staging.ilsedelangerecords.nl/"
-          echo "📦 Version: ${{ needs.build.outputs.version }}"
-          echo "⏰ Deployed at: $(date)"
-
-      - name: 🧪 Post-deployment verification
-        run: |
-          echo "🔍 Verifying deployment..."
-          sleep 15
+          echo "🏗️ Building optimized static site for production..."
+          pnpm run build:static
           
-          # Test main site
-          if curl -f -s https://staging.ilsedelangerecords.nl/ > /dev/null; then
-            echo "✅ Site is responding"
-          else
-            echo "❌ Site is not responding"
-            exit 1
-          fi
+          # Add production optimizations
+          cat > dist/.htaccess << 'EOF'
+          # Production optimizations
+          <IfModule mod_deflate.c>
+              AddOutputFilterByType DEFLATE text/plain text/html text/xml text/css
+              AddOutputFilterByType DEFLATE application/xml application/xhtml+xml application/rss+xml
+              AddOutputFilterByType DEFLATE application/javascript application/x-javascript application/json
+          </IfModule>
           
-          # Test content API
-          if curl -f -s https://staging.ilsedelangerecords.nl/content/albums.json > /dev/null; then
-            echo "✅ Content API is accessible"
-          else
-            echo "❌ Content API not accessible"
-            exit 1
-          fi
+          <IfModule mod_expires.c>
+              ExpiresActive On
+              ExpiresByType text/css "access plus 1 year"
+              ExpiresByType application/javascript "access plus 1 year"
+              ExpiresByType image/png "access plus 1 year"
+              ExpiresByType image/jpg "access plus 1 year"
+              ExpiresByType image/jpeg "access plus 1 year"
+              ExpiresByType image/gif "access plus 1 year"
+              ExpiresByType image/svg+xml "access plus 1 year"
+              ExpiresByType application/json "access plus 1 week"
+              ExpiresByType text/html "access plus 1 day"
+          </IfModule>
+          
+          <IfModule mod_headers.c>
+              Header always set X-Content-Type-Options nosniff
+              Header always set X-Frame-Options DENY
+              Header always set X-XSS-Protection "1; mode=block"
+              Header always set Referrer-Policy "strict-origin-when-cross-origin"
+              Header always set Strict-Transport-Security "max-age=63072000; includeSubDomains; preload"
+          </IfModule>
+          
+          RewriteEngine On
+          RewriteCond %{REQUEST_FILENAME} !-d
+          RewriteCond %{REQUEST_FILENAME} !-f
+          RewriteRule ^([^\.]+)$ $1.html [NC,L]
+          EOF
+
+      - name: 📊 Production build summary
+        run: |
+          echo "� Production build completed!"
+          echo "� Total size: $(du -sh dist/ | cut -f1)"
+          echo "📄 Total files: $(find dist/ -type f | wc -l)"
+
+      - name: 🚀 Deploy to production
+        run: |
+          echo "� Production deployment would go here"
+          echo "📋 This workflow is ready for production secrets configuration"
+          
+          # Uncomment and configure when production server is ready:
+          # mkdir -p ~/.ssh
+          # echo "${{ secrets.PRODUCTION_SSH_KEY }}" > ~/.ssh/id_ed25519
+          # chmod 600 ~/.ssh/id_ed25519
+          # ssh-keyscan -p ${{ secrets.PRODUCTION_SSH_PORT || '22' }} ${{ secrets.PRODUCTION_SSH_HOST }} >> ~/.ssh/known_hosts
+          # 
+          # rsync -avz --delete --progress \
+          #   -e "ssh -i ~/.ssh/id_ed25519 -p ${{ secrets.PRODUCTION_SSH_PORT || '22' }}" \
+          #   dist/ \
+          #   ${{ secrets.PRODUCTION_SSH_USER }}@${{ secrets.PRODUCTION_SSH_HOST }}:${{ secrets.PRODUCTION_SSH_PATH }}

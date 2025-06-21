@@ -40,6 +40,10 @@ function escapeHtml(text) {
 
 // Base HTML template
 function createHtmlTemplate(title, metaDescription, content, additionalHead = '') {
+  const baseUrl = process.env.NODE_ENV === 'production' 
+    ? 'https://ilsedelangerecords.com' 
+    : 'https://staging.ilsedelangerecords.nl';
+    
   return `<!DOCTYPE html>
 <html lang="en">
 <head>
@@ -51,7 +55,7 @@ function createHtmlTemplate(title, metaDescription, content, additionalHead = ''
     <meta property="og:title" content="${escapeHtml(title)} | Ilse DeLange Records">
     <meta property="og:description" content="${escapeHtml(metaDescription)}">
     <meta property="og:type" content="website">
-    <link rel="canonical" href="https://ilsedelangerecords.com${title === 'Albums' ? '/albums' : '/album/' + createSlug(title)}">
+    <link rel="canonical" href="${baseUrl}${title === 'Albums' ? '/albums' : '/album/' + createSlug(title)}">
     
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -456,7 +460,10 @@ function generateStaticSite() {
 
 // Generate SEO files
 function generateSEOFiles() {
-  const baseUrl = 'https://ilsedelangerecords.com';
+  // Use staging URL for now, will be changed for production
+  const baseUrl = process.env.NODE_ENV === 'production' 
+    ? 'https://ilsedelangerecords.com' 
+    : 'https://staging.ilsedelangerecords.nl';
   const today = new Date().toISOString().split('T')[0];
   
   // Generate sitemap
