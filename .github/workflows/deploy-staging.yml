@@ -151,8 +151,7 @@ jobs:
           
           # Force trailing slash for directories (optional, helps with consistency)
           RewriteCond %{REQUEST_FILENAME} -d
-          RewriteCond %{REQUEST_URI} !/$
-          RewriteRule ^(.*)$ $1/ [R=301,L]
+          RewriteCond %{REQUEST_URI} !/$          RewriteRule ^(.*)$ $1/ [R=301,L]
           EOF
           
           echo "✅ Added .htaccess with optimization rules"
@@ -177,7 +176,9 @@ jobs:
         with:
           name: static-site-${{ steps.version.outputs.version }}
           path: dist/
-          retention-days: 30  # Deploy to staging server
+          retention-days: 30
+
+  # Deploy to staging server
   deploy:
     needs: build
     if: needs.build.outputs.should-deploy == 'true'
