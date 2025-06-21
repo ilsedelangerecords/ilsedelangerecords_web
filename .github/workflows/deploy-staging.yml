@@ -177,15 +177,43 @@ jobs:
         with:
           name: static-site-${{ steps.version.outputs.version }}
           path: dist/
-          retention-days: 30
-
-  # Deploy to staging server
+          retention-days: 30  # Deploy to staging server
   deploy:
     needs: build
     if: needs.build.outputs.should-deploy == 'true'
     runs-on: ubuntu-latest
     environment: staging
     steps:
+      - name: 🔒 Validate SSH secrets
+        run: |
+          echo "🔍 Validating required SSH secrets..."
+          
+          missing_secrets=""
+          
+          if [ -z "${{ secrets.SSH_HOST }}" ]; then
+            missing_secrets="$missing_secrets SSH_HOST"
+          fi
+          
+          if [ -z "${{ secrets.SSH_USER }}" ]; then
+            missing_secrets="$missing_secrets SSH_USER"
+          fi
+          
+          if [ -z "${{ secrets.DEPLOY_SSH_KEY }}" ]; then
+            missing_secrets="$missing_secrets DEPLOY_SSH_KEY"
+          fi
+          
+          if [ -z "${{ secrets.SSH_TARGET_PATH }}" ]; then
+            missing_secrets="$missing_secrets SSH_TARGET_PATH"
+          fi
+          
+          if [ -n "$missing_secrets" ]; then
+            echo "❌ Missing required secrets: $missing_secrets"
+            echo "Please configure these secrets in GitHub Actions settings"
+            exit 1
+          fi
+          
+          echo "✅ All required SSH secrets are configured"
+
       - name: 📥 Download build artifacts
         uses: actions/download-artifact@v4
         with:
@@ -195,11 +223,11 @@ jobs:
       - name: 🔐 Prepare SSH deployment
         run: |
           mkdir -p ~/.ssh
-          echo "${{ secrets.STAGING_SSH_KEY }}" > ~/.ssh/id_ed25519
+          echo "${{ secrets.DEPLOY_SSH_KEY }}" > ~/.ssh/id_ed25519
           chmod 600 ~/.ssh/id_ed25519
           
           # Add staging server to known hosts
-          ssh-keyscan -p ${{ secrets.STAGING_SSH_PORT || '22' }} ${{ secrets.STAGING_SSH_HOST }} >> ~/.ssh/known_hosts
+          ssh-keyscan -p ${{ secrets.SSH_PORT || '22' }} ${{ secrets.SSH_HOST }} >> ~/.ssh/known_hosts
           
           echo "✅ SSH key configured for staging deployment"
 
@@ -212,9 +240,9 @@ jobs:
             --exclude='.git*' \
             --exclude='node_modules' \
             --exclude='*.log' \
-            -e "ssh -i ~/.ssh/id_ed25519 -p ${{ secrets.STAGING_SSH_PORT || '22' }} -o StrictHostKeyChecking=no" \
+            -e "ssh -i ~/.ssh/id_ed25519 -p ${{ secrets.SSH_PORT || '22' }} -o StrictHostKeyChecking=no" \
             dist/ \
-            ${{ secrets.STAGING_SSH_USER }}@${{ secrets.STAGING_SSH_HOST }}:${{ secrets.STAGING_SSH_PATH }}
+            ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}:${{ secrets.SSH_TARGET_PATH }}
           
           echo "✅ Deployment completed successfully!"
 
@@ -223,10 +251,10 @@ jobs:
           echo "🔄 Clearing server cache..."
           
           # Optional: Clear any server-side cache
-          ssh -i ~/.ssh/id_ed25519 -p ${{ secrets.STAGING_SSH_PORT || '22' }} \
-            ${{ secrets.STAGING_SSH_USER }}@${{ secrets.STAGING_SSH_HOST }} \
+          ssh -i ~/.ssh/id_ed25519 -p ${{ secrets.SSH_PORT || '22' }} \
+            ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} \
             'if command -v php >/dev/null 2>&1; then
-               if [ -f '${{ secrets.STAGING_SSH_PATH }}'/.htaccess ]; then
+               if [ -f '${{ secrets.SSH_TARGET_PATH }}'/.htaccess ]; then
                  echo "Cache headers configured via .htaccess"
                fi
              fi' || echo "No cache clearing needed"
