@@ -78,7 +78,31 @@ export const resolveImagePath = (imagePath) => {
   if (imagePath.startsWith('http')) return imagePath;
   
   // Handle absolute paths
-  if (imagePath.startsWith('/images/')) return imagePath;
+  if (imagePath.startsWith('/images/')) {
+    // Check if we have a web-safe alternative for problematic filenames
+    const filename = imagePath.split('/').pop();
+    const webSafeAlternatives = {
+      'Ilse DeLange - 2 original albums (2 for 1), front-1-1.jpg': '2-original-albums-cover.jpg',
+      'Ilse DeLange - Clean up, jewel case + DVD, cover-19.jpg': 'clean-up-cover.jpg',
+      'Ilse DeLange - World of hurt, CD front-1-1.jpg': 'world-of-hurt-cover.jpg',
+      'Ilse DeLange - Dear John, cover-1-1.jpg': 'dear-john-cover.jpg',
+      'Ilse DeLange - Eye of the hurricane, digi front-1.jpg': 'eye-of-the-hurricane-cover.jpg',
+      'Ilse DeLange - Flying blind, front-1.jpg': 'flying-blind-cover.jpg',
+      'Ilse DeLange - Incredible, dig first, front-1.jpg': 'incredible-cover.jpg',
+      'Ilse DeLange - Miracle, front-1-1.jpg': 'miracle-cover.jpg',
+      'Ilse DeLange - Next to me, Jewel case, front-1-1.jpg': 'next-to-me-cover.jpg',
+      'Ilse DeLange - The great escape, jewel, front-1-1.jpg': 'the-great-escape-cover.jpg',
+      'Ilse DeLange, 2in1, front-1-1.jpg': '2in1-cover.jpg',
+      'The Common Linnets - The Album - Front-1.jpg': 'common-linnets-album-cover.jpg',
+      'The common linnets - II, front-1.jpg': 'common-linnets-ii-cover.jpg'
+    };
+    
+    if (webSafeAlternatives[filename]) {
+      return `/images/albums/${webSafeAlternatives[filename]}`;
+    }
+    
+    return imagePath;
+  }
   
   // Handle relative paths from old website
   if (imagePath.includes('/')) {
@@ -103,10 +127,10 @@ export const resolveImagePath = (imagePath) => {
 // Function to get the best available image for an item
 export const getBestImage = (item, type = 'default') => {
   if (!item) return placeholderImages[type] || placeholderImages.default;
-  
-  // For albums
+    // For albums
   if (type === 'album' || item.type === 'album') {
     const candidates = [
+      item.coverImage,
       item.coverArt,
       item.images?.cover_art,
       item.images?.front,

@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { useContent, useContentSearch } from '../../lib/contentLoader';
 import { Search, Filter, Calendar, User, Music, ExternalLink } from 'lucide-react';
 import OptimizedImage from '../OptimizedImage';
+import { getBestImage } from '../../lib/imageHelpers';
 
 const AlbumsPage = () => {
   const { data: albums, loading, error } = useContent('albums');
@@ -178,9 +179,8 @@ const AlbumsPage = () => {
                 <Link 
                   to={`/album/${album.title.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '')}`}
                   className="w-full h-full block"
-                >
-                  <OptimizedImage
-                    src={album.coverImage}
+                >                  <OptimizedImage
+                    src={getBestImage(album, 'album')}
                     alt={`${album.title} cover art`}
                     className="w-full h-full object-cover hover:scale-105 transition-transform duration-200"
                     fallback="/images/placeholder.svg"
