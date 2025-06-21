@@ -16,97 +16,104 @@ const ArtistPage = () => {
   const loadArtistDetails = async () => {
     setLoading(true);
     
-    // In production, this would load from the migrated artist content based on slug
-    let artistDetails, artistAlbums, artistLyrics;
-    
-    if (slug === 'ilse-delange') {
-      artistDetails = {
-        id: 'ilse-delange',
-        name: 'Ilse DeLange',
-        slug: 'ilse-delange',
-        type: 'solo',
-        biography: 'Ilse Annoeska de Lange, known professionally as Ilse DeLange, is a Dutch country and pop singer-songwriter. Born on May 13, 1977, in Almelo, Netherlands, she has become one of the most successful Dutch artists internationally. Her career spans over two decades, with multiple platinum albums and international recognition.',
-        formedDate: '1996',
-        origin: 'Almelo, Netherlands',
-        genres: ['Country', 'Pop', 'Folk', 'Americana'],        websiteUrl: 'https://www.ilsedelange.com',
-        socialMedia: {
-        },
-        images: {
-          profileImage: '/images/ilse-delange-profile.jpg',
-          bannerImage: '/images/ilse-delange-banner.jpg'
-        },
-        achievements: [
-          'Multiple platinum albums in the Netherlands',
-          'International chart success',
-          'Eurovision Song Contest 2014 (2nd place with The Common Linnets)',
-          'Multiple Dutch Music Awards'
-        ],
-        stats: {
-          albumsCount: 8,
-          singlesCount: 25,
-          lyricsCount: 35
-        }
-      };
+    try {
+      // Load real data from JSON files
+      const [albumsResponse, lyricsResponse] = await Promise.all([
+        fetch('/content/albums.json'),
+        fetch('/content/lyrics.json')
+      ]);
 
-      artistAlbums = [
-        { id: '1', title: 'World of Hurt', year: 1998, type: 'studio', chartPosition: 1 },
-        { id: '2', title: 'Livin\' on Love', year: 2000, type: 'studio', chartPosition: 2 },
-        { id: '3', title: 'Clean Up', year: 2003, type: 'studio', chartPosition: 4 },
-        { id: '4', title: 'The Great Escape', year: 2006, type: 'studio', chartPosition: 3 },
-        { id: '5', title: 'Next to Me', year: 2008, type: 'studio', chartPosition: 5 }
-      ];
+      const allAlbums = await albumsResponse.json();
+      const allLyrics = await lyricsResponse.json();
 
-      artistLyrics = [
-        { id: '1', title: 'I\'m Not So Tough', album: 'World of Hurt' },
-        { id: '2', title: 'Miracle', album: 'Clean Up' },
-        { id: '3', title: 'Learning to Swim', album: 'World of Hurt' },
-        { id: '4', title: 'Kalverliefde', album: 'World of Hurt' }
-      ];
-    } else if (slug === 'the-common-linnets') {
-      artistDetails = {
-        id: 'the-common-linnets',
-        name: 'The Common Linnets',
-        slug: 'the-common-linnets',
-        type: 'band',
-        biography: 'The Common Linnets is a Dutch country duo consisting of Ilse DeLange and Waylon. Formed in 2013, they gained international recognition by representing the Netherlands in the Eurovision Song Contest 2014 with "Calm After the Storm," finishing in second place. Their Americana and country sound brought a fresh perspective to the Dutch music scene.',
-        formedDate: '2013',
-        origin: 'Netherlands',
-        genres: ['Country', 'Americana', 'Folk'],
-        websiteUrl: null,
-        socialMedia: {},
-        images: {
-          profileImage: '/images/tcl-profile.jpg',
-          bannerImage: '/images/tcl-banner.jpg'
-        },
-        achievements: [
-          'Eurovision Song Contest 2014 - 2nd place',
-          'Platinum album "The Common Linnets"',
-          'International chart success',
-          'Brought country music to mainstream Dutch audience'
-        ],
-        stats: {
-          albumsCount: 2,
-          singlesCount: 8,
-          lyricsCount: 12
-        }
-      };
+      let artistDetails, artistAlbums, artistLyrics;        if (slug === 'ilse-delange') {
+        // Filter albums and lyrics for Ilse DeLange
+        artistAlbums = allAlbums.filter(album => 
+          album.artist === 'Ilse DeLange'
+        ).slice(0, 6); // Show top 6 albums
 
-      artistAlbums = [
-        { id: '1', title: 'The Common Linnets', year: 2014, type: 'studio', chartPosition: 1 },
-        { id: '2', title: 'II', year: 2015, type: 'studio', chartPosition: 2 }
-      ];
+        artistLyrics = allLyrics.filter(lyric => 
+          lyric.artist === 'Ilse DeLange'
+        ).slice(0, 8); // Show top 8 popular lyrics
 
-      artistLyrics = [
-        { id: '1', title: 'Calm After the Storm', album: 'The Common Linnets' },
-        { id: '2', title: 'Hearts on Fire', album: 'The Common Linnets' },
-        { id: '3', title: 'We Don\'t Make the Wind Blow', album: 'II' }
-      ];
+        artistDetails = {
+          id: 'ilse-delange',
+          name: 'Ilse DeLange',
+          slug: 'ilse-delange',
+          type: 'solo',
+          biography: 'Ilse Annoeska de Lange, known professionally as Ilse DeLange, is a Dutch country and pop singer-songwriter. Born on May 13, 1977, in Almelo, Netherlands, she has become one of the most successful Dutch artists internationally. Her career spans over two decades, with multiple platinum albums and international recognition.',
+          formedDate: '1996',
+          origin: 'Almelo, Netherlands',
+          genres: ['Country', 'Pop', 'Folk', 'Americana'],
+          websiteUrl: 'https://www.ilsedelange.com',
+          socialMedia: {},
+          images: {
+            profileImage: '/images/ilse-delange-profile.jpg',
+            bannerImage: '/images/ilse-delange-banner.jpg'
+          },
+          achievements: [
+            'Multiple platinum albums in the Netherlands',
+            'International chart success',
+            'Eurovision Song Contest 2014 (2nd place with The Common Linnets)',
+            'Multiple Dutch Music Awards'
+          ],
+          stats: {
+            albumsCount: allAlbums.filter(album => album.artist === 'Ilse DeLange').length,
+            singlesCount: 25,
+            lyricsCount: allLyrics.filter(lyric => lyric.artist === 'Ilse DeLange').length
+          }
+        };
+      } else if (slug === 'the-common-linnets') {
+        // Filter albums and lyrics for The Common Linnets
+        artistAlbums = allAlbums.filter(album => 
+          album.artist === 'The Common Linnets'
+        );
+
+        artistLyrics = allLyrics.filter(lyric => 
+          lyric.artist === 'The Common Linnets'
+        ).slice(0, 8);
+
+        artistDetails = {
+          id: 'the-common-linnets',
+          name: 'The Common Linnets',
+          slug: 'the-common-linnets',
+          type: 'band',
+          biography: 'The Common Linnets is a Dutch country duo consisting of Ilse DeLange and Waylon. Formed in 2013, they gained international recognition by representing the Netherlands in the Eurovision Song Contest 2014 with "Calm After the Storm," finishing in second place. Their Americana and country sound brought a fresh perspective to the Dutch music scene.',
+          formedDate: '2013',
+          origin: 'Netherlands',
+          genres: ['Country', 'Americana', 'Folk'],
+          websiteUrl: null,
+          socialMedia: {},
+          images: {
+            profileImage: '/images/tcl-profile.jpg',
+            bannerImage: '/images/tcl-banner.jpg'
+          },
+          achievements: [
+            'Eurovision Song Contest 2014 - 2nd place',
+            'Platinum album "The Common Linnets"',
+            'International chart success',
+            'Brought country music to mainstream Dutch audience'
+          ],
+          stats: {
+            albumsCount: allAlbums.filter(album => album.artist === 'The Common Linnets').length,
+            singlesCount: 8,
+            lyricsCount: allLyrics.filter(lyric => lyric.artist === 'The Common Linnets').length
+          }
+        };
+      }
+
+      setArtist(artistDetails);
+      setAlbums(artistAlbums || []);
+      setPopularLyrics(artistLyrics || []);
+      
+    } catch (error) {
+      console.error('Error loading artist data:', error);
+      setArtist(null);
+      setAlbums([]);
+      setPopularLyrics([]);
+    } finally {
+      setLoading(false);
     }
-
-    setArtist(artistDetails);
-    setAlbums(artistAlbums);
-    setPopularLyrics(artistLyrics);
-    setLoading(false);
   };
 
   if (loading) {
@@ -246,41 +253,58 @@ const ArtistPage = () => {
           >
             View All Albums →
           </Link>
-        </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {albums.map((album) => (
-            <div key={album.id} className="bg-white rounded-xl shadow-lg border border-slate-200 overflow-hidden hover:shadow-xl transition-shadow group">
-              <div className="aspect-square bg-gradient-to-br from-slate-200 to-slate-300 relative">
-                <div className="w-full h-full flex items-center justify-center">
-                  <Disc3 className="w-16 h-16 text-slate-400" />
-                </div>
-              </div>
-              
-              <div className="p-6 space-y-3">
-                <div className="space-y-1">
-                  <h3 className="text-lg font-bold text-slate-800 group-hover:text-blue-600 transition-colors">
-                    {album.title}
-                  </h3>
-                  <div className="flex items-center justify-between text-sm text-slate-500">
-                    <span>{album.year}</span>
-                    <span className="flex items-center space-x-1">
-                      <Star className="w-3 h-3" />
-                      <span>#{album.chartPosition}</span>
-                    </span>
+        </div>        {albums.length > 0 ? (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {albums.map((album) => (
+              <div key={album.id} className="bg-white rounded-xl shadow-lg border border-slate-200 overflow-hidden hover:shadow-xl transition-shadow group">
+                <div className="aspect-square bg-gradient-to-br from-slate-200 to-slate-300 relative">
+                  {album.coverImage ? (
+                    <img 
+                      src={album.coverImage} 
+                      alt={album.title}
+                      className="w-full h-full object-cover"
+                      onError={(e) => {
+                        e.target.style.display = 'none';
+                        e.target.nextElementSibling.style.display = 'flex';
+                      }}
+                    />
+                  ) : null}
+                  <div className="w-full h-full flex items-center justify-center">
+                    <Disc3 className="w-16 h-16 text-slate-400" />
                   </div>
                 </div>
                 
-                <Link 
-                  to={`/albums/${album.title.toLowerCase().replace(/\\s+/g, '-')}`}
-                  className="block w-full bg-blue-600 text-white text-center py-2 rounded-lg font-medium hover:bg-blue-700 transition-colors"
-                >
-                  View Album
-                </Link>
+                <div className="p-6 space-y-3">
+                  <div className="space-y-1">
+                    <h3 className="text-lg font-bold text-slate-800 group-hover:text-blue-600 transition-colors">
+                      {album.title}
+                    </h3>
+                    <div className="flex items-center justify-between text-sm text-slate-500">
+                      <span>{album.year}</span>
+                      {album.label && (
+                        <span className="text-xs bg-slate-100 px-2 py-1 rounded">
+                          {album.label}
+                        </span>
+                      )}
+                    </div>
+                  </div>
+                  
+                  <Link 
+                    to={`/albums/${album.title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '')}`}
+                    className="block w-full bg-blue-600 text-white text-center py-2 rounded-lg font-medium hover:bg-blue-700 transition-colors"
+                  >
+                    View Album
+                  </Link>
+                </div>
               </div>
-            </div>
-          ))}
-        </div>
+            ))}
+          </div>
+        ) : (
+          <div className="text-center py-8 bg-slate-50 rounded-lg">
+            <Disc3 className="w-12 h-12 text-slate-400 mx-auto mb-4" />
+            <p className="text-slate-600">No albums found for this artist.</p>
+          </div>
+        )}
       </div>
 
       {/* Popular Lyrics */}
@@ -293,29 +317,34 @@ const ArtistPage = () => {
           >
             View All Lyrics →
           </Link>
-        </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          {popularLyrics.map((lyric) => (
-            <Link
-              key={lyric.id}
-              to={`/lyrics/${lyric.title.toLowerCase().replace(/\\s+/g, '-').replace(/'/g, '')}`}
-              className="bg-white rounded-lg p-6 shadow-lg border border-slate-200 hover:shadow-xl transition-shadow group"
-            >
-              <div className="flex items-center space-x-4">
-                <div className="w-12 h-12 bg-gradient-to-br from-red-500 to-pink-500 rounded-lg flex items-center justify-center group-hover:scale-105 transition-transform">
-                  <Heart className="w-6 h-6 text-white" />
+        </div>        {popularLyrics.length > 0 ? (
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {popularLyrics.map((lyric) => (
+              <Link
+                key={lyric.id}
+                to={`/lyrics/${lyric.id}`}
+                className="bg-white rounded-lg p-6 shadow-lg border border-slate-200 hover:shadow-xl transition-shadow group"
+              >
+                <div className="flex items-center space-x-4">
+                  <div className="w-12 h-12 bg-gradient-to-br from-red-500 to-pink-500 rounded-lg flex items-center justify-center group-hover:scale-105 transition-transform">
+                    <Heart className="w-6 h-6 text-white" />
+                  </div>
+                  <div className="flex-1">
+                    <h3 className="text-lg font-semibold text-slate-800 group-hover:text-blue-600 transition-colors">
+                      {lyric.title}
+                    </h3>
+                    <p className="text-slate-600">{lyric.album || 'Single'}</p>
+                  </div>
                 </div>
-                <div className="flex-1">
-                  <h3 className="text-lg font-semibold text-slate-800 group-hover:text-blue-600 transition-colors">
-                    {lyric.title}
-                  </h3>
-                  <p className="text-slate-600">{lyric.album}</p>
-                </div>
-              </div>
-            </Link>
-          ))}
-        </div>
+              </Link>
+            ))}
+          </div>
+        ) : (
+          <div className="text-center py-8 bg-slate-50 rounded-lg">
+            <Heart className="w-12 h-12 text-slate-400 mx-auto mb-4" />
+            <p className="text-slate-600">No lyrics found for this artist.</p>
+          </div>
+        )}
       </div>
     </div>
   );
