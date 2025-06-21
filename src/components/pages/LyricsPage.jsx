@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { useContent, useContentSearch } from '../../lib/contentLoader';
-import { Search, Filter, Music, User, Globe, ExternalLink } from 'lucide-react';
+import { Search, Filter, Music, User, Globe, ExternalLink, Disc } from 'lucide-react';
 
 const LyricsPage = () => {
   const { data: lyrics, loading, error } = useContent('lyrics');
@@ -263,10 +263,9 @@ const LyricsPage = () => {
                   <p className="flex items-center mb-1">
                     <User className="w-4 h-4 mr-1" />
                     {lyric.artist}
-                  </p>
-                  {lyric.album && (
+                  </p>                  {lyric.album && (
                     <p className="flex items-center">
-                      <Music className="w-4 h-4 mr-1" />
+                      <Disc className="w-4 h-4 mr-1" />
                       {lyric.album}
                     </p>
                   )}
@@ -283,16 +282,7 @@ const LyricsPage = () => {
                     <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
                       ✓ Verified
                     </span>
-                  )}
-                </div>                {/* Full Lyrics Content */}
-                {lyric.content && (
-                  <div className="bg-gray-50 rounded-md p-4 mb-4 max-h-96 overflow-y-auto">
-                    <pre className="text-sm text-gray-700 whitespace-pre-wrap font-sans leading-relaxed">
-                      {lyric.content}
-                    </pre>
-                  </div>
-                )}
-
+                  )}                </div>
                 {/* Stats */}
                 <div className="flex items-center justify-between text-xs text-gray-500 mb-4">
                   {lyric.wordCount && (
@@ -313,12 +303,10 @@ const LyricsPage = () => {
               </div>
             </div>
           ))}
-        </div>
-
-        {/* No Results */}
+        </div>        {/* No Results */}
         {filteredData?.length === 0 && (
           <div className="text-center py-12">
-            <Music className="w-12 h-12 text-gray-400 mx-auto mb-4" />
+            <Disc className="w-12 h-12 text-gray-400 mx-auto mb-4" />
             <h3 className="text-lg font-medium text-gray-900 mb-2">No lyrics found</h3>
             <p className="text-gray-600">Try adjusting your search or filter criteria.</p>
           </div>
