@@ -63,15 +63,15 @@ const AlbumDetailPage = () => {
       {/* Album Header */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">        {/* Album Cover */}
         <div className="lg:col-span-1">
-          <div className="aspect-square bg-gradient-to-br from-slate-200 to-slate-300 rounded-xl shadow-lg overflow-hidden">
+          <Link to="/albums" className="block aspect-square bg-gradient-to-br from-slate-200 to-slate-300 rounded-xl shadow-lg overflow-hidden hover:shadow-xl transition-shadow">
             <OptimizedImage
               src={album.coverImage}
               alt={`${album.title} cover art`}
               className="w-full h-full object-cover"
               fallback="/images/placeholder.svg"
             />
-          </div>
-        </div>        {/* Album Info */}
+          </Link>
+        </div>{/* Album Info */}
         <div className="lg:col-span-2 space-y-6">
           <div className="space-y-4">
             <div className="flex items-center space-x-3">

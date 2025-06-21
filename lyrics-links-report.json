@@ -1,0 +1,471 @@
+{
+  "timestamp": "2025-06-21T10:14:18.679Z",
+  "stats": {
+    "totalLyrics": 149,
+    "linkedToAlbum": 93,
+    "addedArtistId": 149,
+    "addedAlbumId": 93,
+    "updatedAlbumTitle": 93,
+    "errors": [],
+    "partialMatches": 0
+  },
+  "unlinkedSongs": [
+    {
+      "id": "all-of-the-women-youll-ever-need",
+      "title": "All of the women you'll ever need",
+      "artist": "Ilse DeLange"
+    },
+    {
+      "id": "all-that-you-do",
+      "title": "All that you do",
+      "artist": "Ilse DeLange"
+    },
+    {
+      "id": "als-je-iets-kan-doen",
+      "title": "Als je iets kan doen",
+      "artist": "Ilse DeLange"
+    },
+    {
+      "id": "beatiful-distraction",
+      "title": "Beatiful distraction",
+      "artist": "Ilse DeLange"
+    },
+    {
+      "id": "before-you-let-me-go",
+      "title": "Before you let me go",
+      "artist": "Ilse DeLange"
+    },
+    {
+      "id": "better-then-rain",
+      "title": "Better then rain",
+      "artist": "Ilse DeLange"
+    },
+    {
+      "id": "blue-bitttersweet",
+      "title": "Blue bitttersweet",
+      "artist": "Ilse DeLange"
+    },
+    {
+      "id": "carry-hope",
+      "title": "Carry hope",
+      "artist": "Ilse DeLange"
+    },
+    {
+      "id": "de-oorlog-meegemaakt",
+      "title": "De oorlog meegemaakt",
+      "artist": "Ilse DeLange"
+    },
+    {
+      "id": "dj-vu",
+      "title": "Déjà Vu",
+      "artist": "Ilse DeLange"
+    },
+    {
+      "id": "far-away",
+      "title": "Far away",
+      "artist": "Ilse DeLange"
+    },
+    {
+      "id": "high-places",
+      "title": "high places",
+      "artist": "Ilse DeLange"
+    },
+    {
+      "id": "i-always-will",
+      "title": "I always will",
+      "artist": "Ilse DeLange"
+    },
+    {
+      "id": "ill-know",
+      "title": "I'll know",
+      "artist": "Ilse DeLange"
+    },
+    {
+      "id": "iedereen-is-van-de-wereld",
+      "title": "Iedereen is van de wereld",
+      "artist": "Ilse DeLange"
+    },
+    {
+      "id": "man-in-the-moon",
+      "title": "Man in the moon",
+      "artist": "Ilse DeLange"
+    },
+    {
+      "id": "miss-politician",
+      "title": "Miss politician",
+      "artist": "Ilse DeLange"
+    },
+    {
+      "id": "no-more-you",
+      "title": "No more you",
+      "artist": "Ilse DeLange"
+    },
+    {
+      "id": "open-je-ogen",
+      "title": "Open je ogen",
+      "artist": "Ilse DeLange"
+    },
+    {
+      "id": "oud-geboren",
+      "title": "Oud geboren",
+      "artist": "Ilse DeLange"
+    },
+    {
+      "id": "something-inside-so-strong",
+      "title": "Something inside so strong",
+      "artist": "Ilse DeLange"
+    },
+    {
+      "id": "the-angels-rejoiced-last-night",
+      "title": "The Angels Rejoiced Last Night",
+      "artist": "Ilse DeLange"
+    },
+    {
+      "id": "the-valley",
+      "title": "The valley",
+      "artist": "Ilse DeLange"
+    },
+    {
+      "id": "they-say-demo-version",
+      "title": "They say (demo version)",
+      "artist": "Ilse DeLange"
+    },
+    {
+      "id": "turn-around",
+      "title": "Turn around",
+      "artist": "Ilse DeLange"
+    },
+    {
+      "id": "was-it-love",
+      "title": "Was it love",
+      "artist": "Ilse DeLange"
+    },
+    {
+      "id": "without-you",
+      "title": "Without you",
+      "artist": "Ilse DeLange"
+    },
+    {
+      "id": "arms-of-salvation",
+      "title": "Arms of salvation",
+      "artist": "The Common Linnets"
+    },
+    {
+      "id": "as-if-only",
+      "title": "As if only",
+      "artist": "The Common Linnets"
+    },
+    {
+      "id": "before-complete-surrender",
+      "title": "Before complete surrender",
+      "artist": "The Common Linnets"
+    },
+    {
+      "id": "better-than-that",
+      "title": "Better than that",
+      "artist": "The Common Linnets"
+    },
+    {
+      "id": "calm-after-the-storm",
+      "title": "Calm after the storm",
+      "artist": "The Common Linnets"
+    },
+    {
+      "id": "christmas-around-me",
+      "title": "Christmas around me",
+      "artist": "The Common Linnets"
+    },
+    {
+      "id": "days-of-endless-time",
+      "title": "Days of endless time",
+      "artist": "The Common Linnets"
+    },
+    {
+      "id": "dust-of-oklahoma",
+      "title": "Dust of Oklahoma",
+      "artist": "The Common Linnets"
+    },
+    {
+      "id": "give-me-a-reason",
+      "title": "Give me a reason",
+      "artist": "The Common Linnets"
+    },
+    {
+      "id": "hearts-on-fire",
+      "title": "Hearts on fire",
+      "artist": "The Common Linnets"
+    },
+    {
+      "id": "hungry-hands",
+      "title": "Hungry hands",
+      "artist": "The Common Linnets"
+    },
+    {
+      "id": "i-like-it-like-that",
+      "title": "I like it like that",
+      "artist": "The Common Linnets"
+    },
+    {
+      "id": "in-your-eyes",
+      "title": "In your eyes",
+      "artist": "The Common Linnets"
+    },
+    {
+      "id": "indigo-moon",
+      "title": "Indigo moon",
+      "artist": "The Common Linnets"
+    },
+    {
+      "id": "jolene",
+      "title": "Jolene",
+      "artist": "The Common Linnets"
+    },
+    {
+      "id": "kalverliefde",
+      "title": "Kalverliefde",
+      "artist": "The Common Linnets"
+    },
+    {
+      "id": "love-goes-on",
+      "title": "Love goes on",
+      "artist": "The Common Linnets"
+    },
+    {
+      "id": "lovers-liars",
+      "title": "Lovers & Liars",
+      "artist": "The Common Linnets"
+    },
+    {
+      "id": "proud",
+      "title": "Proud",
+      "artist": "The Common Linnets"
+    },
+    {
+      "id": "runaway-man",
+      "title": "Runaway man",
+      "artist": "The Common Linnets"
+    },
+    {
+      "id": "soho-waltz",
+      "title": "Soho waltz",
+      "artist": "The Common Linnets"
+    },
+    {
+      "id": "still-loving-after-you",
+      "title": "Still loving after you",
+      "artist": "The Common Linnets"
+    },
+    {
+      "id": "sun-song",
+      "title": "Sun Song",
+      "artist": "The Common Linnets"
+    },
+    {
+      "id": "that-part",
+      "title": "That part",
+      "artist": "The Common Linnets"
+    },
+    {
+      "id": "time-has-no-mercy",
+      "title": "Time has no mercy",
+      "artist": "The Common Linnets"
+    },
+    {
+      "id": "walls-of-jericho",
+      "title": "Walls of Jericho",
+      "artist": "The Common Linnets"
+    },
+    {
+      "id": "we-dont-make-the-wind-blow",
+      "title": "We dont make the wind blow",
+      "artist": "The Common Linnets"
+    },
+    {
+      "id": "when-love-was-king",
+      "title": "When love was king",
+      "artist": "The Common Linnets"
+    },
+    {
+      "id": "where-do-i-go-with-me",
+      "title": "Where do i go with me",
+      "artist": "The Common Linnets"
+    }
+  ],
+  "albumMappings": [
+    {
+      "normalized": "2 original albums",
+      "id": 1,
+      "slug": "2-original-albums",
+      "title": "2 Original albums",
+      "artist": "Ilse DeLange"
+    },
+    {
+      "normalized": "2in1",
+      "id": 2,
+      "slug": "2in1",
+      "title": "2in1",
+      "artist": "Ilse DeLange"
+    },
+    {
+      "normalized": "clean up",
+      "id": 12,
+      "slug": "clean-up",
+      "title": "Clean up",
+      "artist": "Ilse DeLange"
+    },
+    {
+      "normalized": "dear john",
+      "id": 4,
+      "slug": "dear-john",
+      "title": "Dear John",
+      "artist": "Ilse DeLange"
+    },
+    {
+      "normalized": "eye of the hurricane",
+      "id": 14,
+      "slug": "eye-of-the-hurricane",
+      "title": "eye of the hurricane",
+      "artist": "Ilse DeLange"
+    },
+    {
+      "normalized": "flying blind",
+      "id": 6,
+      "slug": "flying-blind",
+      "title": "Flying blind",
+      "artist": "Ilse DeLange"
+    },
+    {
+      "normalized": "here i am",
+      "id": 15,
+      "slug": "here-i-am",
+      "title": "Here I am",
+      "artist": "Ilse DeLange"
+    },
+    {
+      "normalized": "ilse delange 2018 info",
+      "id": 9,
+      "slug": "ilse-delange-2018-info",
+      "title": "ilse delange 2018 info",
+      "artist": "Ilse DeLange"
+    },
+    {
+      "normalized": "incredible",
+      "id": 17,
+      "slug": "incredible",
+      "title": "Incredible",
+      "artist": "Ilse DeLange"
+    },
+    {
+      "normalized": "after the hurricane",
+      "id": 11,
+      "slug": "after-the-hurricane",
+      "title": "After the hurricane",
+      "artist": "Ilse DeLange"
+    },
+    {
+      "normalized": "information",
+      "id": 13,
+      "slug": "information",
+      "title": "Information",
+      "artist": "Ilse DeLange"
+    },
+    {
+      "normalized": "album",
+      "id": 16,
+      "slug": "album",
+      "title": "album",
+      "artist": "Ilse DeLange"
+    },
+    {
+      "normalized": "livin on love info",
+      "id": 18,
+      "slug": "livin-on-love-info",
+      "title": "livin on love Info",
+      "artist": "Ilse DeLange"
+    },
+    {
+      "normalized": "miracle",
+      "id": 22,
+      "slug": "miracle",
+      "title": "Miracle",
+      "artist": "Ilse DeLange"
+    },
+    {
+      "normalized": "world of hurt",
+      "id": 28,
+      "slug": "world-of-hurt",
+      "title": "World of hurt",
+      "artist": "Ilse DeLange"
+    },
+    {
+      "normalized": "livin on love",
+      "id": 21,
+      "slug": "livin-on-love",
+      "title": "Livin' on love",
+      "artist": "Ilse DeLange"
+    },
+    {
+      "normalized": "next to me",
+      "id": 23,
+      "slug": "next-to-me",
+      "title": "Next to me",
+      "artist": "Ilse DeLange"
+    },
+    {
+      "normalized": "so incredible",
+      "id": 24,
+      "slug": "so-incredible",
+      "title": "So incredible",
+      "artist": "Ilse DeLange"
+    },
+    {
+      "normalized": "ilsed delange the great escape",
+      "id": 25,
+      "slug": "ilsed-delange-the-great-escape",
+      "title": "Ilsed Delange The great escape",
+      "artist": "Ilse DeLange"
+    },
+    {
+      "normalized": "the great escape",
+      "id": 26,
+      "slug": "the-great-escape",
+      "title": "The great escape",
+      "artist": "Ilse DeLange"
+    },
+    {
+      "normalized": "tlc ii",
+      "id": 27,
+      "slug": "tlc-ii",
+      "title": "TLC II",
+      "artist": "Ilse DeLange"
+    },
+    {
+      "normalized": "tcl ii",
+      "id": 29,
+      "slug": "tcl-ii",
+      "title": "TCL II",
+      "artist": "Ilse DeLange"
+    },
+    {
+      "normalized": "tcl",
+      "id": 30,
+      "slug": "tcl",
+      "title": "TCL",
+      "artist": "Ilse DeLange"
+    },
+    {
+      "normalized": "the common linnets",
+      "id": 31,
+      "slug": "the-common-linnets",
+      "title": "The Common Linnets",
+      "artist": "Ilse DeLange"
+    },
+    {
+      "normalized": "the album collection",
+      "id": 32,
+      "slug": "the-album-collection",
+      "title": "The album collection",
+      "artist": "Ilse DeLange"
+    }
+  ]
+}

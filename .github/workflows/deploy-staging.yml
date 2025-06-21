@@ -95,8 +95,7 @@ jobs:
         if: steps.changes.outputs.should-deploy == 'true'
         run: |
           echo "🔧 Optimizing static files..."
-          
-          # Add cache headers via .htaccess (for Apache servers)
+            # Add cache headers via .htaccess (for Apache servers)
           cat > dist/.htaccess << 'EOF'
           # Enable compression
           <IfModule mod_deflate.c>
@@ -135,11 +134,25 @@ jobs:
               Header always set Referrer-Policy "strict-origin-when-cross-origin"
           </IfModule>
           
-          # Pretty URLs - remove .html extension
+          # URL Rewriting for Static Site
           RewriteEngine On
+          
+          # Handle directories - if requesting /albums, serve /albums/index.html
+          RewriteCond %{REQUEST_FILENAME} !-f
+          RewriteCond %{REQUEST_FILENAME} !-d
+          RewriteCond %{DOCUMENT_ROOT}%{REQUEST_URI}/index.html -f
+          RewriteRule ^(.*)$ $1/index.html [L]
+          
+          # Handle pretty URLs - remove .html extension
           RewriteCond %{REQUEST_FILENAME} !-d
           RewriteCond %{REQUEST_FILENAME} !-f
+          RewriteCond %{DOCUMENT_ROOT}%{REQUEST_URI}.html -f
           RewriteRule ^([^\.]+)$ $1.html [NC,L]
+          
+          # Force trailing slash for directories (optional, helps with consistency)
+          RewriteCond %{REQUEST_FILENAME} -d
+          RewriteCond %{REQUEST_URI} !/$
+          RewriteRule ^(.*)$ $1/ [R=301,L]
           EOF
           
           echo "✅ Added .htaccess with optimization rules"

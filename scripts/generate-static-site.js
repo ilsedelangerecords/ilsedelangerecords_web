@@ -5,19 +5,25 @@ import { fileURLToPath } from 'url';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-// Read the albums data
+// Read the albums and lyrics data
 const albumsPath = path.join(__dirname, '../public/content/albums.json');
+const lyricsPath = path.join(__dirname, '../public/content/lyrics.json');
 const albums = JSON.parse(fs.readFileSync(albumsPath, 'utf8'));
+const lyrics = JSON.parse(fs.readFileSync(lyricsPath, 'utf8'));
 
 // Create dist directory if it doesn't exist
 const distDir = path.join(__dirname, '../dist');
 const albumsDir = path.join(distDir, 'album');
+const lyricsDir = path.join(distDir, 'lyrics');
 
 if (!fs.existsSync(distDir)) {
   fs.mkdirSync(distDir, { recursive: true });
 }
 if (!fs.existsSync(albumsDir)) {
   fs.mkdirSync(albumsDir, { recursive: true });
+}
+if (!fs.existsSync(lyricsDir)) {
+  fs.mkdirSync(lyricsDir, { recursive: true });
 }
 
 // Helper function to create slug
@@ -117,15 +123,16 @@ function generateAlbumsPage() {
     const slug = createSlug(album.title);
     const trackCount = album.tracks ? (Array.isArray(album.tracks) ? album.tracks.length : 0) : 0;
     
-    return `
-        <div class="bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow duration-200">
+    return `        <div class="bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow duration-200">
             <div class="aspect-square bg-gray-200 rounded-t-lg overflow-hidden">
-                <img 
-                    src="${escapeHtml(album.coverImage || '/images/placeholder.svg')}" 
-                    alt="${escapeHtml(album.title)} cover art"
-                    class="w-full h-full object-cover hover:scale-105 transition-transform duration-200"
-                    onerror="this.src='/images/placeholder.svg'"
-                />
+                <a href="/album/${slug}" class="block w-full h-full">
+                    <img 
+                        src="${escapeHtml(album.coverImage || '/images/placeholder.svg')}" 
+                        alt="${escapeHtml(album.title)} cover art"
+                        class="w-full h-full object-cover hover:scale-105 transition-transform duration-200"
+                        onerror="this.src='/images/placeholder.svg'"
+                    />
+                </a>
             </div>
             <div class="p-4">
                 <h3 class="font-semibold text-gray-900 mb-1 line-clamp-2">
@@ -230,17 +237,16 @@ function generateAlbumPage(album) {
         </a>
 
         <!-- Album Header -->
-        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
-            <!-- Album Cover -->
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">            <!-- Album Cover -->
             <div class="lg:col-span-1">
-                <div class="aspect-square bg-gradient-to-br from-slate-200 to-slate-300 rounded-xl shadow-lg overflow-hidden">
+                <a href="/albums" class="block aspect-square bg-gradient-to-br from-slate-200 to-slate-300 rounded-xl shadow-lg overflow-hidden hover:shadow-xl transition-shadow">
                     <img 
                         src="${escapeHtml(album.coverImage || '/images/placeholder.svg')}" 
                         alt="${escapeHtml(album.title)} cover art"
                         class="w-full h-full object-cover"
                         onerror="this.src='/images/placeholder.svg'"
                     />
-                </div>
+                </a>
             </div>
 
             <!-- Album Info -->
@@ -390,7 +396,133 @@ function generateIndexPage() {
   );
 }
 
-// Main generation function
+// Generate lyrics listing page
+function generateLyricsPage() {
+  const lyricsItems = lyrics.map(lyric => {
+    const languageFlag = lyric.language === 'en' ? '🇺🇸' : lyric.language === 'nl' ? '🇳🇱' : '🌐';
+    const languageName = lyric.language === 'en' ? 'English' : lyric.language === 'nl' ? 'Dutch' : lyric.language;
+    
+    return `
+      <div class="bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow p-6">
+        <h3 class="text-xl font-semibold text-gray-900 mb-2">${escapeHtml(lyric.title)}</h3>
+        <div class="text-gray-600 mb-3">
+          <p class="flex items-center mb-1">
+            <svg class="w-4 h-4 mr-2" fill="currentColor" viewBox="0 0 20 20">
+              <path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd"/>
+            </svg>
+            ${escapeHtml(lyric.artist)}
+          </p>
+          ${lyric.album ? `
+            <p class="flex items-center">
+              <svg class="w-4 h-4 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                <path d="M18 3a1 1 0 00-1.196-.98l-10 2A1 1 0 006 5v9.114A4.369 4.369 0 005 14c-1.657 0-3 .895-3 2s1.343 2 3 2 3-.895 3-2V7.82l8-1.6v5.894A4.369 4.369 0 0015 12c-1.657 0-3 .895-3 2s1.343 2 3 2 3-.895 3-2V3z"/>
+              </svg>
+              ${escapeHtml(lyric.album)}
+            </p>
+          ` : ''}
+        </div>
+        <div class="flex items-center justify-between mb-4">
+          <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+            ${languageFlag} ${languageName}
+          </span>
+          ${lyric.verified ? `
+            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+              ✓ Verified
+            </span>
+          ` : ''}
+        </div>
+        <a href="/lyrics/${lyric.id}" class="block w-full bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 transition-colors text-center font-medium">
+          View Lyrics
+        </a>
+      </div>
+    `;
+  }).join('');
+
+  return createHtmlTemplate(
+    'Song Lyrics - Ilse DeLange Records',
+    'Complete lyrics collection for Ilse DeLange and The Common Linnets with detailed song information',
+    `
+      <div class="bg-white shadow-sm border-b">
+        <div class="max-w-7xl mx-auto px-4 py-6">
+          <h1 class="text-3xl font-bold text-gray-900">Song Lyrics</h1>
+          <p class="mt-2 text-gray-600">Complete lyrics collection with ${lyrics.length} songs</p>
+        </div>
+      </div>
+      
+      <div class="max-w-7xl mx-auto px-4 py-8">
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          ${lyricsItems}
+        </div>
+      </div>
+    `
+  );
+}
+
+// Generate individual lyrics page
+function generateLyricsDetailPage(lyric) {
+  const languageFlag = lyric.language === 'en' ? '🇺🇸' : lyric.language === 'nl' ? '🇳🇱' : '🌐';
+  const languageName = lyric.language === 'en' ? 'English' : lyric.language === 'nl' ? 'Dutch' : lyric.language;
+  
+  return createHtmlTemplate(
+    `${lyric.title} by ${lyric.artist} - Lyrics`,
+    `Full lyrics for "${lyric.title}" by ${lyric.artist}${lyric.album ? ` from the album "${lyric.album}"` : ''}`,
+    `
+      <div class="max-w-4xl mx-auto px-4 py-8">
+        <a href="/lyrics" class="inline-flex items-center text-blue-600 hover:text-blue-700 font-medium mb-8">
+          <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
+          </svg>
+          Back to Lyrics
+        </a>
+
+        <div class="bg-white rounded-xl p-8 shadow-lg border border-slate-200 mb-8">
+          <div class="space-y-2">
+            <div class="flex items-center space-x-3">
+              <span class="text-3xl" title="${languageName}">${languageFlag}</span>
+              ${lyric.verified ? `
+                <div class="flex items-center space-x-2 bg-green-100 text-green-800 px-3 py-1 rounded-full">
+                  <span class="text-sm font-medium">✓ Verified</span>
+                </div>
+              ` : ''}
+            </div>
+            <h1 class="text-4xl font-bold text-slate-800">${escapeHtml(lyric.title)}</h1>
+            <div class="space-y-1">
+              ${lyric.artistId ? `
+                <a href="/artist/${lyric.artistId}" class="text-xl text-blue-600 hover:text-blue-700 font-semibold">
+                  ${escapeHtml(lyric.artist)}
+                </a>
+              ` : `
+                <span class="text-xl font-semibold text-gray-900">${escapeHtml(lyric.artist)}</span>
+              `}
+              ${lyric.album && lyric.albumId ? `
+                <p class="text-slate-600">
+                  from the album 
+                  <a href="/album/${lyric.albumId}" class="text-blue-600 hover:text-blue-700 font-medium">
+                    ${escapeHtml(lyric.album)}
+                  </a>
+                </p>
+              ` : lyric.album ? `
+                <p class="text-slate-600">
+                  from the album <span class="font-medium">${escapeHtml(lyric.album)}</span>
+                </p>
+              ` : `
+                <p class="text-slate-600 italic">Album information not available</p>
+              `}
+            </div>
+          </div>
+        </div>
+
+        <div class="bg-white rounded-xl p-8 shadow-lg border border-slate-200">
+          <h2 class="text-2xl font-bold text-slate-800 mb-6">Lyrics</h2>
+          <div class="text-slate-800 leading-relaxed whitespace-pre-line text-lg">
+            ${escapeHtml(lyric.content)}
+          </div>
+        </div>
+      </div>
+    `
+  );
+}
+
 function generateStaticSite() {
   console.log('Generating static HTML files...');
 
@@ -420,6 +552,25 @@ function generateStaticSite() {
     const albumHtml = generateAlbumPage(album);
     fs.writeFileSync(path.join(albumDir, 'index.html'), albumHtml);
     console.log(`✓ Generated album/${slug}/index.html`);
+  });
+
+  // Generate lyrics listing page
+  const lyricsHtml = generateLyricsPage();
+  fs.writeFileSync(path.join(lyricsDir, 'index.html'), lyricsHtml);
+  console.log('✓ Generated lyrics/index.html');
+
+  // Generate individual lyrics pages
+  lyrics.forEach(lyric => {
+    const lyricId = lyric.id;
+    const lyricDir = path.join(lyricsDir, lyricId.toString());
+    
+    if (!fs.existsSync(lyricDir)) {
+      fs.mkdirSync(lyricDir, { recursive: true });
+    }
+    
+    const lyricHtml = generateLyricsDetailPage(lyric);
+    fs.writeFileSync(path.join(lyricDir, 'index.html'), lyricHtml);
+    console.log(`✓ Generated lyrics/${lyricId}/index.html`);
   });
 
   // Copy public assets
@@ -465,8 +616,7 @@ function generateSEOFiles() {
     ? 'https://ilsedelangerecords.com' 
     : 'https://staging.ilsedelangerecords.nl';
   const today = new Date().toISOString().split('T')[0];
-  
-  // Generate sitemap
+    // Generate sitemap
   let sitemap = `<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
@@ -477,6 +627,12 @@ function generateSEOFiles() {
   </url>
   <url>
     <loc>${baseUrl}/albums</loc>
+    <lastmod>${today}</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>
+  </url>
+  <url>
+    <loc>${baseUrl}/lyrics</loc>
     <lastmod>${today}</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>
@@ -493,11 +649,21 @@ function generateSEOFiles() {
   </url>`;
   });
 
+  lyrics.forEach(lyric => {
+    sitemap += `
+  <url>
+    <loc>${baseUrl}/lyrics/${lyric.id}</loc>
+    <lastmod>${today}</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>`;
+  });
+
   sitemap += `
 </urlset>`;
 
   fs.writeFileSync(path.join(distDir, 'sitemap.xml'), sitemap);
-  console.log(`✓ Generated sitemap.xml with ${albums.length + 2} URLs`);
+  console.log(`✓ Generated sitemap.xml with ${albums.length + lyrics.length + 3} URLs`);
 
   // Generate robots.txt
   const robotsTxt = `User-agent: *

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import { useContent, useContentSearch } from '../../lib/contentLoader';
 import { Search, Filter, Calendar, User, Music, ExternalLink } from 'lucide-react';
 import OptimizedImage from '../OptimizedImage';
@@ -7,7 +7,6 @@ import OptimizedImage from '../OptimizedImage';
 const AlbumsPage = () => {
   const { data: albums, loading, error } = useContent('albums');
   const { data: artists } = useContent('artists');
-  const navigate = useNavigate();
   
   const [searchTerm, setSearchTerm] = useState('');
   const [filters, setFilters] = useState({ artist: 'all', year: 'all', type: 'all' });
@@ -176,12 +175,17 @@ const AlbumsPage = () => {
           {filteredData?.map((album) => (
             <div key={album.id} className="bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow duration-200">              {/* Album Cover */}
               <div className="aspect-square bg-gray-200 rounded-t-lg overflow-hidden">
-                <OptimizedImage
-                  src={album.coverImage}
-                  alt={`${album.title} cover art`}
-                  className="w-full h-full object-cover hover:scale-105 transition-transform duration-200"
-                  fallback="/images/placeholder.svg"
-                />
+                <Link 
+                  to={`/album/${album.title.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '')}`}
+                  className="w-full h-full block"
+                >
+                  <OptimizedImage
+                    src={album.coverImage}
+                    alt={`${album.title} cover art`}
+                    className="w-full h-full object-cover hover:scale-105 transition-transform duration-200"
+                    fallback="/images/placeholder.svg"
+                  />
+                </Link>
               </div>
 
               {/* Album Info */}
@@ -212,12 +216,12 @@ const AlbumsPage = () => {
                     <span>{album.duration}</span>
                   )}
                 </div>                {/* View Details Button */}
-                <button 
-                  onClick={() => navigate(`/album/${album.title.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '')}`)}
-                  className="w-full mt-4 bg-purple-600 text-white py-2 px-4 rounded-md hover:bg-purple-700 transition-colors duration-200 text-sm font-medium"
+                <Link 
+                  to={`/album/${album.title.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '')}`}
+                  className="w-full mt-4 bg-purple-600 text-white py-2 px-4 rounded-md hover:bg-purple-700 transition-colors duration-200 text-sm font-medium text-center block"
                 >
                   View Details
-                </button>
+                </Link>
               </div>
             </div>
           ))}
