@@ -263,7 +263,7 @@ const LyricsPage = () => {
           <div className="mt-4 flex justify-end">            <button
               onClick={() => {
                 setSearchTerm('');
-                setFilters({ artist: 'all', language: 'all', album: 'all', verified: 'all' });
+                setFilters({ artist: 'all', language: 'all', album: 'all' });
                 setSortBy('title-asc');
                 setSearchParams(new URLSearchParams());
               }}
@@ -302,14 +302,7 @@ const LyricsPage = () => {
                       {lyric.album}
                     </p>
                   )}
-                </div>                {/* Verification Status */}
-                <div className="flex items-center justify-between mb-4">
-                  {lyric.verified && (
-                    <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
-                      ✓ Verified
-                    </span>
-                  )}</div>
-                {/* Stats */}
+                </div>                {/* Stats */}
                 <div className="flex items-center justify-between text-xs text-gray-500 mb-4">
                   {lyric.wordCount && (
                     <span>{lyric.wordCount} words</span>
