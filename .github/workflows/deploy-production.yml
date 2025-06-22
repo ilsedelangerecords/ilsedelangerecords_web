@@ -226,42 +226,54 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: static-site-${{ needs.build.outputs.version }}
-          path: dist/
-
-      - name: 🔐 Prepare SSH deployment
+          path: dist/      - name: 🔐 Prepare SSH deployment
         run: |
           mkdir -p ~/.ssh
           echo "${{ secrets.DEPLOY_SSH_KEY }}" > ~/.ssh/id_ed25519
           chmod 600 ~/.ssh/id_ed25519
           
-          # Add production server to known hosts
-          ssh-keyscan -p ${{ secrets.SSH_PORT || '22' }} ${{ secrets.SSH_HOST }} >> ~/.ssh/known_hosts
+          # Set SSH port with default
+          ssh_port="${{ secrets.SSH_PORT }}"
+          if [ -z "$ssh_port" ]; then
+            ssh_port="22"
+          fi
           
-          echo "✅ SSH key configured for production deployment"
-
-      - name: 🚀 Deploy to production server
+          # Add production server to known hosts
+          ssh-keyscan -p "$ssh_port" ${{ secrets.SSH_HOST }} >> ~/.ssh/known_hosts
+          
+          echo "✅ SSH key configured for production deployment"      - name: 🚀 Deploy to production server
         run: |
           echo "🚀 Deploying static site to ilsedelangerecords.nl..."
           # Ensure the script is properly formatted
           echo "Starting deployment..."
+          
+          # Set SSH port with default
+          ssh_port="${{ secrets.SSH_PORT }}"
+          if [ -z "$ssh_port" ]; then
+            ssh_port="22"
+          fi
           
           # Deploy with rsync for efficient transfer
           rsync -avz --delete --progress \
             --exclude='.git*' \
             --exclude='node_modules' \
             --exclude='*.log' \
-            -e "ssh -i ~/.ssh/id_ed25519 -p ${{ secrets.SSH_PORT || '22' }} -o StrictHostKeyChecking=no" \
+            -e "ssh -i ~/.ssh/id_ed25519 -p $ssh_port -o StrictHostKeyChecking=no" \
             dist/ \
             ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}:${{ secrets.SSH_TARGET_PATH }}
           
-          echo "✅ Deployment completed successfully!"
-
-      - name: 🔄 Clear server cache (if applicable)
+          echo "✅ Deployment completed successfully!"      - name: 🔄 Clear server cache (if applicable)
         run: |
           echo "🔄 Clearing server cache..."
           
+          # Set SSH port with default
+          ssh_port="${{ secrets.SSH_PORT }}"
+          if [ -z "$ssh_port" ]; then
+            ssh_port="22"
+          fi
+          
           # Optional: Clear any server-side cache
-          ssh -i ~/.ssh/id_ed25519 -p ${{ secrets.SSH_PORT || '22' }} \
+          ssh -i ~/.ssh/id_ed25519 -p "$ssh_port" \
             ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} \
             'if command -v php >/dev/null 2>&1; then
                if [ -f '${{ secrets.SSH_TARGET_PATH }}'/.htaccess ]; then
