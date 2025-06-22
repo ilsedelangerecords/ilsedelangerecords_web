@@ -33,7 +33,8 @@ jobs:
 
       - name: 🔍 Check for relevant changes
         id: changes
-        run: |          if [[ "${{ github.event.inputs.force_deploy }}" == "true" ]]; then
+        run: |
+          if [[ "${{ github.event.inputs.force_deploy }}" == "true" ]]; then
             echo "should-deploy=true" >> $GITHUB_OUTPUT
             echo "🔄 Force deployment requested"
           elif [[ "${{ github.event_name }}" == "workflow_dispatch" ]]; then
