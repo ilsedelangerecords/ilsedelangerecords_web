@@ -209,17 +209,13 @@ jobs:
             echo "❌ .htaccess file not found in dist/"
             exit 1
           fi
-          
-          echo "✅ .htaccess file found in dist/"
+            echo "✅ .htaccess file found in dist/"
           echo "Contents of .htaccess:"
-          cat dist/.htaccess          # Deploy with rsync for efficient transfer
-          # Use explicit include for .htaccess before excludes
+          cat dist/.htaccess
+          
+          # Deploy with rsync for efficient transfer
+          # Simplified rsync without problematic include/exclude filters  
           rsync -avz --delete --progress \
-            --include='.htaccess' \
-            --include='_redirects' \
-            --exclude='.*' \
-            --exclude='node_modules' \
-            --exclude='*.log' \
             -e "ssh -i ~/.ssh/id_ed25519 -p $ssh_port -o StrictHostKeyChecking=no" \
             dist/ \
             ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}:${{ secrets.SSH_TARGET_PATH }}
