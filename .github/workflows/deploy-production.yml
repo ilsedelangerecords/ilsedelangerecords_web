@@ -298,36 +298,40 @@ jobs:
       - name: 🧪 Post-deployment verification
         run: |
           echo "🔍 Verifying production deployment..."
-          sleep 10
+          sleep 20 # Increased wait time
           
           # Test main site
-          if curl -f -s --max-time 10 https://ilsedelangerecords.nl/ > /dev/null; then
+          if curl -L -f -s --max-time 15 https://ilsedelangerecords.nl/ > /dev/null; then
             echo "✅ Homepage is responding"
           else
-            echo "❌ Homepage is not responding"
+            echo "❌ Homepage is not responding. Full output:"
+            curl -L -v https://ilsedelangerecords.nl/
             exit 1
           fi
           
           # Test albums page
-          if curl -f -s --max-time 10 https://ilsedelangerecords.nl/albums > /dev/null; then
+          if curl -L -f -s --max-time 15 https://ilsedelangerecords.nl/albums/ > /dev/null; then
             echo "✅ Albums page is accessible"
           else
-            echo "⚠️ Albums page may not be accessible (could be normal for static sites)"
+            echo "⚠️ Albums page may not be accessible. Full output:"
+            curl -L -v https://ilsedelangerecords.nl/albums/
           fi
           
           # Test content API
-          if curl -f -s --max-time 10 https://ilsedelangerecords.nl/content/albums.json > /dev/null; then
+          if curl -L -f -s --max-time 15 https://ilsedelangerecords.nl/content/albums.json > /dev/null; then
             echo "✅ Content API is accessible"
           else
-            echo "❌ Content API not accessible"
+            echo "❌ Content API not accessible. Full output:"
+            curl -L -v https://ilsedelangerecords.nl/content/albums.json
             exit 1
           fi
           
           # Test specific album page
-          if curl -f -s --max-time 10 https://ilsedelangerecords.nl/album/ > /dev/null; then
-            echo "✅ Album pages are accessible"
+          if curl -L -f -s --max-time 15 https://ilsedelangerecords.nl/album/the-great-escape/ > /dev/null; then
+            echo "✅ Specific album page is accessible"
           else
-            echo "⚠️ Album pages may not be accessible (could be normal depending on URL structure)"
+            echo "⚠️ Specific album page may not be accessible. Full output:"
+            curl -L -v https://ilsedelangerecords.nl/album/the-great-escape/
           fi
           
           echo "🎉 Verification completed!"
