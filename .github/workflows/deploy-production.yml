@@ -220,13 +220,13 @@ jobs:
             exit 1
           fi
           
-          echo "✅ All required SSH secrets are configured"
-
-      - name: 📥 Download build artifacts
+          echo "✅ All required SSH secrets are configured"      - name: 📥 Download build artifacts
         uses: actions/download-artifact@v4
         with:
           name: static-site-${{ needs.build.outputs.version }}
-          path: dist/      - name: 🔐 Prepare SSH deployment
+          path: dist/
+
+      - name: 🔐 Prepare SSH deployment
         run: |
           mkdir -p ~/.ssh
           echo "${{ secrets.DEPLOY_SSH_KEY }}" > ~/.ssh/id_ed25519
@@ -241,7 +241,9 @@ jobs:
           # Add production server to known hosts
           ssh-keyscan -p "$ssh_port" ${{ secrets.SSH_HOST }} >> ~/.ssh/known_hosts
           
-          echo "✅ SSH key configured for production deployment"      - name: 🚀 Deploy to production server
+          echo "✅ SSH key configured for production deployment"
+
+      - name: 🚀 Deploy to production server
         run: |
           echo "🚀 Deploying static site to ilsedelangerecords.nl..."
           # Ensure the script is properly formatted
@@ -262,7 +264,9 @@ jobs:
             dist/ \
             ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}:${{ secrets.SSH_TARGET_PATH }}
           
-          echo "✅ Deployment completed successfully!"      - name: 🔄 Clear server cache (if applicable)
+          echo "✅ Deployment completed successfully!"
+
+      - name: 🔄 Clear server cache (if applicable)
         run: |
           echo "🔄 Clearing server cache..."
           
