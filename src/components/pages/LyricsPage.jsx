@@ -9,7 +9,7 @@ const LyricsPage = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   
   const [searchTerm, setSearchTerm] = useState('');
-  const [filters, setFilters] = useState({ artist: 'all', language: 'all', album: 'all', verified: 'all' });
+  const [filters, setFilters] = useState({ artist: 'all', language: 'all', album: 'all' });
   const [sortBy, setSortBy] = useState('title');
 
   // Initialize filters from URL parameters
@@ -49,15 +49,11 @@ const LyricsPage = () => {
       (lyric.title && lyric.title.toLowerCase().includes(searchTerm.toLowerCase())) ||
       (lyric.artist && lyric.artist.toLowerCase().includes(searchTerm.toLowerCase())) ||
       (lyric.album && lyric.album.toLowerCase().includes(searchTerm.toLowerCase()));
-    
-    const matchesArtist = filters.artist === 'all' || (lyric.artist && lyric.artist === filters.artist);
+      const matchesArtist = filters.artist === 'all' || (lyric.artist && lyric.artist === filters.artist);
     const matchesLanguage = filters.language === 'all' || (lyric.language && lyric.language === filters.language);
     const matchesAlbum = filters.album === 'all' || (lyric.album && lyric.album === filters.album);
-    const matchesVerified = filters.verified === 'all' || 
-      (filters.verified === 'verified' && lyric.verified === true) ||
-      (filters.verified === 'unverified' && lyric.verified !== true);
     
-    return matchesSearch && matchesArtist && matchesLanguage && matchesAlbum && matchesVerified;
+    return matchesSearch && matchesArtist && matchesLanguage && matchesAlbum;
   }).sort((a, b) => {
     // Apply sorting
     switch (sortBy) {
@@ -238,25 +234,7 @@ const LyricsPage = () => {
                     {lang === 'en' ? 'English' : lang === 'nl' ? 'Dutch' : lang}
                   </option>
                 ))}
-              </select>
-            </div>
-
-            {/* Verification Filter */}
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                <Filter className="w-4 h-4 inline mr-1" />
-                Status
-              </label>
-              <select
-                value={filters.verified}
-                onChange={(e) => updateFilter('verified', e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-              >
-                <option value="all">All Status</option>
-                <option value="verified">Verified Only</option>
-                <option value="unverified">Unverified Only</option>
-              </select>
-            </div>
+              </select>            </div>
 
             {/* Sort */}
             <div>
