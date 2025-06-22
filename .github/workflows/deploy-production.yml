@@ -218,9 +218,10 @@ jobs:
             echo "❌ Missing required secrets: $missing_secrets"
             echo "Please configure these secrets in GitHub Actions settings"
             exit 1
-          fi
-          
-          echo "✅ All required SSH secrets are configured"      - name: 📥 Download build artifacts
+          fi          
+          echo "✅ All required SSH secrets are configured"
+
+      - name: 📥 Download build artifacts
         uses: actions/download-artifact@v4
         with:
           name: static-site-${{ needs.build.outputs.version }}
