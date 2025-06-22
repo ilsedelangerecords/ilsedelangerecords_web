@@ -32,7 +32,8 @@
     "format:check": "prettier --check .",
     "preview": "vite preview",
     "deploy:staging": "npm run build:staging",
-    "deploy:production": "npm run build:production"
+    "deploy:production": "npm run build:production",
+    "postbuild": "cp public/.htaccess dist/.htaccess"
   },
   "dependencies": {
     "@hookform/resolvers": "^5.0.1",
