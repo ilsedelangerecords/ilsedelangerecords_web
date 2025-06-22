@@ -69,9 +69,10 @@ dist
 
 # Gatsby files
 .cache/
-public
+public/*
 # But include content files for the website
 !public/content/
+!public/content/**
 
 # Storybook build outputs
 .out
