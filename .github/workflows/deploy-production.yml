@@ -249,6 +249,12 @@ jobs:
           
           echo "✅ Deployment completed successfully!"
 
+      - name: 🗂️ List dist/ contents before deploy
+        if: steps.changes.outputs.should-deploy == 'true'
+        run: |
+          echo "Listing dist/ contents before deployment:"
+          ls -la dist/
+
       - name: 🔄 Clear server cache (if applicable)
         run: |
           echo "🔄 Clearing server cache..."
@@ -300,6 +306,15 @@ jobs:
           fi
           
           echo "🎉 Verification completed!"
+
+      - name: 🗂️ List files on server after deploy
+        run: |
+          ssh_port="${{ secrets.SSH_PORT }}"
+          if [ -z "$ssh_port" ]; then
+            ssh_port="22"
+          fi
+          echo "Listing files in ${{ secrets.SSH_TARGET_PATH }} on server:"
+          ssh -i ~/.ssh/id_ed25519 -p "$ssh_port" ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} "ls -la ${{ secrets.SSH_TARGET_PATH }}"
 
   # Clean up old artifacts
   cleanup:
