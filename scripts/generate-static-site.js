@@ -9,7 +9,8 @@ const __dirname = path.dirname(__filename);
 const albumsPath = path.join(__dirname, '../public/content/albums.json');
 const lyricsPath = path.join(__dirname, '../public/content/lyrics.json');
 const albums = JSON.parse(fs.readFileSync(albumsPath, 'utf8'));
-const lyrics = JSON.parse(fs.readFileSync(lyricsPath, 'utf8'));
+const lyricsData = JSON.parse(fs.readFileSync(lyricsPath, 'utf8'));
+const lyrics = Array.isArray(lyricsData) ? lyricsData : (lyricsData.lyrics || []);
 
 // Create dist directory if it doesn't exist
 const distDir = path.join(__dirname, '../dist');
