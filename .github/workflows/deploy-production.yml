@@ -82,13 +82,11 @@ jobs:
 
       - name: 📥 Install dependencies
         if: steps.changes.outputs.should-deploy == 'true'
-        run: pnpm install --frozen-lockfile
-
-      - name: 🏗️ Generate static site
+        run: pnpm install --frozen-lockfile      - name: 🏗️ Build SPA for production
         if: steps.changes.outputs.should-deploy == 'true'
         run: |
-          echo "🏗️ Building static site for maximum performance..."
-          pnpm run build:static
+          echo "🏗️ Building SPA for production deployment..."
+          pnpm run build
           
           # Verify build output
           if [ ! -d "dist" ] || [ ! -f "dist/index.html" ]; then
@@ -96,13 +94,11 @@ jobs:
             exit 1
           fi
           
-          echo "✅ Static site generated successfully"
-
-      - name: 🔧 Optimize static files
+          echo "✅ SPA built successfully"      - name: 🔧 Configure SPA routing and optimization
         if: steps.changes.outputs.should-deploy == 'true'
         run: |
-          echo "🔧 Optimizing static files..."
-            # Add cache headers via .htaccess (for Apache servers)
+          echo "🔧 Configuring SPA routing and optimization..."
+          # The SPA build already includes .htaccess, but we'll enhance it
           cat > dist/.htaccess << 'EOF'
           # Enable compression
           <IfModule mod_deflate.c>
@@ -141,28 +137,14 @@ jobs:
               Header always set Referrer-Policy "strict-origin-when-cross-origin"
           </IfModule>
           
-          # URL Rewriting for Static Site
+          # SPA Routing - Send all requests to index.html for client-side routing
+          Options -MultiViews
           RewriteEngine On
-          
-          # Handle directories - if requesting /albums, serve /albums/index.html
           RewriteCond %{REQUEST_FILENAME} !-f
-          RewriteCond %{REQUEST_FILENAME} !-d
-          RewriteCond %{DOCUMENT_ROOT}%{REQUEST_URI}/index.html -f
-          RewriteRule ^(.*)$ $1/index.html [L]
-          
-          # Handle pretty URLs - remove .html extension
-          RewriteCond %{REQUEST_FILENAME} !-d
-          RewriteCond %{REQUEST_FILENAME} !-f
-          RewriteCond %{DOCUMENT_ROOT}%{REQUEST_URI}.html -f
-          RewriteRule ^([^\.]+)$ $1.html [NC,L]
-          
-          # Force trailing slash for directories (optional, helps with consistency)
-          RewriteCond %{REQUEST_FILENAME} -d
-          RewriteCond %{REQUEST_URI} !/$
-          RewriteRule ^(.*)$ $1/ [R=301,L]
+          RewriteRule ^ index.html [QSA,L]
           EOF
           
-          echo "✅ Added .htaccess with optimization rules"
+          echo "✅ SPA routing and optimization configured"
 
       - name: 📊 Build summary
         if: steps.changes.outputs.should-deploy == 'true'
