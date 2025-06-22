@@ -146,9 +146,8 @@ const HomePage = () => {  const { data: albums, loading: albumsLoading } = useCo
                           <Heart className="w-4 h-4 mr-1" />
                           {artist.stats?.lyricsCount || 0} Songs
                         </span>
-                      </div>
-                      <Link
-                        to={`/artist/${artist.name === 'Ilse DeLange' ? 'ilse-delange' : artist.name === 'The Common Linnets' ? 'the-common-linnets' : artist.name.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '')}`}
+                      </div>                      <Link
+                        to={`/artist/${artist.slug}`}
                         className="bg-purple-600 text-white px-4 py-2 rounded-lg hover:bg-purple-700 transition-colors duration-200"
                       >
                         View Profile
