@@ -148,6 +148,15 @@ jobs:
           
           echo "✅ SPA routing and optimization configured"
 
+      - name: 🗂️ Verify .htaccess in dist/
+        if: steps.changes.outputs.should-deploy == 'true'
+        run: |
+          echo "Verifying dist/.htaccess after build:"
+          ls -la dist/.htaccess || echo "❌ dist/.htaccess not found"
+          echo "---- Contents of dist/.htaccess ----"
+          cat dist/.htaccess || echo "Cannot cat dist/.htaccess"
+          echo "-------------------------------------"
+
       - name: 📊 Build summary
         if: steps.changes.outputs.should-deploy == 'true'
         run: |
@@ -157,7 +166,6 @@ jobs:
           echo "🔗 Main files:"
           echo "  - Homepage: dist/index.html"
           echo "  - Content API: dist/content/"
-          
           echo "🎉 Ready for deployment!"
 
       - name: 📤 Upload build artifacts
@@ -175,54 +183,34 @@ jobs:
     runs-on: ubuntu-latest
     environment: production
     steps:
-      - name: 🔒 Validate SSH secrets
-        run: |
-          echo "🔍 Validating required SSH secrets..."
-          
-          missing_secrets=""
-          
-          if [ -z "${{ secrets.SSH_HOST }}" ]; then
-            missing_secrets="$missing_secrets SSH_HOST"
-          fi
-          
-          if [ -z "${{ secrets.SSH_USER }}" ]; then
-            missing_secrets="$missing_secrets SSH_USER"
-          fi
-          
-          if [ -z "${{ secrets.DEPLOY_SSH_KEY }}" ]; then
-            missing_secrets="$missing_secrets DEPLOY_SSH_KEY"
-          fi
-          
-          if [ -z "${{ secrets.SSH_TARGET_PATH }}" ]; then
-            missing_secrets="$missing_secrets SSH_TARGET_PATH"
-          fi
-          
-          if [ -n "$missing_secrets" ]; then
-            echo "❌ Missing required secrets: $missing_secrets"
-            echo "Please configure these secrets in GitHub Actions settings"
-            exit 1
-          fi          
-          
-          echo "✅ All required SSH secrets are configured"
-
       - name: 📥 Download build artifacts
         uses: actions/download-artifact@v4
         with:
           name: spa-build-${{ needs.build.outputs.version }}
           path: dist/
 
+      - name: 🗂️ Verify .htaccess after artifact download
+        run: |
+          echo "Listing dist/ after download:"
+          ls -la dist/ || echo "Cannot list dist/"
+          echo "Verifying dist/.htaccess after download:"
+          ls -la dist/.htaccess || echo "❌ dist/.htaccess not found after download"
+          echo "---- Contents of dist/.htaccess ----"
+          cat dist/.htaccess || echo "Cannot cat dist/.htaccess after download"
+          echo "-------------------------------------"
+
       - name: 🔐 Prepare SSH deployment
         run: |
           mkdir -p ~/.ssh
           echo "${{ secrets.DEPLOY_SSH_KEY }}" > ~/.ssh/id_ed25519
           chmod 600 ~/.ssh/id_ed25519
-          
+
           # Set SSH port with default
           ssh_port="${{ secrets.SSH_PORT }}"
           if [ -z "$ssh_port" ]; then
             ssh_port="22"
           fi
-          
+
           # Add production server to known hosts
           ssh-keyscan -p "$ssh_port" ${{ secrets.SSH_HOST }} >> ~/.ssh/known_hosts
           
