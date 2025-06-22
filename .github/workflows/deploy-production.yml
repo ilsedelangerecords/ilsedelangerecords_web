@@ -280,11 +280,11 @@ jobs:
           # Optional: Clear any server-side cache
           ssh -i ~/.ssh/id_ed25519 -p "$ssh_port" \
             ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} \
-            'if command -v php >/dev/null 2>&1; then
-               if [ -f '${{ secrets.SSH_TARGET_PATH }}'/.htaccess ]; then
-                 echo "Cache headers configured via .htaccess"
+            "if command -v php >/dev/null 2>&1; then
+               if [ -f '${{ secrets.SSH_TARGET_PATH }}/.htaccess' ]; then
+                 echo 'Cache headers configured via .htaccess'
                fi
-             fi' || echo "No cache clearing needed"
+             fi" || echo "No cache clearing needed"
 
       - name: 🌐 Deployment summary
         run: |
