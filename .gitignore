@@ -99,7 +99,6 @@ ehthumbs.db
 
 # Migration specific
 migration_data/content_inventory.json
-migration_data/migration_report.json
 *.pyc
 __pycache__/
 
