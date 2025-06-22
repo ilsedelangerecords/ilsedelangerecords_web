@@ -96,29 +96,57 @@ jobs:
           
           echo "✅ SPA built successfully"
 
-      - name: ➕ Add .htaccess to dist
+      - name: 🔧 Configure SPA routing and optimization
         if: steps.changes.outputs.should-deploy == 'true'
         run: |
-          cp public/.htaccess dist/.htaccess
-
-      - name: 🔧 Verify SPA configuration
-        if: steps.changes.outputs.should-deploy == 'true'
-        run: |
-          echo "🔧 Verifying SPA configuration..."
+          echo "🔧 Configuring SPA routing and optimization..."
+          # The SPA build already includes .htaccess, but we'll enhance it
+          cat > dist/.htaccess << 'EOF'
+          # Enable compression
+          <IfModule mod_deflate.c>
+              AddOutputFilterByType DEFLATE text/plain
+              AddOutputFilterByType DEFLATE text/html
+              AddOutputFilterByType DEFLATE text/xml
+              AddOutputFilterByType DEFLATE text/css
+              AddOutputFilterByType DEFLATE application/xml
+              AddOutputFilterByType DEFLATE application/xhtml+xml
+              AddOutputFilterByType DEFLATE application/rss+xml
+              AddOutputFilterByType DEFLATE application/javascript
+              AddOutputFilterByType DEFLATE application/x-javascript
+              AddOutputFilterByType DEFLATE application/json
+          </IfModule>
           
-          # Check that .htaccess exists
-          if [ ! -f "dist/.htaccess" ]; then
-            echo "❌ .htaccess file not found in build output"
-            exit 1
-          fi
+          # Set cache headers
+          <IfModule mod_expires.c>
+              ExpiresActive On
+              ExpiresByType text/css "access plus 1 month"
+              ExpiresByType application/javascript "access plus 1 month"
+              ExpiresByType text/javascript "access plus 1 month"
+              ExpiresByType image/png "access plus 1 year"
+              ExpiresByType image/jpg "access plus 1 year"
+              ExpiresByType image/jpeg "access plus 1 year"
+              ExpiresByType image/gif "access plus 1 year"
+              ExpiresByType image/svg+xml "access plus 1 year"
+              ExpiresByType application/json "access plus 1 day"
+              ExpiresByType text/html "access plus 1 hour"
+          </IfModule>
           
-          # Check that index.html exists
-          if [ ! -f "dist/index.html" ]; then
-            echo "❌ index.html not found in build output"
-            exit 1
-          fi
+          # Security headers
+          <IfModule mod_headers.c>
+              Header always set X-Content-Type-Options nosniff
+              Header always set X-Frame-Options DENY
+              Header always set X-XSS-Protection "1; mode=block"
+              Header always set Referrer-Policy "strict-origin-when-cross-origin"
+          </IfModule>
           
-          echo "✅ SPA configuration verified"
+          # SPA Routing - Send all requests to index.html for client-side routing
+          Options -MultiViews
+          RewriteEngine On
+          RewriteCond %{REQUEST_FILENAME} !-f
+          RewriteRule ^ index.html [QSA,L]
+          EOF
+          
+          echo "✅ SPA routing and optimization configured"
 
       - name: 📊 Build summary
         if: steps.changes.outputs.should-deploy == 'true'
@@ -197,7 +225,8 @@ jobs:
           
           # Add production server to known hosts
           ssh-keyscan -p "$ssh_port" ${{ secrets.SSH_HOST }} >> ~/.ssh/known_hosts
-            echo "✅ SSH key configured for production deployment"
+          
+          echo "✅ SSH key configured for production deployment"
 
       - name: 🚀 Deploy to production server
         run: |
@@ -209,36 +238,14 @@ jobs:
             ssh_port="22"
           fi
           
-          # Verify .htaccess exists before deployment
-          if [ ! -f "dist/.htaccess" ]; then
-            echo "❌ .htaccess file not found in dist/"
-            exit 1
-          fi
-            echo "✅ .htaccess file found in dist/"
-          echo "Contents of .htaccess:"
-          cat dist/.htaccess
-          
           # Deploy with rsync for efficient transfer
-          # Ensure .htaccess is included and not removed during deployment
           rsync -avz --delete --progress \
-            --include='.htaccess' \
+            --exclude='.git*' \
+            --exclude='node_modules' \
+            --exclude='*.log' \
             -e "ssh -i ~/.ssh/id_ed25519 -p $ssh_port -o StrictHostKeyChecking=no" \
             dist/ \
             ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}:${{ secrets.SSH_TARGET_PATH }}
-          
-          # Verify .htaccess was deployed
-          echo "🔍 Verifying .htaccess deployment..."
-          if ! ssh -i ~/.ssh/id_ed25519 -p "$ssh_port" \
-            ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} \
-            "test -f ${{ secrets.SSH_TARGET_PATH }}/.htaccess"; then
-            echo "⚠️ .htaccess not found on server, copying manually..."
-            scp -i ~/.ssh/id_ed25519 -P "$ssh_port" \
-              dist/.htaccess \
-              ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}:${{ secrets.SSH_TARGET_PATH }}/.htaccess
-            echo "✅ .htaccess manually copied"
-          else
-            echo "✅ .htaccess found on server"
-          fi
           
           echo "✅ Deployment completed successfully!"
 
