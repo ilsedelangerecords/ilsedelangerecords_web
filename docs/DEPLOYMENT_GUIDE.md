@@ -37,7 +37,7 @@ The deployment is automated via GitHub Actions:
 2. **Build Process**: Compiles React app with Vite bundler
 3. **Asset Optimization**: Optimizes images and bundles code
 4. **Static Generation**: Creates fully static website
-5. **Deployment**: Uploads to staging server via rsync
+5. **Deployment**: Uploads to production server via rsync
 
 ### Manual Deployment
 If you need to deploy manually:
