@@ -15,17 +15,32 @@
   RewriteEngine On
   RewriteBase /
 
-  # Skip rewrite if the target exists
+  # Handle assets first - don't rewrite if it's an asset file
+  RewriteCond %{REQUEST_URI} ^/(assets|images|content)/
+  RewriteRule ^ - [L]
+
+  # Skip rewrite if the target exists (files or directories)
   RewriteCond %{REQUEST_FILENAME} -f [OR]
   RewriteCond %{REQUEST_FILENAME} -d
   RewriteRule ^ - [L]
 
-  # Everything else goes to /index.html
+  # Everything else goes to /index.html for SPA routing
   RewriteRule ^ index.html [L]
 </IfModule>
 
 # Tell Apache which file to serve by default
 DirectoryIndex index.html
+
+# Ensure correct MIME types for assets
+<IfModule mod_mime.c>
+  AddType text/css .css
+  AddType application/javascript .js
+  AddType application/javascript .mjs
+  AddType application/json .json
+  AddType image/svg+xml .svg
+  AddType font/woff2 .woff2
+  AddType font/woff .woff
+</IfModule>
 
 # Text, JSON, fonts, SVG, JS, CSS … compress if possible
 <IfModule mod_deflate.c>

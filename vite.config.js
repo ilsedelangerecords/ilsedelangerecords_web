@@ -33,10 +33,9 @@ export default defineConfig({
         }
       }
     }
-  },
-  // Ensure public directory is properly served
+  },  // Ensure public directory is properly served
   publicDir: 'public',
-  base: './'
+  base: '/'
 })
 
 
