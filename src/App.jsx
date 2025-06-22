@@ -1,5 +1,5 @@
-import React from 'react';
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import React, { useEffect } from 'react';
+import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-router-dom';
 import Header from './components/Header';
 import Footer from './components/Footer';
 import HomePage from './components/pages/HomePage';
@@ -24,10 +24,24 @@ import './App.css';
 // Check if we're in development mode with admin enabled
 const isDevelopment = import.meta.env.DEV && import.meta.env.VITE_DEV_MODE === 'true';
 
+// Debug component to log route changes
+function RouteDebugger() {
+  const location = useLocation();
+  
+  useEffect(() => {
+    console.log('Current route:', location.pathname);
+    console.log('Current search:', location.search);
+    console.log('Current hash:', location.hash);
+  }, [location]);
+  
+  return null;
+}
+
 function App() {
   return (
     <Router>
       <div className="App min-h-screen flex flex-col">
+        <RouteDebugger />
         <Routes>
           {/* Admin Routes - only available in development */}
           {isDevelopment && (

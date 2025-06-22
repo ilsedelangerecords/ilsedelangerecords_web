@@ -2,40 +2,56 @@
 class ContentLoader {
   constructor() {
     this.cache = new Map();
-  }
-  async loadContent(type) {
+    this.loading = new Set(); // Track what's currently loading to prevent duplicate requests
+  }  async loadContent(type) {
     if (!type || typeof type !== 'string' || type.trim() === '') {
       console.warn('loadContent called with invalid type:', type);
       return [];
     }
     
     const trimmedType = type.trim();
+      // Return cached content if available
     if (this.cache.has(trimmedType)) {
       return this.cache.get(trimmedType);
-    }    try {
-      console.log(`Loading content type: ${trimmedType}`);
+    }
+    
+    // Prevent duplicate loading requests
+    if (this.loading.has(trimmedType)) {
+      // Wait for the existing request to complete
+      while (this.loading.has(trimmedType)) {
+        await new Promise(resolve => setTimeout(resolve, 50));
+      }
+      return this.cache.get(trimmedType) || [];
+    }
+      this.loading.add(trimmedType);
+      try {
+      // Use absolute path for static files to avoid issues with nested routes
+      const url = `/content/${trimmedType}.json`;
       
-      // Use relative path for static files
-      const response = await fetch(`./content/${trimmedType}.json`);
+      const response = await fetch(url);
+      
       if (!response.ok) {
-        throw new Error(`Failed to load ${trimmedType}: ${response.status}`);
+        throw new Error(`Failed to load ${trimmedType}: ${response.status} ${response.statusText}`);
       }
       
       const data = await response.json();
-      console.log(`Loaded ${trimmedType}:`, Object.keys(data || {}).length, 'items');
       
-      // Convert object to array if needed
+      // Extract the 'lyrics' array if the type is 'lyrics'
       let processedData = data;
-      if (data && typeof data === 'object' && !Array.isArray(data)) {
+      if (trimmedType === 'lyrics' && data && data.lyrics) {
+        processedData = data.lyrics;
+      } else if (data && typeof data === 'object' && !Array.isArray(data)) {
+        // Convert object to array if needed
         processedData = Object.values(data);
       }
       
-      console.log(`Formatted ${processedData?.length || 0} ${trimmedType}`);
       this.cache.set(trimmedType, processedData || []);
       return processedData || [];
     } catch (error) {
-      console.error(`Error loading ${trimmedType}:`, error);
+      console.error(`Error loading ${trimmedType}:`, error.message);
       return [];
+    } finally {
+      this.loading.delete(trimmedType);
     }
   }
 
@@ -66,11 +82,9 @@ export function useContent(type) {
       return;
     }
 
-    async function loadData() {
-      try {
+    async function loadData() {      try {
         setLoading(true);
         const result = await contentLoader.loadContent(type);
-        console.log(`useContent: Setting ${type} data:`, result?.length || 0, 'items');
         setData(result || []);
         setError(null);
       } catch (err) {
@@ -96,9 +110,7 @@ export function useContentSearch(type, searchTerm = '', filters = {}) {
     if (!data || !Array.isArray(data)) {
       setFilteredData([]);
       return;
-    }
-
-    let filtered = [...data];
+    }    let filtered = [...data];
 
     // Apply search term
     const safeSearchTerm = typeof searchTerm === 'string' ? searchTerm : '';
@@ -113,7 +125,6 @@ export function useContentSearch(type, searchTerm = '', filters = {}) {
           item.lyrics,
           item.description
         ].filter(Boolean).join(' ').toLowerCase();
-        
         return searchableText.includes(term);
       });
     }

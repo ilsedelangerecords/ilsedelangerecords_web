@@ -19,20 +19,29 @@ const options = {
   }
 };
 
+console.log('Script started.');
 console.log('Fetching latest release information...');
+console.log('Making request to GitHub API:', options);
 
 https.get(options, (res) => {
   let data = '';
 
   res.on('data', (chunk) => {
+    console.log('Received data chunk from GitHub API.');
     data += chunk;
   });
 
   res.on('end', () => {
+    console.log('GitHub API response received. Status code:', res.statusCode);
+
     if (res.statusCode >= 200 && res.statusCode < 300) {
+      console.log('Parsing GitHub API response.');
       try {
         const release = JSON.parse(data);
+        console.log('Parsed release data:', release);
+
         const asset = release.assets.find(a => a.name === assetName);
+        console.log('Found asset:', asset);
 
         if (asset) {
           const fileUrl = asset.browser_download_url;
@@ -47,6 +56,8 @@ https.get(options, (res) => {
           // The browser_download_url for release assets redirects.
           // We need to handle this redirect.
           https.get(fileUrl, downloadOptions, (fileRes) => {
+            console.log('File download response received. Status code:', fileRes.statusCode);
+
             // Follow redirect
             if (fileRes.statusCode >= 300 && fileRes.statusCode < 400 && fileRes.headers.location) {
               console.log('Redirecting to', fileRes.headers.location);
@@ -90,6 +101,14 @@ function handleFileDownload(fileRes) {
     fileRes.pipe(fileStream);
     fileStream.on('finish', () => {
       console.log(`${assetName} downloaded successfully to ${destPath}`);
+      // Log the contents of the downloaded file for debugging
+      fs.readFile(destPath, 'utf8', (err, data) => {
+        if (err) {
+          console.error('Error reading the downloaded file:', err.message);
+        } else {
+          console.log('Downloaded file contents:', data);
+        }
+      });
     });
     fileStream.on('error', (err) => {
         console.error('Error writing to file:', err.message);

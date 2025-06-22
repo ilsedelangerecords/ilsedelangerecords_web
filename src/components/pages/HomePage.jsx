@@ -4,9 +4,9 @@ import { Link } from 'react-router-dom';
 import { Music, Users, Calendar, Award, ExternalLink, Globe, Heart, Play } from 'lucide-react';
 import OptimizedImage from '../OptimizedImage';
 
-const HomePage = () => {
-  const { data: albums, loading: albumsLoading } = useContent('albums');
-  const { data: artists, loading: artistsLoading } = useContent('artists');  // Get featured content
+const HomePage = () => {  const { data: albums, loading: albumsLoading } = useContent('albums');
+  const { data: artists, loading: artistsLoading } = useContent('artists');
+  const { data: lyrics, loading: lyricsLoading } = useContent('lyrics');// Get featured content
   const featuredAlbums = albums
     ?.sort((a, b) => {
       // Sort by year (newest first), then by title if years are the same
@@ -18,22 +18,21 @@ const HomePage = () => {
       return (a.title || '').localeCompare(b.title || '');
     })
     .slice(0, 3) || [];
-  const mainArtists = artists || [];
-  // Calculate statistics with debugging
+  const mainArtists = artists || [];  // Calculate statistics with debugging
   const stats = {
     totalAlbums: Array.isArray(albums) ? albums.length : 0,
     totalArtists: Array.isArray(artists) ? artists.length : 0,
+    totalLyrics: Array.isArray(lyrics) ? lyrics.length : 0,
     totalYears: Array.isArray(albums) && albums.length > 0 ? 
       Math.max(1, new Date().getFullYear() - Math.min(...albums.map(a => a.year || new Date().getFullYear())) + 1) : 
       0
   };
-
   // Debug logging
-  console.log('HomePage stats:', stats);
-  console.log('Albums data:', albums?.length, albums);
-  console.log('Artists data:', artists?.length);
+  // console.log('HomePage stats:', stats);
+  // console.log('Albums data:', albums?.length, albums);
+  // console.log('Artists data:', artists?.length);
 
-  const loading = albumsLoading || artistsLoading;
+  const loading = albumsLoading || artistsLoading || lyricsLoading;
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-purple-50 via-pink-50 to-blue-50">
@@ -70,8 +69,7 @@ const HomePage = () => {
         </div>
       </div>      {/* Statistics Section */}
       <div className="py-16 bg-white">
-        <div className="max-w-7xl mx-auto px-4">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+        <div className="max-w-7xl mx-auto px-4">          <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
             <div className="text-center">
               <div className="text-3xl sm:text-4xl font-bold text-purple-600 mb-2">
                 {loading ? '...' : stats.totalAlbums}
@@ -83,6 +81,12 @@ const HomePage = () => {
                 {loading ? '...' : stats.totalArtists}
               </div>
               <div className="text-gray-600 font-medium">Artists</div>
+            </div>
+            <div className="text-center">
+              <div className="text-3xl sm:text-4xl font-bold text-green-600 mb-2">
+                {loading ? '...' : stats.totalLyrics}
+              </div>
+              <div className="text-gray-600 font-medium">Song Lyrics</div>
             </div>
             <div className="text-center">
               <div className="text-3xl sm:text-4xl font-bold text-indigo-600 mb-2">

@@ -98,6 +98,7 @@
     "@types/react-dom": "^19.1.2",
     "@types/uuid": "^10.0.0",
     "@vitejs/plugin-react": "^4.4.1",
+    "connect-history-api-fallback": "^2.0.0",
     "cors": "^2.8.5",
     "eslint": "^9.25.0",
     "eslint-plugin-react-hooks": "^5.2.0",

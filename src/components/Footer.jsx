@@ -66,9 +66,7 @@ const Footer = () => {
                 </Link>
               </li>
             </ul>
-          </div>
-
-          {/* Community */}
+          </div>          {/* Community */}
           <div>
             <h3 className="text-lg font-semibold mb-4">Community</h3>
             <ul className="space-y-2">
@@ -85,16 +83,6 @@ const Footer = () => {
                   className="text-gray-300 hover:text-white transition-colors"
                 >
                   Report Issues
-                </a>
-              </li>
-              <li>
-                <a
-                  href="https://github.com/ilsedelangerecords/ilsedelangerecords_web/discussions"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-gray-300 hover:text-white transition-colors"
-                >
-                  Discussions
                 </a>
               </li>
               <li>

@@ -201,21 +201,29 @@ const ArtistPage = () => {
                 <div className="text-3xl font-bold">{artist.stats.lyricsCount}</div>
                 <div className="text-white/80">Lyrics</div>
               </div>
-            </div>            {/* Social Links */}
-            {artist.websiteUrl && (
-              <div className="flex items-center space-x-4">                {artist.websiteUrl && (
-                  <a
-                    href={artist.websiteUrl}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="flex items-center space-x-2 bg-white/20 hover:bg-white/30 px-4 py-2 rounded-lg transition-colors backdrop-blur-sm"
-                  >
-                    <ExternalLink className="w-4 h-4" />
-                    <span>Official Website</span>
-                  </a>
-                )}
-              </div>
-            )}
+            </div>            {/* Action Buttons */}
+            <div className="flex flex-col sm:flex-row items-center space-y-3 sm:space-y-0 sm:space-x-4">
+              <Link
+                to={`/lyrics?artist=${encodeURIComponent(artist.name)}`}
+                className="flex items-center space-x-2 bg-white/20 hover:bg-white/30 px-6 py-3 rounded-lg transition-colors backdrop-blur-sm font-medium"
+              >
+                <Music className="w-4 h-4" />
+                <span>View All Lyrics</span>
+              </Link>
+              
+              {/* Social Links */}
+              {artist.websiteUrl && (
+                <a
+                  href={artist.websiteUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center space-x-2 bg-white/20 hover:bg-white/30 px-4 py-2 rounded-lg transition-colors backdrop-blur-sm"
+                >
+                  <ExternalLink className="w-4 h-4" />
+                  <span>Official Website</span>
+                </a>
+              )}
+            </div>
           </div>
         </div>
       </div>
@@ -308,16 +316,15 @@ const ArtistPage = () => {
       </div>
 
       {/* Popular Lyrics */}
-      <div className="space-y-6">
-        <div className="flex items-center justify-between">
+      <div className="space-y-6">        <div className="flex items-center justify-between">
           <h2 className="text-2xl font-bold text-slate-800">Popular Lyrics</h2>
           <Link 
-            to="/lyrics" 
+            to={`/lyrics?artist=${encodeURIComponent(artist.name)}`}
             className="text-blue-600 hover:text-blue-700 font-medium"
           >
             View All Lyrics →
           </Link>
-        </div>        {popularLyrics.length > 0 ? (
+        </div>{popularLyrics.length > 0 ? (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {popularLyrics.map((lyric) => (
               <Link

@@ -1,14 +1,37 @@
 import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useSearchParams } from 'react-router-dom';
 import { useContent, useContentSearch } from '../../lib/contentLoader';
 import { Search, Filter, Music, User, Globe, ExternalLink, Disc } from 'lucide-react';
 
 const LyricsPage = () => {
   const { data: lyrics, loading, error } = useContent('lyrics');
   const { data: artists } = useContent('artists');
-    const [searchTerm, setSearchTerm] = useState('');
+  const [searchParams, setSearchParams] = useSearchParams();
+  
+  const [searchTerm, setSearchTerm] = useState('');
   const [filters, setFilters] = useState({ artist: 'all', language: 'all', album: 'all', verified: 'all' });
   const [sortBy, setSortBy] = useState('title');
+
+  // Initialize filters from URL parameters
+  useEffect(() => {
+    const artistParam = searchParams.get('artist');
+    const languageParam = searchParams.get('language');
+    const albumParam = searchParams.get('album');
+    const searchParam = searchParams.get('search');
+
+    if (artistParam) {
+      setFilters(prev => ({ ...prev, artist: artistParam }));
+    }
+    if (languageParam) {
+      setFilters(prev => ({ ...prev, language: languageParam }));
+    }
+    if (albumParam) {
+      setFilters(prev => ({ ...prev, album: albumParam }));
+    }
+    if (searchParam) {
+      setSearchTerm(searchParam);
+    }
+  }, [searchParams]);
 
   // Get unique values for filters - with safer null checks
   const uniqueArtists = (lyrics && Array.isArray(lyrics)) ? 
@@ -58,6 +81,39 @@ const LyricsPage = () => {
         return (a.title || '').localeCompare(b.title || '');
     }
   }) : [];
+
+  useEffect(() => {
+    console.log('Lyrics data:', lyrics);
+    console.log('Filtered data:', filteredData);
+  }, [lyrics, filteredData]);
+
+  // Helper functions to update filters and URL params
+  const updateFilter = (key, value) => {
+    const newFilters = { ...filters, [key]: value };
+    setFilters(newFilters);
+    
+    // Update URL parameters
+    const newSearchParams = new URLSearchParams(searchParams);
+    if (value && value !== 'all') {
+      newSearchParams.set(key, value);
+    } else {
+      newSearchParams.delete(key);
+    }
+    setSearchParams(newSearchParams);
+  };
+
+  const updateSearchTerm = (term) => {
+    setSearchTerm(term);
+    
+    // Update URL parameters
+    const newSearchParams = new URLSearchParams(searchParams);
+    if (term) {
+      newSearchParams.set('search', term);
+    } else {
+      newSearchParams.delete('search');
+    }
+    setSearchParams(newSearchParams);
+  };
 
   if (loading) {
     return (
@@ -122,7 +178,7 @@ const LyricsPage = () => {
             <input
               type="text"
               value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
+              onChange={(e) => updateSearchTerm(e.target.value)}
               placeholder="Search by song title, artist, or album..."
               className="w-full px-4 py-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
             />
@@ -135,10 +191,9 @@ const LyricsPage = () => {
               <label className="block text-sm font-medium text-gray-700 mb-2">
                 <User className="w-4 h-4 inline mr-1" />
                 Artist
-              </label>
-              <select
+              </label>              <select
                 value={filters.artist}
-                onChange={(e) => setFilters({...filters, artist: e.target.value})}
+                onChange={(e) => updateFilter('artist', e.target.value)}
                 className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
               >
                 <option value="all">All Artists ({uniqueArtists.length})</option>
@@ -156,7 +211,7 @@ const LyricsPage = () => {
               </label>
               <select
                 value={filters.album}
-                onChange={(e) => setFilters({...filters, album: e.target.value})}
+                onChange={(e) => updateFilter('album', e.target.value)}
                 className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
               >
                 <option value="all">All Albums ({uniqueAlbums.length})</option>
@@ -174,7 +229,7 @@ const LyricsPage = () => {
               </label>
               <select
                 value={filters.language}
-                onChange={(e) => setFilters({...filters, language: e.target.value})}
+                onChange={(e) => updateFilter('language', e.target.value)}
                 className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
               >
                 <option value="all">All Languages</option>
@@ -194,7 +249,7 @@ const LyricsPage = () => {
               </label>
               <select
                 value={filters.verified}
-                onChange={(e) => setFilters({...filters, verified: e.target.value})}
+                onChange={(e) => updateFilter('verified', e.target.value)}
                 className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
               >
                 <option value="all">All Status</option>
@@ -227,12 +282,12 @@ const LyricsPage = () => {
           </div>
 
           {/* Clear Filters Button */}
-          <div className="mt-4 flex justify-end">
-            <button
+          <div className="mt-4 flex justify-end">            <button
               onClick={() => {
                 setSearchTerm('');
                 setFilters({ artist: 'all', language: 'all', album: 'all', verified: 'all' });
                 setSortBy('title-asc');
+                setSearchParams(new URLSearchParams());
               }}
               className="px-4 py-2 text-sm text-gray-600 hover:text-gray-800 hover:bg-gray-100 rounded-md transition-colors"
             >
@@ -250,8 +305,8 @@ const LyricsPage = () => {
 
         {/* Lyrics Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {filteredData?.map((lyric) => (
-            <div key={lyric.id} className="bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow duration-200">
+          {filteredData?.map((lyric, index) => (
+            <div key={lyric.id || `${lyric.artist || 'unknown-artist'}-${lyric.title || 'unknown-title'}-${index}`} className="bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow duration-200">
               <div className="p-6">
                 {/* Song Title */}
                 <h3 className="font-semibold text-gray-900 mb-2 text-lg">
@@ -269,20 +324,13 @@ const LyricsPage = () => {
                       {lyric.album}
                     </p>
                   )}
-                </div>
-
-                {/* Language and Verification */}
+                </div>                {/* Verification Status */}
                 <div className="flex items-center justify-between mb-4">
-                  <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
-                    <Globe className="w-3 h-3 mr-1" />
-                    {lyric.language === 'en' ? 'English' : lyric.language === 'nl' ? 'Dutch' : lyric.language}
-                  </span>
-                  
                   {lyric.verified && (
                     <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
                       ✓ Verified
                     </span>
-                  )}                </div>
+                  )}</div>
                 {/* Stats */}
                 <div className="flex items-center justify-between text-xs text-gray-500 mb-4">
                   {lyric.wordCount && (
@@ -292,12 +340,11 @@ const LyricsPage = () => {
                     <span>By: {lyric.writers.join(', ')}</span>
                   )}
                 </div>                {/* Action Buttons */}
-                <div className="flex space-x-2">
-                  <Link 
-                    to={`/lyrics/${lyric.id || lyric.title.toLowerCase().replace(/[^a-z0-9]/g, '-').replace(/-+/g, '-')}`}
+                <div className="flex space-x-2">                  <Link 
+                    to={`/lyrics/${lyric.id || (lyric.title || '').toLowerCase().replace(/[^a-z0-9]/g, '-').replace(/-+/g, '-')}`}
                     className="w-full bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 transition-colors duration-200 text-sm font-medium text-center"
                   >
-                    View Details
+                    View Lyrics
                   </Link>
                 </div>
               </div>

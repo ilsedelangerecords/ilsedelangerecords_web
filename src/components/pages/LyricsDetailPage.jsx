@@ -9,37 +9,65 @@ const LyricsDetailPage = () => {
   const [lyrics, setLyrics] = useState(null);
   const [loading, setLoading] = useState(true);
   const [copied, setCopied] = useState(false);
-
   useEffect(() => {
     if (!lyricsLoading && allLyrics && slug) {
       loadLyricsDetails();
     }
-  }, [slug, allLyrics, lyricsLoading]);
-
-  const loadLyricsDetails = async () => {
+  }, [slug, allLyrics, lyricsLoading]);  const loadLyricsDetails = async () => {
     setLoading(true);
     
     try {
       // Find the lyrics item that matches the slug
-      const foundLyrics = allLyrics.find(lyric => lyric.id === slug);
+      // First try by ID (if it exists), then by title-based slug
+      let foundLyrics = allLyrics.find(lyric => lyric.id === slug);
+      
+      if (!foundLyrics) {
+        // Try to match by title-based slug
+        foundLyrics = allLyrics.find(lyric => {
+          const titleSlug = (lyric.title || '').toLowerCase().replace(/[^a-z0-9]/g, '-').replace(/-+/g, '-');
+          return titleSlug === slug;
+        });
+      }
       
       if (foundLyrics) {
+        // Add the content field if it doesn't exist (map from lyrics field)
+        if (!foundLyrics.content && foundLyrics.lyrics) {
+          foundLyrics.content = foundLyrics.lyrics;
+        }
         setLyrics(foundLyrics);
       } else {
-        console.warn('No lyrics found for slug:', slug);        setLyrics(null);
+        console.warn('LyricsDetailPage: No lyrics found for slug:', slug);
+        setLyrics(null);
       }
     } catch (error) {
-      console.error('Error loading lyrics details:', error);
+      console.error('LyricsDetailPage: Error loading lyrics details:', error);
       setLyrics(null);
     } finally {
       setLoading(false);
     }
   };
+  const getAlbumSlug = (albumTitle) => {
+    if (!albumTitle) return 'unknown';
+    
+    // Generate slug from album title (same format as used in AlbumsPage)
+    return albumTitle.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '');
+  };
+
+  const getArtistSlug = (artistName) => {
+    if (!artistName) return 'unknown';
+    
+    // Handle known artists with specific slugs
+    if (artistName === 'Ilse DeLange') return 'ilse-delange';
+    if (artistName === 'The Common Linnets') return 'the-common-linnets';
+    
+    // Generate slug from artist name
+    return artistName.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '');
+  };
 
   const copyLyrics = async () => {
     if (lyrics) {
       try {
-        await navigator.clipboard.writeText(lyrics.content);
+        await navigator.clipboard.writeText(lyrics.content || lyrics.lyrics);
         setCopied(true);
         setTimeout(() => setCopied(false), 2000);
       } catch (err) {
@@ -134,26 +162,20 @@ const LyricsDetailPage = () => {
             </div>
             
             <h1 className="text-4xl font-bold text-slate-800">{lyrics.title}</h1>
-              <div className="space-y-1">
-              <Link 
-                to={`/artist/${lyrics.artistId || 'unknown'}`}
+              <div className="space-y-1">              <Link 
+                to={`/artist/${getArtistSlug(lyrics.artist)}`}
                 className="text-xl text-blue-600 hover:text-blue-700 font-semibold"
               >
                 {lyrics.artist}
-              </Link>
-              {lyrics.album && lyrics.albumId ? (
+              </Link>              {lyrics.album ? (
                 <p className="text-slate-600">
                   from the album{' '}
                   <Link 
-                    to={`/album/${lyrics.albumId}`}
+                    to={`/album/${getAlbumSlug(lyrics.album)}`}
                     className="text-blue-600 hover:text-blue-700 font-medium"
                   >
                     {lyrics.album}
                   </Link>
-                </p>
-              ) : lyrics.album ? (
-                <p className="text-slate-600">
-                  from the album <span className="font-medium">{lyrics.album}</span>
                 </p>
               ) : (
                 <p className="text-slate-600 italic">Album information not available</p>              )}
@@ -201,11 +223,10 @@ const LyricsDetailPage = () => {
                     </div>
                   </div>
                 ))}
-              </div>
-            ) : (
+              </div>            ) : (
               /* Fallback to plain content */
               <div className="text-slate-800 leading-relaxed whitespace-pre-line text-lg">
-                {lyrics.content}
+                {lyrics.content || lyrics.lyrics}
               </div>
             )}
           </div>
@@ -282,10 +303,9 @@ const LyricsDetailPage = () => {
             </div>
           )}
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          {lyrics.album && lyrics.albumId ? (
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">          {lyrics.album ? (
             <Link
-              to={`/album/${lyrics.albumId}`}
+              to={`/album/${getAlbumSlug(lyrics.album)}`}
               className="flex items-center space-x-3 bg-white p-4 rounded-lg shadow border border-slate-200 hover:shadow-md transition-shadow"
             >
               <Music className="w-6 h-6 text-blue-600" />
@@ -303,10 +323,9 @@ const LyricsDetailPage = () => {
               </div>
             </div>
           )}
-          
-          {lyrics.artistId ? (
+            {lyrics.artist ? (
             <Link
-              to={`/artist/${lyrics.artistId}`}
+              to={`/artist/${getArtistSlug(lyrics.artist)}`}
               className="flex items-center space-x-3 bg-white p-4 rounded-lg shadow border border-slate-200 hover:shadow-md transition-shadow"
             >
               <Heart className="w-6 h-6 text-red-500" />
