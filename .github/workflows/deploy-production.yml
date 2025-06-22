@@ -19,7 +19,7 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  # Build static site for maximum performance
+  # Build SPA for deployment
   build:
     runs-on: ubuntu-latest
     outputs:
@@ -29,7 +29,7 @@ jobs:
       - name: 📥 Checkout code
         uses: actions/checkout@v4
         with:
-          fetch-depth: 0 # Need full history for change detection
+          fetch-depth: 0
 
       - name: 🔍 Check for relevant changes
         id: changes
@@ -45,7 +45,6 @@ jobs:
             echo "🔄 PR merged, deploying to production"
           else
             # Check for changes in relevant directories
-            # Handle case where there might be only one commit
             if git rev-parse --verify HEAD~1 >/dev/null 2>&1; then
               if git diff --name-only HEAD~1 HEAD | grep -E "(src/|public/|scripts/|package.*\.json|vite\.config\.js)" > /dev/null; then
                 echo "should-deploy=true" >> $GITHUB_OUTPUT
@@ -55,7 +54,6 @@ jobs:
                 echo "ℹ️ No relevant changes detected, skipping deployment"
               fi
             else
-              # First commit or shallow clone, always deploy
               echo "should-deploy=true" >> $GITHUB_OUTPUT
               echo "✅ First commit or shallow clone, deploying"
             fi
@@ -71,7 +69,9 @@ jobs:
 
       - name: 📦 Setup pnpm
         if: steps.changes.outputs.should-deploy == 'true'
-        uses: pnpm/action-setup@v4      - name: 📦 Setup Node.js
+        uses: pnpm/action-setup@v4
+
+      - name: 📦 Setup Node.js
         if: steps.changes.outputs.should-deploy == 'true'
         uses: actions/setup-node@v4
         with:
@@ -151,22 +151,20 @@ jobs:
       - name: 📊 Build summary
         if: steps.changes.outputs.should-deploy == 'true'
         run: |
-          echo "📦 Static site build completed successfully!"
+          echo "📦 SPA build completed successfully!"
           echo "📁 Build size: $(du -sh dist/ | cut -f1)"
           echo "📄 Files generated: $(find dist/ -type f | wc -l)"
-          echo "🔗 Main pages:"
+          echo "🔗 Main files:"
           echo "  - Homepage: dist/index.html"
-          echo "  - Albums: dist/albums/index.html"
-          find dist/album -name "index.html" | head -5 | sed 's/^/  - /'
-          if [ $(find dist/album -name "index.html" | wc -l) -gt 5 ]; then
-            echo "  - ... and $(( $(find dist/album -name "index.html" | wc -l) - 5 )) more album pages"
-          fi
+          echo "  - Content API: dist/content/"
+          
+          echo "🎉 Ready for deployment!"
 
       - name: 📤 Upload build artifacts
         if: steps.changes.outputs.should-deploy == 'true'
         uses: actions/upload-artifact@v4
         with:
-          name: static-site-${{ steps.version.outputs.version }}
+          name: spa-build-${{ steps.version.outputs.version }}
           path: dist/
           retention-days: 30
 
@@ -204,12 +202,13 @@ jobs:
             echo "Please configure these secrets in GitHub Actions settings"
             exit 1
           fi          
+          
           echo "✅ All required SSH secrets are configured"
 
       - name: 📥 Download build artifacts
         uses: actions/download-artifact@v4
         with:
-          name: static-site-${{ needs.build.outputs.version }}
+          name: spa-build-${{ needs.build.outputs.version }}
           path: dist/
 
       - name: 🔐 Prepare SSH deployment
@@ -231,9 +230,7 @@ jobs:
 
       - name: 🚀 Deploy to production server
         run: |
-          echo "🚀 Deploying static site to ilsedelangerecords.nl..."
-          # Ensure the script is properly formatted
-          echo "Starting deployment..."
+          echo "🚀 Deploying SPA to ilsedelangerecords.nl..."
           
           # Set SSH port with default
           ssh_port="${{ secrets.SSH_PORT }}"
@@ -277,45 +274,29 @@ jobs:
           echo "🔗 Production URL: https://ilsedelangerecords.nl/"
           echo "📦 Version: ${{ needs.build.outputs.version }}"
           echo "⏰ Deployed at: $(date)"
-          echo "📋 Deployment type: Static HTML files (optimized for speed)"
+          echo "📋 Deployment type: SPA (Single Page Application)"
 
       - name: 🧪 Post-deployment verification
         run: |
           echo "🔍 Verifying production deployment..."
-          sleep 20 # Increased wait time
+          sleep 20
           
           # Test main site
           if curl -L -f -s --max-time 15 https://ilsedelangerecords.nl/ > /dev/null; then
             echo "✅ Homepage is responding"
           else
-            echo "❌ Homepage is not responding. Full output:"
+            echo "❌ Homepage is not responding"
             curl -L -v https://ilsedelangerecords.nl/
             exit 1
-          fi
-          
-          # Test albums page
-          if curl -L -f -s --max-time 15 https://ilsedelangerecords.nl/albums/ > /dev/null; then
-            echo "✅ Albums page is accessible"
-          else
-            echo "⚠️ Albums page may not be accessible. Full output:"
-            curl -L -v https://ilsedelangerecords.nl/albums/
           fi
           
           # Test content API
           if curl -L -f -s --max-time 15 https://ilsedelangerecords.nl/content/albums.json > /dev/null; then
             echo "✅ Content API is accessible"
           else
-            echo "❌ Content API not accessible. Full output:"
+            echo "❌ Content API not accessible"
             curl -L -v https://ilsedelangerecords.nl/content/albums.json
             exit 1
-          fi
-          
-          # Test specific album page
-          if curl -L -f -s --max-time 15 https://ilsedelangerecords.nl/album/the-great-escape/ > /dev/null; then
-            echo "✅ Specific album page is accessible"
-          else
-            echo "⚠️ Specific album page may not be accessible. Full output:"
-            curl -L -v https://ilsedelangerecords.nl/album/the-great-escape/
           fi
           
           echo "🎉 Verification completed!"
@@ -330,5 +311,4 @@ jobs:
         continue-on-error: true
         run: |
           echo "🧹 Cleaning up old deployment artifacts..."
-          # Artifacts are automatically cleaned up after retention period
           echo "✅ Cleanup scheduled (automatic after 30 days)"
