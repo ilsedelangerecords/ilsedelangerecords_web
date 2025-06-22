@@ -42,15 +42,21 @@ jobs:
             echo "🔄 Manual deployment triggered"
           elif [[ "${{ github.event_name }}" == "pull_request" && "${{ github.event.pull_request.merged }}" == "true" ]]; then
             echo "should-deploy=true" >> $GITHUB_OUTPUT
-            echo "🔄 PR merged, deploying to production"
-          else
+            echo "🔄 PR merged, deploying to production"          else
             # Check for changes in relevant directories
-            if git diff --name-only HEAD~1 HEAD | grep -E "(src/|public/|scripts/|package.*\.json|vite\.config\.js)" > /dev/null; then
-              echo "should-deploy=true" >> $GITHUB_OUTPUT
-              echo "✅ Relevant changes detected, deploying"
+            # Handle case where there might be only one commit
+            if git rev-parse --verify HEAD~1 >/dev/null 2>&1; then
+              if git diff --name-only HEAD~1 HEAD | grep -E "(src/|public/|scripts/|package.*\.json|vite\.config\.js)" > /dev/null; then
+                echo "should-deploy=true" >> $GITHUB_OUTPUT
+                echo "✅ Relevant changes detected, deploying"
+              else
+                echo "should-deploy=false" >> $GITHUB_OUTPUT
+                echo "ℹ️ No relevant changes detected, skipping deployment"
+              fi
             else
-              echo "should-deploy=false" >> $GITHUB_OUTPUT
-              echo "ℹ️ No relevant changes detected, skipping deployment"
+              # First commit or shallow clone, always deploy
+              echo "should-deploy=true" >> $GITHUB_OUTPUT
+              echo "✅ First commit or shallow clone, deploying"
             fi
           fi
 
