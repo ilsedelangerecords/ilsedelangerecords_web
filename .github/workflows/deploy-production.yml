@@ -39,10 +39,10 @@ jobs:
             echo "🔄 Force deployment requested"
           elif [[ "${{ github.event_name }}" == "workflow_dispatch" ]]; then
             echo "should-deploy=true" >> $GITHUB_OUTPUT
-            echo "🔄 Manual deployment triggered"
-          elif [[ "${{ github.event_name }}" == "pull_request" && "${{ github.event.pull_request.merged }}" == "true" ]]; then
+            echo "🔄 Manual deployment triggered"          elif [[ "${{ github.event_name }}" == "pull_request" && "${{ github.event.pull_request.merged }}" == "true" ]]; then
             echo "should-deploy=true" >> $GITHUB_OUTPUT
-            echo "🔄 PR merged, deploying to production"          else
+            echo "🔄 PR merged, deploying to production"
+          else
             # Check for changes in relevant directories
             # Handle case where there might be only one commit
             if git rev-parse --verify HEAD~1 >/dev/null 2>&1; then
