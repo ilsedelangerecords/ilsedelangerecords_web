@@ -87,11 +87,11 @@ jobs:
         run: |
           echo "🏗️ Building SPA for production deployment..."
           pnpm run build
-          
-          # Verify build output
+            # Verify build output
           if [ ! -d "dist" ] || [ ! -f "dist/index.html" ]; then
             echo "❌ Build failed - dist directory or index.html not found"
-            exit 1          fi
+            exit 1
+          fi
           
           echo "✅ SPA built successfully"
 
