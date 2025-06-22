@@ -158,7 +158,8 @@ jobs:
           
           # Force trailing slash for directories (optional, helps with consistency)
           RewriteCond %{REQUEST_FILENAME} -d
-          RewriteCond %{REQUEST_URI} !/$          RewriteRule ^(.*)$ $1/ [R=301,L]
+          RewriteCond %{REQUEST_URI} !/$
+          RewriteRule ^(.*)$ $1/ [R=301,L]
           EOF
           
           echo "✅ Added .htaccess with optimization rules"
