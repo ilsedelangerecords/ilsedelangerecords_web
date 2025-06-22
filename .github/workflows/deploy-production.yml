@@ -36,10 +36,10 @@ jobs:
         run: |
           if [[ "${{ github.event.inputs.force_deploy }}" == "true" ]]; then
             echo "should-deploy=true" >> $GITHUB_OUTPUT
-            echo "🔄 Force deployment requested"
-          elif [[ "${{ github.event_name }}" == "workflow_dispatch" ]]; then
+            echo "🔄 Force deployment requested"          elif [[ "${{ github.event_name }}" == "workflow_dispatch" ]]; then
             echo "should-deploy=true" >> $GITHUB_OUTPUT
-            echo "🔄 Manual deployment triggered"          elif [[ "${{ github.event_name }}" == "pull_request" && "${{ github.event.pull_request.merged }}" == "true" ]]; then
+            echo "🔄 Manual deployment triggered"
+          elif [[ "${{ github.event_name }}" == "pull_request" && "${{ github.event.pull_request.merged }}" == "true" ]]; then
             echo "should-deploy=true" >> $GITHUB_OUTPUT
             echo "🔄 PR merged, deploying to production"
           else
