@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { ArrowLeft, Music, Calendar, MapPin, Star, Disc3, Heart, ExternalLink } from 'lucide-react';
+import OptimizedImage from '../OptimizedImage';
 
 const ArtistPage = () => {
   const { slug } = useParams();
@@ -12,97 +13,49 @@ const ArtistPage = () => {
   useEffect(() => {
     loadArtistDetails();
   }, [slug]);
-
   const loadArtistDetails = async () => {
     setLoading(true);
     
     try {
       // Load real data from JSON files
-      const [albumsResponse, lyricsResponse] = await Promise.all([
+      const [artistsResponse, albumsResponse, lyricsResponse] = await Promise.all([
+        fetch('/content/artists.json'),
         fetch('/content/albums.json'),
         fetch('/content/lyrics.json')
       ]);
 
+      const allArtists = await artistsResponse.json();
       const allAlbums = await albumsResponse.json();
       const allLyrics = await lyricsResponse.json();
 
-      let artistDetails, artistAlbums, artistLyrics;        if (slug === 'ilse-delange') {
-        // Filter albums and lyrics for Ilse DeLange
-        artistAlbums = allAlbums.filter(album => 
-          album.artist === 'Ilse DeLange'
-        ).slice(0, 6); // Show top 6 albums
-
-        artistLyrics = allLyrics.filter(lyric => 
-          lyric.artist === 'Ilse DeLange'
-        ).slice(0, 8); // Show top 8 popular lyrics
-
-        artistDetails = {
-          id: 'ilse-delange',
-          name: 'Ilse DeLange',
-          slug: 'ilse-delange',
-          type: 'solo',
-          biography: 'Ilse Annoeska de Lange, known professionally as Ilse DeLange, is a Dutch country and pop singer-songwriter. Born on May 13, 1977, in Almelo, Netherlands, she has become one of the most successful Dutch artists internationally. Her career spans over two decades, with multiple platinum albums and international recognition.',
-          formedDate: '1996',
-          origin: 'Almelo, Netherlands',
-          genres: ['Country', 'Pop', 'Folk', 'Americana'],
-          websiteUrl: 'https://www.ilsedelange.com',
-          socialMedia: {},
-          images: {
-            profileImage: '/images/ilse-delange-profile.jpg',
-            bannerImage: '/images/ilse-delange-banner.jpg'
-          },
-          achievements: [
-            'Multiple platinum albums in the Netherlands',
-            'International chart success',
-            'Eurovision Song Contest 2014 (2nd place with The Common Linnets)',
-            'Multiple Dutch Music Awards'
-          ],
-          stats: {
-            albumsCount: allAlbums.filter(album => album.artist === 'Ilse DeLange').length,
-            singlesCount: 25,
-            lyricsCount: allLyrics.filter(lyric => lyric.artist === 'Ilse DeLange').length
-          }
-        };
-      } else if (slug === 'the-common-linnets') {
-        // Filter albums and lyrics for The Common Linnets
-        artistAlbums = allAlbums.filter(album => 
-          album.artist === 'The Common Linnets'
-        );
-
-        artistLyrics = allLyrics.filter(lyric => 
-          lyric.artist === 'The Common Linnets'
-        ).slice(0, 8);
-
-        artistDetails = {
-          id: 'the-common-linnets',
-          name: 'The Common Linnets',
-          slug: 'the-common-linnets',
-          type: 'band',
-          biography: 'The Common Linnets is a Dutch country duo consisting of Ilse DeLange and Waylon. Formed in 2013, they gained international recognition by representing the Netherlands in the Eurovision Song Contest 2014 with "Calm After the Storm," finishing in second place. Their Americana and country sound brought a fresh perspective to the Dutch music scene.',
-          formedDate: '2013',
-          origin: 'Netherlands',
-          genres: ['Country', 'Americana', 'Folk'],
-          websiteUrl: null,
-          socialMedia: {},
-          images: {
-            profileImage: '/images/tcl-profile.jpg',
-            bannerImage: '/images/tcl-banner.jpg'
-          },
-          achievements: [
-            'Eurovision Song Contest 2014 - 2nd place',
-            'Platinum album "The Common Linnets"',
-            'International chart success',
-            'Brought country music to mainstream Dutch audience'
-          ],
-          stats: {
-            albumsCount: allAlbums.filter(album => album.artist === 'The Common Linnets').length,
-            singlesCount: 8,
-            lyricsCount: allLyrics.filter(lyric => lyric.artist === 'The Common Linnets').length
-          }
-        };
+      // Find the artist by slug
+      const artistDetails = allArtists.find(artist => artist.slug === slug);
+      
+      if (!artistDetails) {
+        console.error(`Artist not found for slug: ${slug}`);
+        setLoading(false);
+        return;
       }
 
-      setArtist(artistDetails);
+      // Filter albums and lyrics for this artist
+      const artistAlbums = allAlbums.filter(album => 
+        album.artist === artistDetails.name
+      ).slice(0, 6); // Show top 6 albums
+
+      const artistLyrics = allLyrics.filter(lyric => 
+        lyric.artist === artistDetails.name
+      ).slice(0, 8); // Show top 8 popular lyrics
+
+      // Update stats with actual counts
+      const updatedArtistDetails = {
+        ...artistDetails,
+        stats: {
+          ...artistDetails.stats,
+          albumsCount: allAlbums.filter(album => album.artist === artistDetails.name).length,
+          lyricsCount: allLyrics.filter(lyric => lyric.artist === artistDetails.name).length
+        }      };
+
+      setArtist(updatedArtistDetails);
       setAlbums(artistAlbums || []);
       setPopularLyrics(artistLyrics || []);
       
@@ -148,13 +101,21 @@ const ArtistPage = () => {
 
       {/* Artist Header */}
       <div className="bg-gradient-to-r from-blue-600 to-purple-600 rounded-2xl p-8 md:p-12 text-white">
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-center">
-          {/* Artist Image */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-center">          {/* Artist Image */}
           <div className="lg:col-span-1">
             <div className="aspect-square bg-white/20 rounded-xl shadow-lg overflow-hidden backdrop-blur-sm">
-              <div className="w-full h-full flex items-center justify-center">
-                <Music className="w-24 h-24 text-white/80" />
-              </div>
+              {artist.images?.profileImage ? (
+                <OptimizedImage
+                  src={artist.images.profileImage}
+                  alt={artist.name}
+                  className="w-full h-full object-cover"
+                  fallback="/images/placeholder.svg"
+                />
+              ) : (
+                <div className="w-full h-full flex items-center justify-center">
+                  <Music className="w-24 h-24 text-white/80" />
+                </div>
+              )}
             </div>
           </div>
 
