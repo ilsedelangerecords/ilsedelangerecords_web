@@ -161,14 +161,13 @@ jobs:
             exit 1
           fi
           
-          echo "🎯 All critical files verified"
-
-      - name: 📤 Upload build artifacts
+          echo "🎯 All critical files verified"      - name: 📤 Upload build artifacts
         if: steps.changes.outputs.should-deploy == 'true'
         uses: actions/upload-artifact@v4
         with:
           name: spa-build-${{ steps.version.outputs.version }}
           path: dist/
+          include-hidden-files: true
           retention-days: 30
 
   # Deploy to production server
