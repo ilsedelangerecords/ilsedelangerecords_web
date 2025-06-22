@@ -212,13 +212,12 @@ jobs:
           
           echo "✅ .htaccess file found in dist/"
           echo "Contents of .htaccess:"
-          cat dist/.htaccess
-          
-          # Deploy with rsync for efficient transfer
-          # Include hidden files explicitly
+          cat dist/.htaccess          # Deploy with rsync for efficient transfer
+          # Use explicit include for .htaccess before excludes
           rsync -avz --delete --progress \
             --include='.htaccess' \
-            --exclude='.git*' \
+            --include='_redirects' \
+            --exclude='.*' \
             --exclude='node_modules' \
             --exclude='*.log' \
             -e "ssh -i ~/.ssh/id_ed25519 -p $ssh_port -o StrictHostKeyChecking=no" \
