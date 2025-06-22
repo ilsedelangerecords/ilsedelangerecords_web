@@ -122,24 +122,26 @@ const LyricsDetailPage = () => {
       </div>
     );
   }
-
   if (!lyrics) {
     return (
       <div className="text-center py-12">
         <h1 className="text-2xl font-bold text-slate-800 mb-4">Lyrics Not Found</h1>
-        <Link to="/lyrics" className="text-blue-600 hover:text-blue-700">
-          ← Back to Lyrics
+        <Link 
+          to="/lyrics" 
+          className="inline-flex items-center space-x-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium shadow-md"
+        >
+          <ArrowLeft className="w-4 h-4" />
+          <span>Back to Lyrics</span>
         </Link>
       </div>
     );
   }
 
   return (
-    <div className="space-y-8">
-      {/* Back Navigation */}
+    <div className="space-y-8">      {/* Back Navigation */}
       <Link 
         to="/lyrics" 
-        className="inline-flex items-center space-x-2 text-blue-600 hover:text-blue-700 font-medium"
+        className="inline-flex items-center space-x-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium shadow-md"
       >
         <ArrowLeft className="w-4 h-4" />
         <span>Back to Lyrics</span>
@@ -233,24 +235,10 @@ const LyricsDetailPage = () => {
         </div>
 
         {/* Sidebar */}
-        <div className="space-y-6">
-          {/* Song Information */}
+        <div className="space-y-6">          {/* Song Information */}
           <div className="bg-white rounded-xl p-6 shadow-lg border border-slate-200">
             <h3 className="text-lg font-bold text-slate-800 mb-4">Song Information</h3>
             <div className="space-y-3">
-              <div>
-                <span className="font-medium text-slate-600">Language:</span>
-                <div className="flex items-center space-x-2 mt-1">
-                  <span className="text-xl">{getLanguageFlag(lyrics.language)}</span>
-                  <span className="text-slate-800">{getLanguageName(lyrics.language)}</span>
-                </div>
-              </div>
-              
-              <div>
-                <span className="font-medium text-slate-600">Word Count:</span>
-                <p className="text-slate-800">{lyrics.wordCount} words</p>
-              </div>
-              
               {lyrics.writers && lyrics.writers.length > 0 && (
                 <div>
                   <span className="font-medium text-slate-600">Writers:</span>
