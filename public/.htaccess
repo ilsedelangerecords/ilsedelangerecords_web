@@ -1,5 +1,11 @@
-# Simple SPA routing test
+# Test if mod_rewrite is working
 RewriteEngine On
+
+# Add a redirect test - if this works, mod_rewrite is enabled
+RewriteRule ^rewrite-test$ /test.txt [L]
+
+# Standard SPA routing
 RewriteCond %{REQUEST_FILENAME} !-f
 RewriteCond %{REQUEST_FILENAME} !-d
-RewriteRule ^(.*)$ /index.html [QSA,L]
+RewriteCond %{REQUEST_URI} !^/content/
+RewriteRule . /index.html [L]
