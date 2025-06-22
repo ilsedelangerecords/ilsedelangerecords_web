@@ -73,6 +73,8 @@ public/*
 # But include content files for the website
 !public/content/
 !public/content/**
+!public/.htaccess
+!public/_redirects
 
 # Storybook build outputs
 .out
