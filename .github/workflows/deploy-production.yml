@@ -75,10 +75,11 @@ jobs:
 
       - name: 📦 Setup Node.js
         if: steps.changes.outputs.should-deploy == 'true'
-        uses: actions/setup-node@v4
-        with:
+        uses: actions/setup-node@v4        with:
           node-version: '20'
-          cache: 'pnpm'      - name: 📥 Install dependencies
+          cache: 'pnpm'
+
+      - name: 📥 Install dependencies
         if: steps.changes.outputs.should-deploy == 'true'
         run: pnpm install --frozen-lockfile
 
