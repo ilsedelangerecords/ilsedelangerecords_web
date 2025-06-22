@@ -12,11 +12,12 @@ const ArtistPage = () => {
 
   useEffect(() => {
     loadArtistDetails();
-  }, [slug]);
-  const loadArtistDetails = async () => {
+  }, [slug]);  const loadArtistDetails = async () => {
     setLoading(true);
     
     try {
+      console.log('ArtistPage: Starting to load data for slug:', slug);
+      
       // Load real data from JSON files
       const [artistsResponse, albumsResponse, lyricsResponse] = await Promise.all([
         fetch('/content/artists.json'),
@@ -24,15 +25,36 @@ const ArtistPage = () => {
         fetch('/content/lyrics.json')
       ]);
 
-      const allArtists = await artistsResponse.json();
+      console.log('ArtistPage: Fetch responses:', {
+        artists: artistsResponse.status,
+        albums: albumsResponse.status,
+        lyrics: lyricsResponse.status
+      });      const allArtists = await artistsResponse.json();
       const allAlbums = await albumsResponse.json();
-      const allLyrics = await lyricsResponse.json();
+      const lyricsData = await lyricsResponse.json();
+      
+      // Extract lyrics array from the nested structure
+      const allLyrics = lyricsData.lyrics || [];
+
+      console.log('ArtistPage Debug:', {
+        slug,
+        allArtists: allArtists.length,
+        artistSlugs: allArtists.map(a => a.slug),
+        searchingFor: slug,
+        lyricsTotal: allLyrics.length
+      });
 
       // Find the artist by slug
-      const artistDetails = allArtists.find(artist => artist.slug === slug);
+      const artistDetails = allArtists.find(artist => {
+        console.log('Comparing:', artist.slug, '===', slug, '?', artist.slug === slug);
+        return artist.slug === slug;
+      });
+      
+      console.log('Found artist:', artistDetails);
       
       if (!artistDetails) {
         console.error(`Artist not found for slug: ${slug}`);
+        console.error('Available artists:', allArtists.map(a => ({ name: a.name, slug: a.slug })));
         setLoading(false);
         return;
       }

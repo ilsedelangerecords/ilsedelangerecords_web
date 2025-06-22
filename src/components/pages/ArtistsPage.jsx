@@ -9,54 +9,19 @@ const ArtistsPage = () => {
   useEffect(() => {
     loadArtists();
   }, []);
-
   const loadArtists = async () => {
     setLoading(true);
     
     try {
-      // Load albums data to get artist information
-      const response = await fetch('/content/albums.json');
-      const allAlbums = await response.json();
+      // Load artists data from JSON file
+      const response = await fetch('/content/artists.json');
+      const allArtists = await response.json();
       
-      // Extract unique artists from albums
-      const artistsMap = new Map();
-      
-      allAlbums.forEach(album => {
-        if (!artistsMap.has(album.artist)) {
-          // Create artist slug from name
-          const slug = album.artist.toLowerCase()
-            .replace(/\s+/g, '-')
-            .replace(/[^a-z0-9-]/g, '');
-            
-          artistsMap.set(album.artist, {
-            name: album.artist,
-            slug: slug,
-            albumCount: 1,
-            albums: [album],
-            image: album.image,
-            latestAlbum: album
-          });
-        } else {
-          const existingArtist = artistsMap.get(album.artist);
-          existingArtist.albumCount++;
-          existingArtist.albums.push(album);
-          
-          // Update latest album if this one is more recent
-          if (!existingArtist.latestAlbum.year || 
-              (album.year && album.year > existingArtist.latestAlbum.year)) {
-            existingArtist.latestAlbum = album;
-            existingArtist.image = album.image;
-          }
-        }
-      });
-      
-      // Convert to array and sort by name
-      const artistsArray = Array.from(artistsMap.values())
-        .sort((a, b) => a.name.localeCompare(b.name));
-      
-      setArtists(artistsArray);
+      console.log('ArtistsPage loaded:', allArtists.length, 'artists');
+        setArtists(allArtists);
     } catch (error) {
       console.error('Error loading artists:', error);
+      setArtists([]);
     } finally {
       setLoading(false);
     }
@@ -92,12 +57,11 @@ const ArtistsPage = () => {
             key={artist.slug}
             to={`/artist/${artist.slug}`}
             className="group bg-white rounded-xl shadow-lg border border-slate-200 overflow-hidden hover:shadow-xl transition-all duration-300 hover:-translate-y-1"
-          >
-            {/* Artist Image */}
+          >            {/* Artist Image */}
             <div className="aspect-square bg-gradient-to-br from-slate-100 to-slate-200 relative overflow-hidden">
-              {artist.image ? (
+              {artist.images?.profileImage ? (
                 <img
-                  src={`/images/albums/${artist.image}`}
+                  src={artist.images.profileImage}
                   alt={artist.name}
                   className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                   onError={(e) => {
@@ -108,7 +72,7 @@ const ArtistsPage = () => {
               ) : null}
               <div 
                 className="absolute inset-0 flex items-center justify-center bg-gradient-to-br from-blue-600 to-purple-600"
-                style={{ display: artist.image ? 'none' : 'flex' }}
+                style={{ display: artist.images?.profileImage ? 'none' : 'flex' }}
               >
                 <Music className="w-16 h-16 text-white opacity-50" />
               </div>
@@ -122,30 +86,22 @@ const ArtistsPage = () => {
                   {artist.albumCount} album{artist.albumCount !== 1 ? 's' : ''}
                 </span>
               </div>
-            </div>
-
-            {/* Artist Info */}
+            </div>            {/* Artist Info */}
             <div className="p-6">
               <h3 className="text-xl font-bold text-slate-800 mb-2 group-hover:text-blue-600 transition-colors">
                 {artist.name}
               </h3>
               
-              {/* Latest Album */}
-              {artist.latestAlbum && (
-                <div className="flex items-center space-x-2 text-slate-600 mb-3">
-                  <Calendar className="w-4 h-4" />
-                  <span className="text-sm">
-                    Latest: {artist.latestAlbum.title}
-                    {artist.latestAlbum.year && ` (${artist.latestAlbum.year})`}
-                  </span>
-                </div>
-              )}
+              {/* Artist Details */}
+              <p className="text-sm text-slate-600 mb-3 line-clamp-2">
+                {artist.biography || 'Talented artist with a passion for music.'}
+              </p>
               
-              {/* Album Stats */}
+              {/* Artist Stats */}
               <div className="flex items-center justify-between text-sm text-slate-500">
                 <div className="flex items-center space-x-1">
                   <Music className="w-4 h-4" />
-                  <span>{artist.albumCount} releases</span>
+                  <span>{artist.stats?.albumsCount || 0} albums</span>
                 </div>
                 <div className="flex items-center space-x-1">
                   <Star className="w-4 h-4" />
