@@ -214,8 +214,9 @@ jobs:
           cat dist/.htaccess
           
           # Deploy with rsync for efficient transfer
-          # Simplified rsync without problematic include/exclude filters  
+          # Ensure .htaccess is included and not removed during deployment
           rsync -avz --delete --progress \
+            --include='.htaccess' \
             -e "ssh -i ~/.ssh/id_ed25519 -p $ssh_port -o StrictHostKeyChecking=no" \
             dist/ \
             ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}:${{ secrets.SSH_TARGET_PATH }}
