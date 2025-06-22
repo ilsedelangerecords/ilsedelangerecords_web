@@ -1,4 +1,4 @@
-name: 🚀 Deploy to Staging
+name: 🚀 Deploy to Production
 
 on:
   push:
@@ -15,7 +15,7 @@ on:
         type: boolean
 
 concurrency:
-  group: staging-deployment-${{ github.ref }}
+  group: production-deployment-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
@@ -42,7 +42,7 @@ jobs:
             echo "🔄 Manual deployment triggered"
           elif [[ "${{ github.event_name }}" == "pull_request" && "${{ github.event.pull_request.merged }}" == "true" ]]; then
             echo "should-deploy=true" >> $GITHUB_OUTPUT
-            echo "🔄 PR merged, deploying to staging"
+            echo "🔄 PR merged, deploying to production"
           else
             # Check for changes in relevant directories
             if git diff --name-only HEAD~1 HEAD | grep -E "(src/|public/|scripts/|package.*\.json|vite\.config\.js)" > /dev/null; then
@@ -178,12 +178,12 @@ jobs:
           path: dist/
           retention-days: 30
 
-  # Deploy to staging server
+  # Deploy to production server
   deploy:
     needs: build
     if: needs.build.outputs.should-deploy == 'true'
     runs-on: ubuntu-latest
-    environment: staging
+    environment: production
     steps:
       - name: 🔒 Validate SSH secrets
         run: |
@@ -227,14 +227,14 @@ jobs:
           echo "${{ secrets.DEPLOY_SSH_KEY }}" > ~/.ssh/id_ed25519
           chmod 600 ~/.ssh/id_ed25519
           
-          # Add staging server to known hosts
+          # Add production server to known hosts
           ssh-keyscan -p ${{ secrets.SSH_PORT || '22' }} ${{ secrets.SSH_HOST }} >> ~/.ssh/known_hosts
           
-          echo "✅ SSH key configured for staging deployment"
+          echo "✅ SSH key configured for production deployment"
 
-      - name: 🚀 Deploy to staging server
+      - name: 🚀 Deploy to production server
         run: |
-          echo "🚀 Deploying static site to staging.ilsedelangerecords.nl..."
+          echo "🚀 Deploying static site to ilsedelangerecords.nl..."
           
           # Deploy with rsync for efficient transfer
           rsync -avz --delete --progress \
@@ -262,19 +262,19 @@ jobs:
 
       - name: 🌐 Deployment summary
         run: |
-          echo "🎉 Deployment to staging successful!"
-          echo "🔗 Staging URL: https://staging.ilsedelangerecords.nl/"
+          echo "🎉 Deployment to production successful!"
+          echo "🔗 Production URL: https://ilsedelangerecords.nl/"
           echo "📦 Version: ${{ needs.build.outputs.version }}"
           echo "⏰ Deployed at: $(date)"
           echo "📋 Deployment type: Static HTML files (optimized for speed)"
 
       - name: 🧪 Post-deployment verification
         run: |
-          echo "🔍 Verifying staging deployment..."
+          echo "🔍 Verifying production deployment..."
           sleep 10
           
           # Test main site
-          if curl -f -s --max-time 10 https://staging.ilsedelangerecords.nl/ > /dev/null; then
+          if curl -f -s --max-time 10 https://ilsedelangerecords.nl/ > /dev/null; then
             echo "✅ Homepage is responding"
           else
             echo "❌ Homepage is not responding"
@@ -282,14 +282,14 @@ jobs:
           fi
           
           # Test albums page
-          if curl -f -s --max-time 10 https://staging.ilsedelangerecords.nl/albums > /dev/null; then
+          if curl -f -s --max-time 10 https://ilsedelangerecords.nl/albums > /dev/null; then
             echo "✅ Albums page is accessible"
           else
             echo "⚠️ Albums page may not be accessible (could be normal for static sites)"
           fi
           
           # Test content API
-          if curl -f -s --max-time 10 https://staging.ilsedelangerecords.nl/content/albums.json > /dev/null; then
+          if curl -f -s --max-time 10 https://ilsedelangerecords.nl/content/albums.json > /dev/null; then
             echo "✅ Content API is accessible"
           else
             echo "❌ Content API not accessible"
@@ -297,7 +297,7 @@ jobs:
           fi
           
           # Test specific album page
-          if curl -f -s --max-time 10 https://staging.ilsedelangerecords.nl/album/ > /dev/null; then
+          if curl -f -s --max-time 10 https://ilsedelangerecords.nl/album/ > /dev/null; then
             echo "✅ Album pages are accessible"
           else
             echo "⚠️ Album pages may not be accessible (could be normal depending on URL structure)"
