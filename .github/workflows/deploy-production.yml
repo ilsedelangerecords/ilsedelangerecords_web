@@ -193,9 +193,7 @@ jobs:
           # Add production server to known hosts
           ssh-keyscan -p "$ssh_port" ${{ secrets.SSH_HOST }} >> ~/.ssh/known_hosts
           
-          echo "✅ SSH key configured for production deployment"
-
-      - name: 🚀 Deploy to production server
+          echo "✅ SSH key configured for production deployment"      - name: 🚀 Deploy to production server
         run: |
           echo "🚀 Deploying SPA to ilsedelangerecords.nl..."
           
@@ -205,14 +203,39 @@ jobs:
             ssh_port="22"
           fi
           
+          # Verify .htaccess exists before deployment
+          if [ ! -f "dist/.htaccess" ]; then
+            echo "❌ .htaccess file not found in dist/"
+            exit 1
+          fi
+          
+          echo "✅ .htaccess file found in dist/"
+          echo "Contents of .htaccess:"
+          cat dist/.htaccess
+          
           # Deploy with rsync for efficient transfer
+          # Include hidden files explicitly
           rsync -avz --delete --progress \
+            --include='.htaccess' \
             --exclude='.git*' \
             --exclude='node_modules' \
             --exclude='*.log' \
             -e "ssh -i ~/.ssh/id_ed25519 -p $ssh_port -o StrictHostKeyChecking=no" \
             dist/ \
             ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}:${{ secrets.SSH_TARGET_PATH }}
+            # Verify .htaccess was deployed
+          echo "🔍 Verifying .htaccess deployment..."
+          if ! ssh -i ~/.ssh/id_ed25519 -p "$ssh_port" \
+            ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} \
+            "test -f ${{ secrets.SSH_TARGET_PATH }}/.htaccess"; then
+            echo "⚠️ .htaccess not found on server, copying manually..."
+            scp -i ~/.ssh/id_ed25519 -P "$ssh_port" \
+              dist/.htaccess \
+              ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}:${{ secrets.SSH_TARGET_PATH }}/.htaccess
+            echo "✅ .htaccess manually copied"
+          else
+            echo "✅ .htaccess found on server"
+          fi
           
           echo "✅ Deployment completed successfully!"
 
