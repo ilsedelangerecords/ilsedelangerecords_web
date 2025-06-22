@@ -242,6 +242,8 @@ jobs:
       - name: 🚀 Deploy to production server
         run: |
           echo "🚀 Deploying static site to ilsedelangerecords.nl..."
+          # Ensure the script is properly formatted
+          echo "Starting deployment..."
           
           # Deploy with rsync for efficient transfer
           rsync -avz --delete --progress \
