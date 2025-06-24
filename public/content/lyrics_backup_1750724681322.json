@@ -972,19 +972,7 @@
       "spotify_album_art_small": "https://i.scdn.co/image/ab67616d000048519583919a8be78da2c55ec3cd",
       "spotify_album_name": "In Het Midden Van Alles",
       "spotify_artist_name": "BLØF",
-      "spotify_match_confidence": "manual",
-      "spotify_all_artists": [
-        {
-          "name": "BLØF",
-          "id": "0KQX2wRHV2VLjuscfJFNxB",
-          "spotify_url": "https://open.spotify.com/artist/0KQX2wRHV2VLjuscfJFNxB"
-        }
-      ],
-      "spotify_artists_string": "BLØF",
-      "spotify_release_date": "2014-04-25",
-      "spotify_popularity": 17,
-      "spotify_duration_ms": 278813,
-      "spotify_explicit": false
+      "spotify_match_confidence": "manual"
     },
     {
       "artist": "Ilse DeLange",
