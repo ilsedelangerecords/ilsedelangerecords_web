@@ -1,14 +1,15 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { ArrowLeft, Heart, Music, Globe, Copy, Check } from 'lucide-react';
+import { ArrowLeft, Heart, Music, Globe, Copy, Check, Play, Pause, ExternalLink } from 'lucide-react';
 import { useContent } from '../../lib/contentLoader';
 
 const LyricsDetailPage = () => {
   const { slug } = useParams();
-  const { data: allLyrics, loading: lyricsLoading, error } = useContent('lyrics');
-  const [lyrics, setLyrics] = useState(null);
+  const { data: allLyrics, loading: lyricsLoading, error } = useContent('lyrics');  const [lyrics, setLyrics] = useState(null);
   const [loading, setLoading] = useState(true);
   const [copied, setCopied] = useState(false);
+  const [isPlaying, setIsPlaying] = useState(false);
+  const audioRef = useRef(null);
   useEffect(() => {
     if (!lyricsLoading && allLyrics && slug) {
       loadLyricsDetails();
@@ -64,16 +65,28 @@ const LyricsDetailPage = () => {
     return artistName.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '');
   };
 
-  const copyLyrics = async () => {
-    if (lyrics) {
-      try {
-        await navigator.clipboard.writeText(lyrics.content || lyrics.lyrics);
-        setCopied(true);
-        setTimeout(() => setCopied(false), 2000);
-      } catch (err) {
-        console.error('Failed to copy lyrics:', err);
-      }
+  const copyLyrics = () => {
+    const lyricsText = lyrics.content || lyrics.lyrics || '';
+    navigator.clipboard.writeText(lyricsText).then(() => {
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    });
+  };
+
+  const togglePreview = () => {
+    if (!audioRef.current) return;
+    
+    if (isPlaying) {
+      audioRef.current.pause();
+      setIsPlaying(false);
+    } else {
+      audioRef.current.play();
+      setIsPlaying(true);
     }
+  };
+
+  const handleAudioEnded = () => {
+    setIsPlaying(false);
   };
 
   const getLanguageFlag = (language) => {
@@ -182,9 +195,20 @@ const LyricsDetailPage = () => {
               ) : (
                 <p className="text-slate-600 italic">Album information not available</p>              )}
             </div>
-          </div>
-          
-          <div className="flex items-center space-x-3">
+          </div>          <div className="flex items-center space-x-3">
+            {/* Spotify Button */}
+            {lyrics.spotify_url && (
+              <a
+                href={lyrics.spotify_url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center space-x-2 bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg transition-colors"
+              >
+                <ExternalLink className="w-4 h-4" />
+                <span>Listen on Spotify</span>
+              </a>
+            )}
+            
             <button
               onClick={copyLyrics}
               className="flex items-center space-x-2 bg-slate-100 hover:bg-slate-200 text-slate-700 px-4 py-2 rounded-lg transition-colors"
@@ -201,6 +225,16 @@ const LyricsDetailPage = () => {
                 </>
               )}
             </button>
+            
+            {/* Hidden Audio Element - only if preview exists */}
+            {lyrics.spotify_preview_url && (
+              <audio
+                ref={audioRef}
+                src={lyrics.spotify_preview_url}
+                onEnded={handleAudioEnded}
+                preload="none"
+              />
+            )}
           </div>
         </div>
       </div>
@@ -232,10 +266,75 @@ const LyricsDetailPage = () => {
               </div>
             )}
           </div>
-        </div>
+        </div>        {/* Sidebar */}
+        <div className="space-y-6">
+          {/* Spotify Integration */}
+          {lyrics.spotify_url && (
+            <div className="bg-gradient-to-br from-green-50 to-green-100 rounded-xl p-6 border border-green-200">
+              <h3 className="text-lg font-bold text-green-800 mb-4 flex items-center space-x-2">
+                <Music className="w-5 h-5" />
+                <span>Listen on Spotify</span>
+              </h3>
+              
+              {/* Album Art */}
+              {lyrics.spotify_album_art && (
+                <div className="mb-4">
+                  <img
+                    src={lyrics.spotify_album_art_medium || lyrics.spotify_album_art}
+                    alt={`${lyrics.spotify_album_name || lyrics.album} album art`}
+                    className="w-full rounded-lg shadow-md"
+                  />
+                  {lyrics.spotify_album_name && (
+                    <p className="text-sm text-green-700 mt-2 text-center font-medium">
+                      {lyrics.spotify_album_name}
+                    </p>
+                  )}
+                </div>
+              )}
+                <div className="space-y-3">
+                {/* Preview Button - only show if preview is available */}
+                {lyrics.spotify_preview_url && (
+                  <button
+                    onClick={togglePreview}
+                    className="w-full flex items-center justify-center space-x-2 bg-green-600 hover:bg-green-700 text-white px-4 py-3 rounded-lg transition-colors font-medium"
+                  >
+                    {isPlaying ? (
+                      <Pause className="w-5 h-5" />
+                    ) : (
+                      <Play className="w-5 h-5" />
+                    )}
+                    <span>{isPlaying ? 'Pause Preview' : 'Play 30s Preview'}</span>
+                  </button>
+                )}
+                
+                {/* No preview available message */}
+                {!lyrics.spotify_preview_url && (
+                  <div className="w-full bg-green-100 border border-green-300 text-green-700 px-4 py-3 rounded-lg text-center text-sm">
+                    🎵 Preview not available for this track
+                  </div>
+                )}
+                
+                {/* Spotify Link */}
+                <a
+                  href={lyrics.spotify_url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="w-full flex items-center justify-center space-x-2 bg-green-500 hover:bg-green-600 text-white px-4 py-3 rounded-lg transition-colors font-medium"
+                >
+                  <ExternalLink className="w-5 h-5" />
+                  <span>Listen Full Song on Spotify</span>
+                </a>
+                
+                {lyrics.spotify_match_confidence && (
+                  <p className="text-xs text-green-600 text-center">
+                    Match confidence: {lyrics.spotify_match_confidence}
+                  </p>
+                )}
+              </div>
+            </div>
+          )}
 
-        {/* Sidebar */}
-        <div className="space-y-6">          {/* Song Information */}
+          {/* Song Information */}
           <div className="bg-white rounded-xl p-6 shadow-lg border border-slate-200">
             <h3 className="text-lg font-bold text-slate-800 mb-4">Song Information</h3>
             <div className="space-y-3">

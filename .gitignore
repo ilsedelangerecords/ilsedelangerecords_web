@@ -99,6 +99,11 @@ temp/
 Thumbs.db
 ehthumbs.db
 
+# Environment variables
+.env
+.env.local
+.env.production
+
 # Migration specific
 migration_data/content_inventory.json
 *.pyc
