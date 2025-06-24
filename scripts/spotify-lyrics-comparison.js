@@ -6,7 +6,17 @@
  * - Which Spotify songs have lyrics in our database
  * - Which Spotify songs are missing lyrics
  * - Which local lyrics don't have a Spotify match
- * - Summary statistics and export to CSV
+ * - Summary statistics and export to CSV/JSON
+ * - Complete Spotify catalog for future use
+ * 
+ * Usage:
+ * node scripts/spotify-lyrics-comparison.js [filter]
+ * 
+ * Filter options:
+ * - all (default): Show all tracks
+ * - with-lyrics: Show only tracks with lyrics
+ * - missing-lyrics: Show only tracks missing lyrics
+ * - local-only: Show only local lyrics without Spotify match
  */
 
 import fs from 'fs/promises';
@@ -26,17 +36,29 @@ const ARTISTS = {
   'The Common Linnets': '18h3nc5ixeV80KKGWDAaMG'
 };
 
+// Get filter from command line arguments
+const filter = process.argv[2] || 'all';
+const validFilters = ['all', 'with-lyrics', 'missing-lyrics', 'local-only'];
+
+if (!validFilters.includes(filter)) {
+  console.error(`❌ Invalid filter: ${filter}`);
+  console.error(`Valid filters: ${validFilters.join(', ')}`);
+  process.exit(1);
+}
+
 class SpotifyLyricsComparison {
   constructor() {
     this.accessToken = null;
     this.localLyrics = [];
     this.spotifyTracks = [];
+    this.allSpotifyTracks = []; // Store complete Spotify catalog
     this.comparisonResults = {
       withLyrics: [],
       missingLyrics: [],
       localOnlyLyrics: [],
       statistics: {}
     };
+    this.filter = filter;
   }
   async authenticate() {
     console.log('🔐 Authenticating with Spotify...');
@@ -188,7 +210,6 @@ class SpotifyLyricsComparison {
     console.log(`✅ Found ${uniqueTracks.length} unique tracks for ${artistName} (${allTracks.length} total including duplicates)`);
     return uniqueTracks;
   }
-
   async fetchAllSpotifyTracks() {
     console.log('🎼 Fetching all Spotify tracks for both artists...');
     
@@ -196,6 +217,9 @@ class SpotifyLyricsComparison {
       const tracks = await this.fetchAllArtistTracks(artistId, artistName);
       this.spotifyTracks.push(...tracks);
     }
+
+    // Store complete catalog
+    this.allSpotifyTracks = [...this.spotifyTracks];
 
     console.log(`✅ Total Spotify tracks collected: ${this.spotifyTracks.length}`);
   }
@@ -284,12 +308,12 @@ class SpotifyLyricsComparison {
 
     console.log('✅ Comparison completed');
   }
-
   displayResults() {
     const stats = this.comparisonResults.statistics;
     
     console.log('\n' + '='.repeat(80));
     console.log('📊 SPOTIFY-LYRICS COMPARISON RESULTS');
+    console.log(`🔍 Current filter: ${this.filter.toUpperCase()}`);
     console.log('='.repeat(80));
     
     console.log('\n📈 STATISTICS:');
@@ -301,43 +325,55 @@ class SpotifyLyricsComparison {
     console.log(`🎯 Exact matches: ${stats.exactMatches}`);
     console.log(`🎲 Partial matches: ${stats.partialMatches}`);
 
-    console.log('\n✅ TRACKS WITH LYRICS:');
-    console.log('-'.repeat(50));
-    this.comparisonResults.withLyrics
-      .sort((a, b) => a.spotify.name.localeCompare(b.spotify.name))
-      .forEach((item, index) => {
-        const confidence = item.confidence === 'exact' ? '🎯' : '🎲';
-        console.log(`${index + 1}. ${confidence} "${item.spotify.name}" by ${item.spotify.primaryArtist}`);
-        if (item.confidence === 'partial') {
-          console.log(`   → Matched with: "${item.lyrics.title}"`);
-        }
-      });
+    // Show filtered results based on selected filter
+    if (this.filter === 'all' || this.filter === 'with-lyrics') {
+      console.log('\n✅ TRACKS WITH LYRICS:');
+      console.log('-'.repeat(50));
+      this.comparisonResults.withLyrics
+        .sort((a, b) => a.spotify.name.localeCompare(b.spotify.name))
+        .forEach((item, index) => {
+          const confidence = item.confidence === 'exact' ? '🎯' : '🎲';
+          console.log(`${index + 1}. ${confidence} "${item.spotify.name}" by ${item.spotify.primaryArtist}`);
+          if (item.confidence === 'partial') {
+            console.log(`   → Matched with: "${item.lyrics.title}"`);
+          }
+        });
+    }
 
-    console.log('\n❌ TRACKS MISSING LYRICS:');
-    console.log('-'.repeat(50));
-    this.comparisonResults.missingLyrics
-      .sort((a, b) => a.name.localeCompare(b.name))
-      .forEach((track, index) => {
-        const year = track.album.release_date ? ` (${track.album.release_date.substring(0, 4)})` : '';
-        console.log(`${index + 1}. "${track.name}" by ${track.primaryArtist}${year}`);
-        console.log(`   Album: ${track.album.name}`);
-      });
+    if (this.filter === 'all' || this.filter === 'missing-lyrics') {
+      console.log('\n❌ TRACKS MISSING LYRICS:');
+      console.log('-'.repeat(50));
+      this.comparisonResults.missingLyrics
+        .sort((a, b) => a.name.localeCompare(b.name))
+        .forEach((track, index) => {
+          const year = track.album.release_date ? ` (${track.album.release_date.substring(0, 4)})` : '';
+          console.log(`${index + 1}. "${track.name}" by ${track.primaryArtist}${year}`);
+          console.log(`   Album: ${track.album.name}`);
+        });
+    }
 
-    console.log('\n🏠 LOCAL-ONLY LYRICS (no Spotify match):');
-    console.log('-'.repeat(50));
-    this.comparisonResults.localOnlyLyrics
-      .sort((a, b) => a.title.localeCompare(b.title))
-      .forEach((lyric, index) => {
-        console.log(`${index + 1}. "${lyric.title}" by ${lyric.artist}`);
-      });
+    if (this.filter === 'all' || this.filter === 'local-only') {
+      console.log('\n🏠 LOCAL-ONLY LYRICS (no Spotify match):');
+      console.log('-'.repeat(50));
+      this.comparisonResults.localOnlyLyrics
+        .sort((a, b) => a.title.localeCompare(b.title))
+        .forEach((lyric, index) => {
+          console.log(`${index + 1}. "${lyric.title}" by ${lyric.artist}`);
+        });
+    }
+
+    console.log('\n💡 Filter options:');
+    console.log('   all - Show all tracks (default)');
+    console.log('   with-lyrics - Show only tracks with lyrics');
+    console.log('   missing-lyrics - Show only tracks missing lyrics');
+    console.log('   local-only - Show only local lyrics without Spotify match');
   }
-
   async exportToCSV() {
     console.log('\n💾 Exporting results to CSV...');
     
     const csvPath = path.join(__dirname, '..', 'spotify-lyrics-comparison.csv');
     
-    let csvContent = 'Type,Track Title,Artist,Album,Release Year,Spotify URL,Has Lyrics,Match Confidence,Local Title,Notes\n';
+    let csvContent = 'Type,Track Title,Artist,Album,Release Year,Spotify URL,Spotify ID,Has Lyrics,Match Confidence,Local Title,Duration (ms),Explicit,Preview URL,Notes\n';
     
     // Tracks with lyrics
     for (const item of this.comparisonResults.withLyrics) {
@@ -345,21 +381,27 @@ class SpotifyLyricsComparison {
       const year = track.album.release_date ? track.album.release_date.substring(0, 4) : '';
       const spotifyUrl = track.external_urls.spotify || '';
       const localTitle = item.lyrics.title !== track.name ? item.lyrics.title : '';
+      const duration = track.duration_ms || '';
+      const explicit = track.explicit ? 'Yes' : 'No';
+      const previewUrl = track.preview_url || '';
       
-      csvContent += `"With Lyrics","${track.name}","${track.primaryArtist}","${track.album.name}","${year}","${spotifyUrl}","Yes","${item.confidence}","${localTitle}",""\n`;
+      csvContent += `"With Lyrics","${track.name}","${track.primaryArtist}","${track.album.name}","${year}","${spotifyUrl}","${track.id}","Yes","${item.confidence}","${localTitle}","${duration}","${explicit}","${previewUrl}",""\n`;
     }
     
     // Tracks missing lyrics
     for (const track of this.comparisonResults.missingLyrics) {
       const year = track.album.release_date ? track.album.release_date.substring(0, 4) : '';
       const spotifyUrl = track.external_urls.spotify || '';
+      const duration = track.duration_ms || '';
+      const explicit = track.explicit ? 'Yes' : 'No';
+      const previewUrl = track.preview_url || '';
       
-      csvContent += `"Missing Lyrics","${track.name}","${track.primaryArtist}","${track.album.name}","${year}","${spotifyUrl}","No","","",""\n`;
+      csvContent += `"Missing Lyrics","${track.name}","${track.primaryArtist}","${track.album.name}","${year}","${spotifyUrl}","${track.id}","No","","","${duration}","${explicit}","${previewUrl}",""\n`;
     }
     
     // Local-only lyrics
     for (const lyric of this.comparisonResults.localOnlyLyrics) {
-      csvContent += `"Local Only","${lyric.title}","${lyric.artist}","","","","Yes","","","No Spotify match found"\n`;
+      csvContent += `"Local Only","${lyric.title}","${lyric.artist}","","","","","Yes","","","","","","No Spotify match found"\n`;
     }
     
     await fs.writeFile(csvPath, csvContent, 'utf-8');
@@ -373,7 +415,9 @@ class SpotifyLyricsComparison {
     
     const exportData = {
       exportDate: new Date().toISOString(),
+      filter: this.filter,
       statistics: this.comparisonResults.statistics,
+      allSpotifyTracks: this.allSpotifyTracks, // Include complete Spotify catalog
       tracksWithLyrics: this.comparisonResults.withLyrics,
       tracksMissingLyrics: this.comparisonResults.missingLyrics,
       localOnlyLyrics: this.comparisonResults.localOnlyLyrics
@@ -381,11 +425,34 @@ class SpotifyLyricsComparison {
     
     await fs.writeFile(jsonPath, JSON.stringify(exportData, null, 2), 'utf-8');
     console.log(`✅ JSON exported to: ${jsonPath}`);
+    console.log(`📊 Complete Spotify catalog (${this.allSpotifyTracks.length} tracks) included in JSON export`);
   }
 
+  async exportSpotifyCatalog() {
+    console.log('💾 Exporting complete Spotify catalog...');
+    
+    const catalogPath = path.join(__dirname, '..', 'spotify-catalog.json');
+    
+    const catalogData = {
+      exportDate: new Date().toISOString(),
+      totalTracks: this.allSpotifyTracks.length,
+      artists: Object.keys(ARTISTS),
+      tracks: this.allSpotifyTracks.map(track => ({
+        ...track,
+        hasLyrics: this.comparisonResults.withLyrics.some(item => item.spotify.id === track.id),
+        lyricsMatch: this.comparisonResults.withLyrics.find(item => item.spotify.id === track.id)?.lyrics || null,
+        matchConfidence: this.comparisonResults.withLyrics.find(item => item.spotify.id === track.id)?.confidence || null
+      }))
+    };
+    
+    await fs.writeFile(catalogPath, JSON.stringify(catalogData, null, 2), 'utf-8');
+    console.log(`✅ Spotify catalog exported to: ${catalogPath}`);
+    console.log(`📊 Includes all ${this.allSpotifyTracks.length} tracks with lyrics status`);
+  }
   async run() {
     try {
       console.log('🚀 Starting Spotify-Lyrics Comparison...\n');
+      console.log(`🔍 Filter: ${this.filter}\n`);
       
       await this.authenticate();
       await this.loadLocalLyrics();
@@ -396,12 +463,22 @@ class SpotifyLyricsComparison {
       
       await this.exportToCSV();
       await this.exportToJSON();
+      await this.exportSpotifyCatalog();
       
       console.log('\n🎉 Comparison completed successfully!');
+      console.log('\nFiles created:');
+      console.log('- spotify-lyrics-comparison.csv (filtered results for analysis)');
+      console.log('- spotify-lyrics-comparison.json (complete comparison data)');
+      console.log('- spotify-catalog.json (complete Spotify catalog with lyrics status)');
       console.log('\nNext steps:');
       console.log('- Review the missing lyrics list to prioritize which songs to add');
       console.log('- Check local-only lyrics for potential Spotify matches');
       console.log('- Use the CSV file for detailed analysis in Excel or Google Sheets');
+      console.log('- Use spotify-catalog.json for comprehensive track management');
+      console.log('\nRun with different filters:');
+      console.log('- node scripts/spotify-lyrics-comparison.js with-lyrics');
+      console.log('- node scripts/spotify-lyrics-comparison.js missing-lyrics');
+      console.log('- node scripts/spotify-lyrics-comparison.js local-only');
       
     } catch (error) {
       console.error('❌ Error during comparison:', error.message);
