@@ -1,15 +1,15 @@
 {
-  "exportDate": "2025-06-24T05:47:07.352Z",
+  "exportDate": "2025-06-24T07:48:19.823Z",
   "filter": "all",
   "statistics": {
     "totalSpotifyTracks": 248,
     "totalLocalLyrics": 161,
-    "tracksWithLyrics": 97,
-    "tracksMissingLyrics": 151,
-    "localOnlyLyrics": 83,
-    "matchPercentage": 39,
-    "exactMatches": 71,
-    "partialMatches": 26
+    "tracksWithLyrics": 102,
+    "tracksMissingLyrics": 146,
+    "localOnlyLyrics": 78,
+    "matchPercentage": 41,
+    "exactMatches": 77,
+    "partialMatches": 25
   },
   "allSpotifyTracks": [
     {
@@ -10395,6 +10395,136 @@
     },
     {
       "spotify": {
+        "id": "4NUUGnvPUiqH3Gotgiij0D",
+        "name": "As If Only",
+        "normalizedTitle": "as if only",
+        "artists": [
+          "The Common Linnets"
+        ],
+        "normalizedArtists": [
+          "the common linnets"
+        ],
+        "album": {
+          "id": "7APjyQfUqUWjlViBq2FPaj",
+          "name": "II",
+          "release_date": "2015-09-25",
+          "images": [
+            {
+              "url": "https://i.scdn.co/image/ab67616d0000b273ae2d6ab4d90d1363aa6efc16",
+              "height": 640,
+              "width": 640
+            },
+            {
+              "url": "https://i.scdn.co/image/ab67616d00001e02ae2d6ab4d90d1363aa6efc16",
+              "height": 300,
+              "width": 300
+            },
+            {
+              "url": "https://i.scdn.co/image/ab67616d00004851ae2d6ab4d90d1363aa6efc16",
+              "height": 64,
+              "width": 64
+            }
+          ]
+        },
+        "duration_ms": 221320,
+        "explicit": false,
+        "preview_url": null,
+        "external_urls": {
+          "spotify": "https://open.spotify.com/track/4NUUGnvPUiqH3Gotgiij0D"
+        },
+        "popularity": 0,
+        "primaryArtist": "The Common Linnets"
+      },
+      "lyrics": {
+        "artist": "The Common Linnets",
+        "title": "As If Only",
+        "language": "English",
+        "has_lyrics": true,
+        "lyrics": "Carry me down to the river and heal me tonight\nWash away all of the wrong and leave only the right\nMirror of moonlight reflecting the innocent stars\nDrown every sorrow and fear that has kept us apart\n\nAs if there was time\nAs if we were free\n\nI hear the sound of the river, it rings in my ear\nEchoing whispers of love that was lost to the years\nDrawing us back to a truth too deep to deny\nCarry me down to that river and heal me tonight\n\nAs if there was time\nAs if we were free\nAs if only there was only you and me\n\nThrough open fields we’ll find the shore\nAnd i’ll leave my heart open\nCarry me down, carry me down, carry me down\nTo where i’ve been and was before\nTo when my heart was open\nCarry me down, carry me down, carry me down\n\nI’ll let the river, deliver me back to the sea\nSurrender myself to a love that is greater than me\n\nAs if there was time\nAs if we were free\nAs if only there was only you and me\n\nAs if there was time\nAs if we were free\nAs if only there was only you and me\n\nAs if there was time\nAs if we were free\nAs if only there was only you and me",
+        "metadata": {
+          "source_file": "as_if_only_lyrics.html",
+          "content_lines": 30,
+          "word_count": 230,
+          "has_chorus": false
+        },
+        "spotify_url": "https://open.spotify.com/track/4NUUGnvPUiqH3Gotgiij0D",
+        "spotify_id": "4NUUGnvPUiqH3Gotgiij0D",
+        "spotify_album_art": "https://i.scdn.co/image/ab67616d0000b273ae2d6ab4d90d1363aa6efc16",
+        "spotify_preview_url": null,
+        "album": "II",
+        "year": "2015",
+        "normalizedTitle": "as if only",
+        "normalizedArtist": "the common linnets"
+      },
+      "confidence": "exact"
+    },
+    {
+      "spotify": {
+        "id": "31MtA1bmM3PsiAX1sur7rM",
+        "name": "Blue Bittersweet",
+        "normalizedTitle": "blue bittersweet",
+        "artists": [
+          "Ilse DeLange"
+        ],
+        "normalizedArtists": [
+          "ilse delange"
+        ],
+        "album": {
+          "id": "3c7XPav9lVFFeTfOTL8fyk",
+          "name": "After The Hurricane - Greatest Hits & More",
+          "release_date": "2013-01-01",
+          "images": [
+            {
+              "url": "https://i.scdn.co/image/ab67616d0000b273792190c2c469906e2626f24f",
+              "height": 640,
+              "width": 640
+            },
+            {
+              "url": "https://i.scdn.co/image/ab67616d00001e02792190c2c469906e2626f24f",
+              "height": 300,
+              "width": 300
+            },
+            {
+              "url": "https://i.scdn.co/image/ab67616d00004851792190c2c469906e2626f24f",
+              "height": 64,
+              "width": 64
+            }
+          ]
+        },
+        "duration_ms": 270200,
+        "explicit": false,
+        "preview_url": null,
+        "external_urls": {
+          "spotify": "https://open.spotify.com/track/31MtA1bmM3PsiAX1sur7rM"
+        },
+        "popularity": 0,
+        "primaryArtist": "Ilse DeLange"
+      },
+      "lyrics": {
+        "artist": "Ilse DeLange",
+        "title": "Blue Bittersweet",
+        "language": "English",
+        "has_lyrics": true,
+        "lyrics": "Blue bittersweet, blue bittersweet, like crowds that turned you,\nclouds floating over me\nBlue bittersweet, blue bittersweet, like clouds that turned you,\ncrowds running over me\n\nNo intereference, no interruption, less demolision,\nsome reconstruction\nConsider, consideration, interpet, interpretation\nSomeone to follow, someone to look to, someone to hold you\nLike search for liberation, on the road to selfation\n\nBlue bittersweet, blue bittersweet, like crowds that turned you,\nclouds floating over me\nBlue bittersweet, blue bittersweet, like clouds that turned you,\ncrowds running over me\n\nLive independet, so well-defended,\nIt's hard to expend, what if it ends us\nDetermin, determination\nFrustrated, we're a frustrated nation\nNo one to follow, no one to look to, no one to hold you\nStarving in desperation, on a slow steady road to hell\n\nBlue bittersweet, blue bittersweet, like crowds that turned you,\nclouds floating over me\nBlue bittersweet, blue bittersweet, like clouds that turned you,\ncrowds running over me\nRunning over me, running over me, running over me\n\nWho is the child that lives without shelter\nWhen do we hear, talking to you\nWhere is the child, with no one to help her\nWho is the one who smiles\nWho is the child that lives without shelter\nWhen do we hear, talking to you\nWhere is the child, with no one to help her\nWho is the one who smiles\nWhen she's blue, when she's bluehuuu\nWho is the child that lives without shelter\nWhen do we hear, talking to you\nWhere is the child, with no one to help her\nWho is the one who smiles\nWhen she's blue, when she's blue",
+        "metadata": {
+          "source_file": "blue_bittersweet.html",
+          "content_lines": 38,
+          "word_count": 268,
+          "has_chorus": false
+        },
+        "spotify_url": "https://open.spotify.com/track/3hRM1R9l6w3PuURollOZzJ",
+        "spotify_id": "3hRM1R9l6w3PuURollOZzJ",
+        "spotify_album_art": "https://i.scdn.co/image/ab67616d0000b273da0afeadd133e194ebb9a648",
+        "spotify_preview_url": null,
+        "album": "Blue Bittersweet (Sander Kleinenberg Remix)",
+        "year": "2013",
+        "normalizedTitle": "blue bittersweet",
+        "normalizedArtist": "ilse delange"
+      },
+      "confidence": "exact"
+    },
+    {
+      "spotify": {
         "id": "4aQFhUm8JbhmuAjtg8J4gR",
         "name": "Breathe In, Breathe Out",
         "normalizedTitle": "breathe in breathe out",
@@ -10437,17 +10567,23 @@
       },
       "lyrics": {
         "artist": "Ilse DeLange",
-        "title": "'Cross the Bering strait",
+        "title": "Man In The Moon",
         "language": "English",
         "has_lyrics": true,
-        "lyrics": "'Cross the Bering strait \nto a foreign land \nI took to the sky just like I planned\nLeft my old life behind \nthere in the ice and snow \nfollowed a rainbow to Mexico \n\nSomewhere this side of lucky just shy of goin' down\nthere's a pilot with her wings on fire \nand she doesn't even notice, \nshe got magic on her mind \n'cause she's flyin' solo for the first time\n\nChorus:\nFlying solo\nlike an angel in the night\nflyin' solo \nacross the great devide\nI've been down so low, now I'm up so high\nthere ain't nothin' short of dying \nis gonna make me change my mind \nflyin' solo, flyin' solo \n\nLike a fallin' leaf\nI fell down from your tree\nchalk one up to prosperity \nin search of warmer waters \nI'm like a bird gone south \ndon't know just what I'll find\nbut I'm finding out \n\nNow here I'm dancin' with the moon\nspinning out of control \nnever be the same again \n'cause there's a place under the horizon\nwhere it hardly ever rains \nthe sun is always shining \nfreedom is it's name \n\n- Chorus -\n\nAround the world that's where I'll be\nAmelia Earheart's got nothin' on me \n\n- Chorus -",
+        "lyrics": "As I sit here below the light\nAnd write these words to you\nAnd I'm thinking how time just flies\nYears of yesterdays all feel like they're new\n\nI remember those cold cold nights\nFelt like they started at noon\nWe only saw pitch black\nNot the man in the moon\n\nNow we look from the outside\nWe've distanced the pain\nWe've boxed disappointments and put them away\nWe don't cry anymore\nAnd every once in a while there's a smile\n\nNow don't let expectations\nFill the room of your heart\nIt'll shape it and break it\nTill we've drifted apart\n\nNow we look from the outside\nWe've distanced the pain\nWe've boxed disappointments and put them away\nWe don't cry anymore\nAnd every once in a while there's a smile\n\nNow we look from the outside\nWe've distanced the pain\nWe've boxed disappointments and put them away\nWe don't cry anymore\nAnd every once in a while\n\nNow there's a smile here this afternoon\nAs I write these words to you\nIn a while, with our hope renewed\nWe look up to sky\nJust you and I\nAnd the man in the moon",
         "metadata": {
-          "source_file": "flying_solo.html",
-          "content_lines": 38,
-          "word_count": 204,
-          "has_chorus": true
+          "source_file": "man_in_the_moon.html",
+          "content_lines": 33,
+          "word_count": 194,
+          "has_chorus": false
         },
-        "normalizedTitle": "cross the bering strait",
+        "spotify_url": "https://open.spotify.com/track/65dlGsitYQz9TH2BXhrben",
+        "spotify_id": "65dlGsitYQz9TH2BXhrben",
+        "spotify_album_art": "https://i.scdn.co/image/ab67616d0000b27393454032da03c0b9e119b589",
+        "spotify_preview_url": null,
+        "album": "Live in Amsterdam",
+        "year": "2007",
+        "normalizedTitle": "man in the moon",
         "normalizedArtist": "ilse delange"
       },
       "confidence": "partial"
@@ -10756,20 +10892,26 @@
       },
       "lyrics": {
         "artist": "Ilse DeLange",
-        "title": "There for a moment",
+        "title": "Dance On The Heartbreak",
         "language": "English",
         "has_lyrics": true,
-        "lyrics": "There for a moment\nWhen all I remembered\nGod pushed to one side of my mind\nMaking room, for your sweet love to win\nDarling you, nearly had me this time\n\nBut there for a moment\nI almost believed\nA wishful thinking got the better of me\nAnd hope of the heart, a true heart is hoping\nThe easier it's deceived\nBut there for a moment, I almost believed\n\nFor a second, all was forgiven\nIt's a dangerous thing we all do\nFor own good faith\nAll is ready to giving\nWanting so bad for something good to be true\n\nBut there for a moment\nI almost believed\nA wishful thinking got the better of me\nAnd hope of the heart, a true heart is hoping\nThe easier it's deceived\nWell there for a moment, I almost believed\n\nI came so close, to falling so far\nUntil my mind chose, not to follow my heart\n\nBut there for a moment\nI almost believed\nA wishful thinking got the better of me\nAnd hope of the heart, a true heart is hoping\nThe easier it's deceived\nWell there for a moment, I almost believed\nWell there for a moment, I almost believed",
+        "lyrics": "An empty floor, a record on\nI’m living for an endless song\nI want you more, now that you’re gone\nBaby I’m falling, falling without you\nLike I do For you\nI’m falling for you\nLike I do, like I do, like I’m gonna\n\nDance on the heartbreak\nTill I don’t feel it, till I don’t feel it\nI’ll dance on the heartbreak\nTill I don’t feel it, till I don’t feel it for you\nLike I do for you\nI’m gonna dance on the heartbreak\nTill I don’t feel it, till I don’t feel it for you\nFor you\n\nWhen I get lost, I got a trick\nMy heart get’s locked into the kick\nIt’s what I got, that’s how it is\nBaby I’m moving, moving without you\nLike I do for you\nI’m moving for you\nLike I do, like I do, like I’m gonna\n\nDance on the heartbreak\nTill I don’t feel it, till I don’t feel it\nI’ll dance on the heartbreak\nTill I don’t feel it, till I don’t feel it for you\nLike I do for you\nI’m gonna dance on the heartbreak\nTill I don’t feel it, till I don’t feel it for you\nFor you, for you, like I do, like I do, like I’m gonna\n\nDance on the heartbreak\nTill I don’t feel it, till I don’t feel it\nI’ll dance on the heartbreak\nTill I don’t feel it, till I don’t feel it for you\nLike I do for you\nI’m gonna dance on the heartbreak\nTill I don’t feel it, till I don’t feel it\nI’ll dance on the heartbreak\nTill I don’t feel it, till I don’t feel it for you\nLike I do for you\nI’m gonna dance on the heartbreak\nTill I don’t feel it, till I don’t feel it for you\nFor you, for you, like I do, like I do, like I do",
         "metadata": {
-          "source_file": "i_almost_believed.html",
-          "content_lines": 31,
-          "word_count": 201,
+          "source_file": "dance_on_the_heartbreak.html",
+          "content_lines": 43,
+          "word_count": 319,
           "has_chorus": false
         },
-        "normalizedTitle": "there for a moment",
+        "spotify_url": "https://open.spotify.com/track/50CZL7kkzzeR9B6M2SGDJB",
+        "spotify_id": "50CZL7kkzzeR9B6M2SGDJB",
+        "spotify_album_art": "https://i.scdn.co/image/ab67616d0000b273e252703966d17bb5f0da14b8",
+        "spotify_preview_url": null,
+        "album": "Eye Of The Hurricane",
+        "year": "2012",
+        "normalizedTitle": "dance on the heartbreak",
         "normalizedArtist": "ilse delange"
       },
-      "confidence": "partial"
+      "confidence": "exact"
     },
     {
       "spotify": {
@@ -11355,6 +11497,71 @@
         "normalizedArtist": "ilse delange"
       },
       "confidence": "partial"
+    },
+    {
+      "spotify": {
+        "id": "1Qvdfmmiu1LzCwyjaY0vMc",
+        "name": "Flying Solo",
+        "normalizedTitle": "flying solo",
+        "artists": [
+          "Ilse DeLange"
+        ],
+        "normalizedArtists": [
+          "ilse delange"
+        ],
+        "album": {
+          "id": "4cfMqW4uICDNhkn58pPH4r",
+          "name": "World Of Hurt",
+          "release_date": "1998-07-31",
+          "images": [
+            {
+              "url": "https://i.scdn.co/image/ab67616d0000b27393408fca4f1ab0fc772bd40f",
+              "height": 640,
+              "width": 640
+            },
+            {
+              "url": "https://i.scdn.co/image/ab67616d00001e0293408fca4f1ab0fc772bd40f",
+              "height": 300,
+              "width": 300
+            },
+            {
+              "url": "https://i.scdn.co/image/ab67616d0000485193408fca4f1ab0fc772bd40f",
+              "height": 64,
+              "width": 64
+            }
+          ]
+        },
+        "duration_ms": 245026,
+        "explicit": false,
+        "preview_url": null,
+        "external_urls": {
+          "spotify": "https://open.spotify.com/track/1Qvdfmmiu1LzCwyjaY0vMc"
+        },
+        "popularity": 0,
+        "primaryArtist": "Ilse DeLange"
+      },
+      "lyrics": {
+        "artist": "Ilse DeLange",
+        "title": "Flying Solo",
+        "language": "English",
+        "has_lyrics": true,
+        "lyrics": "'Cross the Bering strait \nto a foreign land \nI took to the sky just like I planned\nLeft my old life behind \nthere in the ice and snow \nfollowed a rainbow to Mexico \n\nSomewhere this side of lucky just shy of goin' down\nthere's a pilot with her wings on fire \nand she doesn't even notice, \nshe got magic on her mind \n'cause she's flyin' solo for the first time\n\nChorus:\nFlying solo\nlike an angel in the night\nflyin' solo \nacross the great devide\nI've been down so low, now I'm up so high\nthere ain't nothin' short of dying \nis gonna make me change my mind \nflyin' solo, flyin' solo \n\nLike a fallin' leaf\nI fell down from your tree\nchalk one up to prosperity \nin search of warmer waters \nI'm like a bird gone south \ndon't know just what I'll find\nbut I'm finding out \n\nNow here I'm dancin' with the moon\nspinning out of control \nnever be the same again \n'cause there's a place under the horizon\nwhere it hardly ever rains \nthe sun is always shining \nfreedom is it's name \n\n- Chorus -\n\nAround the world that's where I'll be\nAmelia Earheart's got nothin' on me \n\n- Chorus -",
+        "metadata": {
+          "source_file": "flying_solo.html",
+          "content_lines": 38,
+          "word_count": 204,
+          "has_chorus": true
+        },
+        "spotify_url": "https://open.spotify.com/track/1Qvdfmmiu1LzCwyjaY0vMc",
+        "spotify_id": "1Qvdfmmiu1LzCwyjaY0vMc",
+        "spotify_album_art": "https://i.scdn.co/image/ab67616d0000b27393408fca4f1ab0fc772bd40f",
+        "spotify_preview_url": null,
+        "album": "World Of Hurt",
+        "year": "1998",
+        "normalizedTitle": "flying solo",
+        "normalizedArtist": "ilse delange"
+      },
+      "confidence": "exact"
     },
     {
       "spotify": {
@@ -12959,6 +13166,71 @@
     },
     {
       "spotify": {
+        "id": "65dlGsitYQz9TH2BXhrben",
+        "name": "Man In The Moon",
+        "normalizedTitle": "man in the moon",
+        "artists": [
+          "Ilse DeLange"
+        ],
+        "normalizedArtists": [
+          "ilse delange"
+        ],
+        "album": {
+          "id": "5BmMy23XcJQ5b7zCJMIhsw",
+          "name": "Live in Amsterdam",
+          "release_date": "2007-01-01",
+          "images": [
+            {
+              "url": "https://i.scdn.co/image/ab67616d0000b27393454032da03c0b9e119b589",
+              "height": 640,
+              "width": 640
+            },
+            {
+              "url": "https://i.scdn.co/image/ab67616d00001e0293454032da03c0b9e119b589",
+              "height": 300,
+              "width": 300
+            },
+            {
+              "url": "https://i.scdn.co/image/ab67616d0000485193454032da03c0b9e119b589",
+              "height": 64,
+              "width": 64
+            }
+          ]
+        },
+        "duration_ms": 229973,
+        "explicit": false,
+        "preview_url": null,
+        "external_urls": {
+          "spotify": "https://open.spotify.com/track/65dlGsitYQz9TH2BXhrben"
+        },
+        "popularity": 0,
+        "primaryArtist": "Ilse DeLange"
+      },
+      "lyrics": {
+        "artist": "Ilse DeLange",
+        "title": "Man In The Moon",
+        "language": "English",
+        "has_lyrics": true,
+        "lyrics": "As I sit here below the light\nAnd write these words to you\nAnd I'm thinking how time just flies\nYears of yesterdays all feel like they're new\n\nI remember those cold cold nights\nFelt like they started at noon\nWe only saw pitch black\nNot the man in the moon\n\nNow we look from the outside\nWe've distanced the pain\nWe've boxed disappointments and put them away\nWe don't cry anymore\nAnd every once in a while there's a smile\n\nNow don't let expectations\nFill the room of your heart\nIt'll shape it and break it\nTill we've drifted apart\n\nNow we look from the outside\nWe've distanced the pain\nWe've boxed disappointments and put them away\nWe don't cry anymore\nAnd every once in a while there's a smile\n\nNow we look from the outside\nWe've distanced the pain\nWe've boxed disappointments and put them away\nWe don't cry anymore\nAnd every once in a while\n\nNow there's a smile here this afternoon\nAs I write these words to you\nIn a while, with our hope renewed\nWe look up to sky\nJust you and I\nAnd the man in the moon",
+        "metadata": {
+          "source_file": "man_in_the_moon.html",
+          "content_lines": 33,
+          "word_count": 194,
+          "has_chorus": false
+        },
+        "spotify_url": "https://open.spotify.com/track/65dlGsitYQz9TH2BXhrben",
+        "spotify_id": "65dlGsitYQz9TH2BXhrben",
+        "spotify_album_art": "https://i.scdn.co/image/ab67616d0000b27393454032da03c0b9e119b589",
+        "spotify_preview_url": null,
+        "album": "Live in Amsterdam",
+        "year": "2007",
+        "normalizedTitle": "man in the moon",
+        "normalizedArtist": "ilse delange"
+      },
+      "confidence": "exact"
+    },
+    {
+      "spotify": {
         "id": "0cDHfx6Ts3u6Kh0oDZuuwn",
         "name": "Miss Politician",
         "normalizedTitle": "miss politician",
@@ -14244,6 +14516,71 @@
         "normalizedArtist": "the common linnets"
       },
       "confidence": "partial"
+    },
+    {
+      "spotify": {
+        "id": "2yMhnBD4NfSrinZahlzreK",
+        "name": "Sun & Shadow",
+        "normalizedTitle": "sun shadow",
+        "artists": [
+          "Ilse DeLange"
+        ],
+        "normalizedArtists": [
+          "ilse delange"
+        ],
+        "album": {
+          "id": "25zv0cehjrI2y5yByXyv5x",
+          "name": "Ilse DeLange",
+          "release_date": "2018-08-31",
+          "images": [
+            {
+              "url": "https://i.scdn.co/image/ab67616d0000b2732327a22764589556bce8a6cb",
+              "height": 640,
+              "width": 640
+            },
+            {
+              "url": "https://i.scdn.co/image/ab67616d00001e022327a22764589556bce8a6cb",
+              "height": 300,
+              "width": 300
+            },
+            {
+              "url": "https://i.scdn.co/image/ab67616d000048512327a22764589556bce8a6cb",
+              "height": 64,
+              "width": 64
+            }
+          ]
+        },
+        "duration_ms": 199213,
+        "explicit": false,
+        "preview_url": null,
+        "external_urls": {
+          "spotify": "https://open.spotify.com/track/2yMhnBD4NfSrinZahlzreK"
+        },
+        "popularity": 0,
+        "primaryArtist": "Ilse DeLange"
+      },
+      "lyrics": {
+        "artist": "Ilse DeLange",
+        "title": "Sun & Shadow",
+        "language": "English",
+        "has_lyrics": true,
+        "lyrics": "Build walls in secret corners\nCrying out in solitude\nStorms come in without warning\nTrying to black out my view\n\nYou play your part in every story\nYou’re always in between the lines\nYou never wanna take the glory\n\nWhen I fall, you fall too\nBut when I break, you break through\nWhen my world’s wrecking me, you bring me back patiently\nI don’t ever have to ask you, you don’t have to ask me too\nIf I’m afraid of anything it’s me without you\nMy sun and my shadow\nMy sun and my shadow\n\nMy heart, a time-bomb ticking\nMy mind, a mind of its own\nAs far as it drifts, I won’t get tricked\nInto thinking I could ever do this alone\n\nWhen I fall, you fall too\nBut when I break, you break through\nWhen my world’s wrecking me, you bring me back patiently\nI don’t ever have to ask you, you don’t have to ask me too\nIf I’m afraid of anything it’s me without you\nMy sun and my shadow\nMy sun and my shadow\nYou’re everywhere I go\nMy sun and my shadow\n\nYou play your part in every story\nYou’re always in between the lines\nYou never wanna take the glory\n\nWhen I fall, you fall too\nBut when I break, you break through\nWhen my world’s wrecking me, you bring me back, patiently\nI don’t ever have to ask you, you don’t have to ask me too\nIf I’m afraid of anything it’s me without you\nMy sun and my shadow\nMy sun and my shadow\nYou’re everywhere I go\nMy sun and my shadow",
+        "metadata": {
+          "source_file": "sun_and_shadow_lyricks.html",
+          "content_lines": 39,
+          "word_count": 273,
+          "has_chorus": false
+        },
+        "spotify_url": "https://open.spotify.com/track/2yMhnBD4NfSrinZahlzreK",
+        "spotify_id": "2yMhnBD4NfSrinZahlzreK",
+        "spotify_album_art": "https://i.scdn.co/image/ab67616d0000b2732327a22764589556bce8a6cb",
+        "spotify_preview_url": null,
+        "album": "Ilse DeLange",
+        "year": "2018",
+        "normalizedTitle": "sun shadow",
+        "normalizedArtist": "ilse delange"
+      },
+      "confidence": "exact"
     },
     {
       "spotify": {
@@ -16791,47 +17128,6 @@
       "primaryArtist": "Ilse DeLange"
     },
     {
-      "id": "4NUUGnvPUiqH3Gotgiij0D",
-      "name": "As If Only",
-      "normalizedTitle": "as if only",
-      "artists": [
-        "The Common Linnets"
-      ],
-      "normalizedArtists": [
-        "the common linnets"
-      ],
-      "album": {
-        "id": "7APjyQfUqUWjlViBq2FPaj",
-        "name": "II",
-        "release_date": "2015-09-25",
-        "images": [
-          {
-            "url": "https://i.scdn.co/image/ab67616d0000b273ae2d6ab4d90d1363aa6efc16",
-            "height": 640,
-            "width": 640
-          },
-          {
-            "url": "https://i.scdn.co/image/ab67616d00001e02ae2d6ab4d90d1363aa6efc16",
-            "height": 300,
-            "width": 300
-          },
-          {
-            "url": "https://i.scdn.co/image/ab67616d00004851ae2d6ab4d90d1363aa6efc16",
-            "height": 64,
-            "width": 64
-          }
-        ]
-      },
-      "duration_ms": 221320,
-      "explicit": false,
-      "preview_url": null,
-      "external_urls": {
-        "spotify": "https://open.spotify.com/track/4NUUGnvPUiqH3Gotgiij0D"
-      },
-      "popularity": 0,
-      "primaryArtist": "The Common Linnets"
-    },
-    {
       "id": "69Dk3fjE4SsO22qUo6iEyK",
       "name": "Beautiful Distraction",
       "normalizedTitle": "beautiful distraction",
@@ -17075,47 +17371,6 @@
       "preview_url": null,
       "external_urls": {
         "spotify": "https://open.spotify.com/track/2YticmTE7WecehodIVOxGs"
-      },
-      "popularity": 0,
-      "primaryArtist": "Ilse DeLange"
-    },
-    {
-      "id": "31MtA1bmM3PsiAX1sur7rM",
-      "name": "Blue Bittersweet",
-      "normalizedTitle": "blue bittersweet",
-      "artists": [
-        "Ilse DeLange"
-      ],
-      "normalizedArtists": [
-        "ilse delange"
-      ],
-      "album": {
-        "id": "3c7XPav9lVFFeTfOTL8fyk",
-        "name": "After The Hurricane - Greatest Hits & More",
-        "release_date": "2013-01-01",
-        "images": [
-          {
-            "url": "https://i.scdn.co/image/ab67616d0000b273792190c2c469906e2626f24f",
-            "height": 640,
-            "width": 640
-          },
-          {
-            "url": "https://i.scdn.co/image/ab67616d00001e02792190c2c469906e2626f24f",
-            "height": 300,
-            "width": 300
-          },
-          {
-            "url": "https://i.scdn.co/image/ab67616d00004851792190c2c469906e2626f24f",
-            "height": 64,
-            "width": 64
-          }
-        ]
-      },
-      "duration_ms": 270200,
-      "explicit": false,
-      "preview_url": null,
-      "external_urls": {
-        "spotify": "https://open.spotify.com/track/31MtA1bmM3PsiAX1sur7rM"
       },
       "popularity": 0,
       "primaryArtist": "Ilse DeLange"
@@ -18102,47 +18357,6 @@
       "preview_url": null,
       "external_urls": {
         "spotify": "https://open.spotify.com/track/7d293CDPMjiSf68Td8ygQa"
-      },
-      "popularity": 0,
-      "primaryArtist": "Ilse DeLange"
-    },
-    {
-      "id": "1Qvdfmmiu1LzCwyjaY0vMc",
-      "name": "Flying Solo",
-      "normalizedTitle": "flying solo",
-      "artists": [
-        "Ilse DeLange"
-      ],
-      "normalizedArtists": [
-        "ilse delange"
-      ],
-      "album": {
-        "id": "4cfMqW4uICDNhkn58pPH4r",
-        "name": "World Of Hurt",
-        "release_date": "1998-07-31",
-        "images": [
-          {
-            "url": "https://i.scdn.co/image/ab67616d0000b27393408fca4f1ab0fc772bd40f",
-            "height": 640,
-            "width": 640
-          },
-          {
-            "url": "https://i.scdn.co/image/ab67616d00001e0293408fca4f1ab0fc772bd40f",
-            "height": 300,
-            "width": 300
-          },
-          {
-            "url": "https://i.scdn.co/image/ab67616d0000485193408fca4f1ab0fc772bd40f",
-            "height": 64,
-            "width": 64
-          }
-        ]
-      },
-      "duration_ms": 245026,
-      "explicit": false,
-      "preview_url": null,
-      "external_urls": {
-        "spotify": "https://open.spotify.com/track/1Qvdfmmiu1LzCwyjaY0vMc"
       },
       "popularity": 0,
       "primaryArtist": "Ilse DeLange"
@@ -19619,47 +19833,6 @@
       "preview_url": null,
       "external_urls": {
         "spotify": "https://open.spotify.com/track/2CDkaIJ2qyv2HF5G9IkrZw"
-      },
-      "popularity": 0,
-      "primaryArtist": "Ilse DeLange"
-    },
-    {
-      "id": "65dlGsitYQz9TH2BXhrben",
-      "name": "Man In The Moon",
-      "normalizedTitle": "man in the moon",
-      "artists": [
-        "Ilse DeLange"
-      ],
-      "normalizedArtists": [
-        "ilse delange"
-      ],
-      "album": {
-        "id": "5BmMy23XcJQ5b7zCJMIhsw",
-        "name": "Live in Amsterdam",
-        "release_date": "2007-01-01",
-        "images": [
-          {
-            "url": "https://i.scdn.co/image/ab67616d0000b27393454032da03c0b9e119b589",
-            "height": 640,
-            "width": 640
-          },
-          {
-            "url": "https://i.scdn.co/image/ab67616d00001e0293454032da03c0b9e119b589",
-            "height": 300,
-            "width": 300
-          },
-          {
-            "url": "https://i.scdn.co/image/ab67616d0000485193454032da03c0b9e119b589",
-            "height": 64,
-            "width": 64
-          }
-        ]
-      },
-      "duration_ms": 229973,
-      "explicit": false,
-      "preview_url": null,
-      "external_urls": {
-        "spotify": "https://open.spotify.com/track/65dlGsitYQz9TH2BXhrben"
       },
       "popularity": 0,
       "primaryArtist": "Ilse DeLange"
@@ -21387,47 +21560,6 @@
       "primaryArtist": "Ilse DeLange"
     },
     {
-      "id": "2yMhnBD4NfSrinZahlzreK",
-      "name": "Sun & Shadow",
-      "normalizedTitle": "sun shadow",
-      "artists": [
-        "Ilse DeLange"
-      ],
-      "normalizedArtists": [
-        "ilse delange"
-      ],
-      "album": {
-        "id": "25zv0cehjrI2y5yByXyv5x",
-        "name": "Ilse DeLange",
-        "release_date": "2018-08-31",
-        "images": [
-          {
-            "url": "https://i.scdn.co/image/ab67616d0000b2732327a22764589556bce8a6cb",
-            "height": 640,
-            "width": 640
-          },
-          {
-            "url": "https://i.scdn.co/image/ab67616d00001e022327a22764589556bce8a6cb",
-            "height": 300,
-            "width": 300
-          },
-          {
-            "url": "https://i.scdn.co/image/ab67616d000048512327a22764589556bce8a6cb",
-            "height": 64,
-            "width": 64
-          }
-        ]
-      },
-      "duration_ms": 199213,
-      "explicit": false,
-      "preview_url": null,
-      "external_urls": {
-        "spotify": "https://open.spotify.com/track/2yMhnBD4NfSrinZahlzreK"
-      },
-      "popularity": 0,
-      "primaryArtist": "Ilse DeLange"
-    },
-    {
       "id": "77M3EbHELhMF7l9QseWptz",
       "name": "Tainted",
       "normalizedTitle": "tainted",
@@ -22647,21 +22779,6 @@
     },
     {
       "artist": "Ilse DeLange",
-      "title": "An empty floor, a record on",
-      "language": "English",
-      "has_lyrics": true,
-      "lyrics": "An empty floor, a record on\nI’m living for an endless song\nI want you more, now that you’re gone\nBaby I’m falling, falling without you\nLike I do For you\nI’m falling for you\nLike I do, like I do, like I’m gonna\n\nDance on the heartbreak\nTill I don’t feel it, till I don’t feel it\nI’ll dance on the heartbreak\nTill I don’t feel it, till I don’t feel it for you\nLike I do for you\nI’m gonna dance on the heartbreak\nTill I don’t feel it, till I don’t feel it for you\nFor you\n\nWhen I get lost, I got a trick\nMy heart get’s locked into the kick\nIt’s what I got, that’s how it is\nBaby I’m moving, moving without you\nLike I do for you\nI’m moving for you\nLike I do, like I do, like I’m gonna\n\nDance on the heartbreak\nTill I don’t feel it, till I don’t feel it\nI’ll dance on the heartbreak\nTill I don’t feel it, till I don’t feel it for you\nLike I do for you\nI’m gonna dance on the heartbreak\nTill I don’t feel it, till I don’t feel it for you\nFor you, for you, like I do, like I do, like I’m gonna\n\nDance on the heartbreak\nTill I don’t feel it, till I don’t feel it\nI’ll dance on the heartbreak\nTill I don’t feel it, till I don’t feel it for you\nLike I do for you\nI’m gonna dance on the heartbreak\nTill I don’t feel it, till I don’t feel it\nI’ll dance on the heartbreak\nTill I don’t feel it, till I don’t feel it for you\nLike I do for you\nI’m gonna dance on the heartbreak\nTill I don’t feel it, till I don’t feel it for you\nFor you, for you, like I do, like I do, like I do",
-      "metadata": {
-        "source_file": "dance_on_the_heartbreak.html",
-        "content_lines": 43,
-        "word_count": 319,
-        "has_chorus": false
-      },
-      "normalizedTitle": "an empty floor a record on",
-      "normalizedArtist": "ilse delange"
-    },
-    {
-      "artist": "Ilse DeLange",
       "title": "Angel eyes",
       "language": "English",
       "has_lyrics": true,
@@ -22674,66 +22791,6 @@
       },
       "normalizedTitle": "angel eyes",
       "normalizedArtist": "ilse delange"
-    },
-    {
-      "artist": "Ilse DeLange",
-      "title": "As I sit here below the light",
-      "language": "English",
-      "has_lyrics": true,
-      "lyrics": "As I sit here below the light\nAnd write these words to you\nAnd I'm thinking how time just flies\nYears of yesterdays all feel like they're new\n\nI remember those cold cold nights\nFelt like they started at noon\nWe only saw pitch black\nNot the man in the moon\n\nNow we look from the outside\nWe've distanced the pain\nWe've boxed disappointments and put them away\nWe don't cry anymore\nAnd every once in a while there's a smile\n\nNow don't let expectations\nFill the room of your heart\nIt'll shape it and break it\nTill we've drifted apart\n\nNow we look from the outside\nWe've distanced the pain\nWe've boxed disappointments and put them away\nWe don't cry anymore\nAnd every once in a while there's a smile\n\nNow we look from the outside\nWe've distanced the pain\nWe've boxed disappointments and put them away\nWe don't cry anymore\nAnd every once in a while\n\nNow there's a smile here this afternoon\nAs I write these words to you\nIn a while, with our hope renewed\nWe look up to sky\nJust you and I\nAnd the man in the moon",
-      "metadata": {
-        "source_file": "man_in_the_moon.html",
-        "content_lines": 33,
-        "word_count": 194,
-        "has_chorus": false
-      },
-      "normalizedTitle": "as i sit here below the light",
-      "normalizedArtist": "ilse delange"
-    },
-    {
-      "artist": "Ilse DeLange",
-      "title": "Blue bittersweet, blue bittersweet, like crowds that turned you,",
-      "language": "English",
-      "has_lyrics": true,
-      "lyrics": "Blue bittersweet, blue bittersweet, like crowds that turned you,\nclouds floating over me\nBlue bittersweet, blue bittersweet, like clouds that turned you,\ncrowds running over me\n\nNo intereference, no interruption, less demolision,\nsome reconstruction\nConsider, consideration, interpet, interpretation\nSomeone to follow, someone to look to, someone to hold you\nLike search for liberation, on the road to selfation\n\nBlue bittersweet, blue bittersweet, like crowds that turned you,\nclouds floating over me\nBlue bittersweet, blue bittersweet, like clouds that turned you,\ncrowds running over me\n\nLive independet, so well-defended,\nIt's hard to expend, what if it ends us\nDetermin, determination\nFrustrated, we're a frustrated nation\nNo one to follow, no one to look to, no one to hold you\nStarving in desperation, on a slow steady road to hell\n\nBlue bittersweet, blue bittersweet, like crowds that turned you,\nclouds floating over me\nBlue bittersweet, blue bittersweet, like clouds that turned you,\ncrowds running over me\nRunning over me, running over me, running over me\n\nWho is the child that lives without shelter\nWhen do we hear, talking to you\nWhere is the child, with no one to help her\nWho is the one who smiles\nWho is the child that lives without shelter\nWhen do we hear, talking to you\nWhere is the child, with no one to help her\nWho is the one who smiles\nWhen she's blue, when she's bluehuuu\nWho is the child that lives without shelter\nWhen do we hear, talking to you\nWhere is the child, with no one to help her\nWho is the one who smiles\nWhen she's blue, when she's blue",
-      "metadata": {
-        "source_file": "blue_bittersweet.html",
-        "content_lines": 38,
-        "word_count": 268,
-        "has_chorus": false
-      },
-      "normalizedTitle": "blue bittersweet blue bittersweet like crowds that turned you",
-      "normalizedArtist": "ilse delange"
-    },
-    {
-      "artist": "Ilse DeLange",
-      "title": "Build walls in secret corners",
-      "language": "English",
-      "has_lyrics": true,
-      "lyrics": "Build walls in secret corners\nCrying out in solitude\nStorms come in without warning\nTrying to black out my view\n\nYou play your part in every story\nYou’re always in between the lines\nYou never wanna take the glory\n\nWhen I fall, you fall too\nBut when I break, you break through\nWhen my world’s wrecking me, you bring me back patiently\nI don’t ever have to ask you, you don’t have to ask me too\nIf I’m afraid of anything it’s me without you\nMy sun and my shadow\nMy sun and my shadow\n\nMy heart, a time-bomb ticking\nMy mind, a mind of its own\nAs far as it drifts, I won’t get tricked\nInto thinking I could ever do this alone\n\nWhen I fall, you fall too\nBut when I break, you break through\nWhen my world’s wrecking me, you bring me back patiently\nI don’t ever have to ask you, you don’t have to ask me too\nIf I’m afraid of anything it’s me without you\nMy sun and my shadow\nMy sun and my shadow\nYou’re everywhere I go\nMy sun and my shadow\n\nYou play your part in every story\nYou’re always in between the lines\nYou never wanna take the glory\n\nWhen I fall, you fall too\nBut when I break, you break through\nWhen my world’s wrecking me, you bring me back, patiently\nI don’t ever have to ask you, you don’t have to ask me too\nIf I’m afraid of anything it’s me without you\nMy sun and my shadow\nMy sun and my shadow\nYou’re everywhere I go\nMy sun and my shadow",
-      "metadata": {
-        "source_file": "sun_and_shadow_lyricks.html",
-        "content_lines": 39,
-        "word_count": 273,
-        "has_chorus": false
-      },
-      "normalizedTitle": "build walls in secret corners",
-      "normalizedArtist": "ilse delange"
-    },
-    {
-      "artist": "The Common Linnets",
-      "title": "Carry me down to the river and heal me tonight",
-      "language": "English",
-      "has_lyrics": true,
-      "lyrics": "Carry me down to the river and heal me tonight\nWash away all of the wrong and leave only the right\nMirror of moonlight reflecting the innocent stars\nDrown every sorrow and fear that has kept us apart\n\nAs if there was time\nAs if we were free\n\nI hear the sound of the river, it rings in my ear\nEchoing whispers of love that was lost to the years\nDrawing us back to a truth too deep to deny\nCarry me down to that river and heal me tonight\n\nAs if there was time\nAs if we were free\nAs if only there was only you and me\n\nThrough open fields we’ll find the shore\nAnd i’ll leave my heart open\nCarry me down, carry me down, carry me down\nTo where i’ve been and was before\nTo when my heart was open\nCarry me down, carry me down, carry me down\n\nI’ll let the river, deliver me back to the sea\nSurrender myself to a love that is greater than me\n\nAs if there was time\nAs if we were free\nAs if only there was only you and me\n\nAs if there was time\nAs if we were free\nAs if only there was only you and me\n\nAs if there was time\nAs if we were free\nAs if only there was only you and me",
-      "metadata": {
-        "source_file": "as_if_only_lyrics.html",
-        "content_lines": 30,
-        "word_count": 230,
-        "has_chorus": false
-      },
-      "normalizedTitle": "carry me down to the river and heal me tonight",
-      "normalizedArtist": "the common linnets"
     },
     {
       "artist": "Ilse DeLange",

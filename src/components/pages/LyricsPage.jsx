@@ -7,14 +7,20 @@ const LyricsPage = () => {  const { data: lyrics, loading, error } = useContent(
   const { data: artists } = useContent('artists');
   const { data: spotifyComparison } = useContent('spotify-lyrics-comparison');
   const [searchParams, setSearchParams] = useSearchParams();
-    const [searchTerm, setSearchTerm] = useState('');
-  const [filters, setFilters] = useState({ artist: 'all', language: 'all', album: 'all' });
+  const [searchTerm, setSearchTerm] = useState('');
+  const [filters, setFilters] = useState({ 
+    artist: 'all', 
+    language: 'all', 
+    album: 'all', 
+    contentType: 'all' // 'all', 'lyrics', 'spotify'
+  });
   const [sortBy, setSortBy] = useState('title');
   const [viewMode, setViewMode] = useState('all'); // 'all', 'lyrics-only', 'spotify-only'  // Initialize filters from URL parameters
   useEffect(() => {
     const artistParam = searchParams.get('artist');
     const languageParam = searchParams.get('language');
     const albumParam = searchParams.get('album');
+    const contentTypeParam = searchParams.get('contentType');
     const searchParam = searchParams.get('search');
     const viewParam = searchParams.get('view');
 
@@ -27,13 +33,16 @@ const LyricsPage = () => {  const { data: lyrics, loading, error } = useContent(
     if (albumParam) {
       setFilters(prev => ({ ...prev, album: albumParam }));
     }
+    if (contentTypeParam && ['all', 'lyrics', 'spotify'].includes(contentTypeParam)) {
+      setFilters(prev => ({ ...prev, contentType: contentTypeParam }));
+    }
     if (searchParam) {
       setSearchTerm(searchParam);
     }
     if (viewParam && ['all', 'lyrics-only', 'spotify-only'].includes(viewParam)) {
       setViewMode(viewParam);
     }
-  }, [searchParams]);  // Combine lyrics and Spotify-only tracks
+  }, [searchParams]);// Combine lyrics and Spotify-only tracks
   const allTracks = React.useMemo(() => {
     if (viewMode === 'spotify-only' && spotifyComparison?.tracksMissingLyrics) {
       // Show only Spotify tracks without lyrics
@@ -92,7 +101,12 @@ const LyricsPage = () => {  const { data: lyrics, loading, error } = useContent(
     const matchesLanguage = filters.language === 'all' || (track.language && track.language === filters.language);
     const matchesAlbum = filters.album === 'all' || (track.album && track.album === filters.album);
     
-    return matchesSearch && matchesArtist && matchesLanguage && matchesAlbum;
+    // Content type filter
+    const matchesContentType = filters.contentType === 'all' || 
+      (filters.contentType === 'lyrics' && !track.isSpotifyOnly) ||
+      (filters.contentType === 'spotify' && track.isSpotifyOnly);
+    
+    return matchesSearch && matchesArtist && matchesLanguage && matchesAlbum && matchesContentType;
   }).sort((a, b) => {
     // Apply sorting
     switch (sortBy) {
@@ -245,10 +259,8 @@ const LyricsPage = () => {  const { data: lyrics, loading, error } = useContent(
               placeholder="Search by song title, artist, or album..."
               className="w-full px-4 py-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
             />
-          </div>
-
-          {/* Filters Grid */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
+          </div>          {/* Filters Grid */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-4">
             {/* Artist Filter */}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -302,6 +314,23 @@ const LyricsPage = () => {  const { data: lyrics, loading, error } = useContent(
                   </option>
                 ))}
               </select>            </div>
+
+            {/* Content Type Filter */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                <Disc className="w-4 h-4 inline mr-1" />
+                Content Type
+              </label>
+              <select
+                value={filters.contentType}
+                onChange={(e) => updateFilter('contentType', e.target.value)}
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              >
+                <option value="all">All Types</option>
+                <option value="lyrics">Lyrics Only ({(allTracks || []).filter(t => !t.isSpotifyOnly).length})</option>
+                <option value="spotify">Spotify Only ({(allTracks || []).filter(t => t.isSpotifyOnly).length})</option>
+              </select>
+            </div>
 
             {/* Sort */}
             <div>
@@ -371,7 +400,7 @@ const LyricsPage = () => {  const { data: lyrics, loading, error } = useContent(
           <div className="mt-4 flex justify-end">            <button
               onClick={() => {
                 setSearchTerm('');
-                setFilters({ artist: 'all', language: 'all', album: 'all' });
+                setFilters({ artist: 'all', language: 'all', album: 'all', contentType: 'all' });
                 setSortBy('title-asc');
                 setViewMode('all');
                 setSearchParams(new URLSearchParams());
@@ -387,7 +416,19 @@ const LyricsPage = () => {  const { data: lyrics, loading, error } = useContent(
             Showing {filteredData?.length || 0} of {allTracks?.length || 0} songs
             {viewMode === 'spotify-only' && ' (Spotify tracks missing lyrics)'}
             {viewMode === 'lyrics-only' && ' (tracks with lyrics)'}
+            {filters.contentType === 'lyrics' && filters.contentType !== 'all' && ' (filtered to lyrics only)'}
+            {filters.contentType === 'spotify' && filters.contentType !== 'all' && ' (filtered to Spotify only)'}
           </p>
+          {(filters.artist !== 'all' || filters.language !== 'all' || filters.album !== 'all' || filters.contentType !== 'all' || searchTerm) && (
+            <p className="text-sm text-gray-500 mt-1">
+              Active filters: 
+              {filters.artist !== 'all' && ` Artist: ${filters.artist}`}
+              {filters.album !== 'all' && ` Album: ${filters.album}`}
+              {filters.language !== 'all' && ` Language: ${filters.language}`}
+              {filters.contentType !== 'all' && ` Type: ${filters.contentType}`}
+              {searchTerm && ` Search: "${searchTerm}"`}
+            </p>
+          )}
         </div>{/* Lyrics Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {filteredData?.map((track, index) => (
