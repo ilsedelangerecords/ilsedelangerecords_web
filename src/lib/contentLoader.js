@@ -16,12 +16,11 @@ class ContentLoader {
     }
     
     // Prevent duplicate loading requests
-    if (this.loading.has(trimmedType)) {
-      // Wait for the existing request to complete
+    if (this.loading.has(trimmedType)) {      // Wait for the existing request to complete
       while (this.loading.has(trimmedType)) {
         await new Promise(resolve => setTimeout(resolve, 50));
       }
-      return this.cache.get(trimmedType) || [];
+      return this.cache.get(trimmedType) || (trimmedType === 'spotify-lyrics-comparison' ? {} : []);
     }
       this.loading.add(trimmedType);
       try {
@@ -35,29 +34,28 @@ class ContentLoader {
       }
       
       const data = await response.json();
-      
-      // Extract the 'lyrics' array if the type is 'lyrics'
+        // Extract the 'lyrics' array if the type is 'lyrics'
       let processedData = data;
       if (trimmedType === 'lyrics' && data && data.lyrics) {
         processedData = data.lyrics;
+      } else if (trimmedType === 'spotify-lyrics-comparison') {
+        // Keep Spotify comparison data as-is (object structure)
+        processedData = data;
       } else if (data && typeof data === 'object' && !Array.isArray(data)) {
         // Convert object to array if needed
         processedData = Object.values(data);
-      }
-      
+      }      
       this.cache.set(trimmedType, processedData || []);
-      return processedData || [];
-    } catch (error) {
+      return processedData || (trimmedType === 'spotify-lyrics-comparison' ? {} : []);    } catch (error) {
       console.error(`Error loading ${trimmedType}:`, error.message);
-      return [];
+      return trimmedType === 'spotify-lyrics-comparison' ? {} : [];
     } finally {
       this.loading.delete(trimmedType);
     }
   }
-
   // Pre-load all content for static generation
   async preloadAll() {
-    const types = ['albums', 'lyrics', 'artists'];
+    const types = ['albums', 'lyrics', 'artists', 'spotify-lyrics-comparison'];
     const promises = types.map(type => this.loadContent(type));
     await Promise.all(promises);
   }
@@ -69,14 +67,14 @@ const contentLoader = new ContentLoader();
 import React, { useState, useEffect } from 'react';
 
 export function useContent(type) {
-  const [data, setData] = useState([]);
+  const [data, setData] = useState(type === 'spotify-lyrics-comparison' ? {} : []);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
   useEffect(() => {
     if (!type || typeof type !== 'string' || type.trim() === '') {
       console.warn('useContent called with invalid type:', type);
-      setData([]);
+      setData(type === 'spotify-lyrics-comparison' ? {} : []);
       setLoading(false);
       setError('Invalid content type');
       return;
@@ -85,12 +83,12 @@ export function useContent(type) {
     async function loadData() {      try {
         setLoading(true);
         const result = await contentLoader.loadContent(type);
-        setData(result || []);
+        setData(result || (type === 'spotify-lyrics-comparison' ? {} : []));
         setError(null);
       } catch (err) {
         console.error(`useContent error for ${type}:`, err);
         setError(err);
-        setData([]);
+        setData(type === 'spotify-lyrics-comparison' ? {} : []);
       } finally {
         setLoading(false);
       }

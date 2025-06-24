@@ -3,23 +3,20 @@ import { Link, useSearchParams } from 'react-router-dom';
 import { useContent, useContentSearch } from '../../lib/contentLoader';
 import { Search, Filter, Music, User, Globe, ExternalLink, Disc, ToggleLeft, ToggleRight } from 'lucide-react';
 
-const LyricsPage = () => {
-  const { data: lyrics, loading, error } = useContent('lyrics');
+const LyricsPage = () => {  const { data: lyrics, loading, error } = useContent('lyrics');
   const { data: artists } = useContent('artists');
   const { data: spotifyComparison } = useContent('spotify-lyrics-comparison');
   const [searchParams, setSearchParams] = useSearchParams();
-  
-  const [searchTerm, setSearchTerm] = useState('');
+    const [searchTerm, setSearchTerm] = useState('');
   const [filters, setFilters] = useState({ artist: 'all', language: 'all', album: 'all' });
   const [sortBy, setSortBy] = useState('title');
-  const [showSpotifyOnly, setShowSpotifyOnly] = useState(false);
-  // Initialize filters from URL parameters
+  const [viewMode, setViewMode] = useState('all'); // 'all', 'lyrics-only', 'spotify-only'  // Initialize filters from URL parameters
   useEffect(() => {
     const artistParam = searchParams.get('artist');
     const languageParam = searchParams.get('language');
     const albumParam = searchParams.get('album');
     const searchParam = searchParams.get('search');
-    const spotifyParam = searchParams.get('spotify');
+    const viewParam = searchParams.get('view');
 
     if (artistParam) {
       setFilters(prev => ({ ...prev, artist: artistParam }));
@@ -33,14 +30,12 @@ const LyricsPage = () => {
     if (searchParam) {
       setSearchTerm(searchParam);
     }
-    if (spotifyParam === 'true') {
-      setShowSpotifyOnly(true);
+    if (viewParam && ['all', 'lyrics-only', 'spotify-only'].includes(viewParam)) {
+      setViewMode(viewParam);
     }
-  }, [searchParams]);
-
-  // Combine lyrics and Spotify-only tracks
+  }, [searchParams]);  // Combine lyrics and Spotify-only tracks
   const allTracks = React.useMemo(() => {
-    if (showSpotifyOnly && spotifyComparison?.tracksMissingLyrics) {
+    if (viewMode === 'spotify-only' && spotifyComparison?.tracksMissingLyrics) {
       // Show only Spotify tracks without lyrics
       return spotifyComparison.tracksMissingLyrics.map(track => ({
         title: track.name,
@@ -54,7 +49,7 @@ const LyricsPage = () => {
         year: track.album?.release_date?.substring(0, 4) || '',
         isSpotifyOnly: true
       }));
-    } else if (showSpotifyOnly === false && lyrics) {
+    } else if (viewMode === 'lyrics-only') {
       // Show only tracks with lyrics
       return lyrics || [];
     } else {
@@ -75,7 +70,7 @@ const LyricsPage = () => {
       
       return [...lyricsData, ...spotifyOnlyTracks];
     }
-  }, [lyrics, spotifyComparison, showSpotifyOnly]);
+  }, [lyrics, spotifyComparison, viewMode]);
 
   // Get unique values for filters - with safer null checks
   const uniqueArtists = allTracks ? 
@@ -140,17 +135,24 @@ const LyricsPage = () => {
     }
     setSearchParams(newSearchParams);
   };
-
-  const toggleSpotifyOnly = () => {
-    const newValue = !showSpotifyOnly;
-    setShowSpotifyOnly(newValue);
+  const toggleViewMode = () => {
+    let newMode;
+    if (viewMode === 'all') {
+      newMode = 'lyrics-only';
+    } else if (viewMode === 'lyrics-only') {
+      newMode = 'spotify-only';
+    } else {
+      newMode = 'all';
+    }
+    
+    setViewMode(newMode);
     
     // Update URL parameters
     const newSearchParams = new URLSearchParams(searchParams);
-    if (newValue) {
-      newSearchParams.set('spotify', 'true');
+    if (newMode !== 'all') {
+      newSearchParams.set('view', newMode);
     } else {
-      newSearchParams.delete('spotify');
+      newSearchParams.delete('view');
     }
     setSearchParams(newSearchParams);
   };
@@ -198,14 +200,15 @@ const LyricsPage = () => {
       {/* Header */}
       <div className="bg-white shadow-sm border-b">
         <div className="max-w-7xl mx-auto px-4 py-6">
-          <div className="flex flex-col md:flex-row md:items-center md:justify-between">            <div>
-              <h1 className="text-3xl font-bold text-gray-900">Song Lyrics</h1>
+          <div className="flex flex-col md:flex-row md:items-center md:justify-between">            <div>              <h1 className="text-3xl font-bold text-gray-900">Song Lyrics</h1>
               <p className="mt-2 text-gray-600">
-                {showSpotifyOnly 
+                {viewMode === 'spotify-only' 
                   ? `${spotifyComparison?.statistics?.tracksMissingLyrics || 0} Spotify tracks missing lyrics`
+                  : viewMode === 'lyrics-only'
+                  ? `Complete lyrics collection with ${lyrics?.length || 0} songs`
                   : `Complete lyrics collection with ${lyrics?.length || 0} songs`
                 }
-                {spotifyComparison && !showSpotifyOnly && (
+                {spotifyComparison && viewMode === 'all' && (
                   <span className="text-sm text-gray-500 block mt-1">
                     + {spotifyComparison.statistics?.tracksMissingLyrics || 0} Spotify tracks without lyrics
                   </span>
@@ -320,33 +323,47 @@ const LyricsPage = () => {
                 <option value="wordCount-desc">Longest First</option>
                 <option value="wordCount-asc">Shortest First</option>
               </select>
-            </div>          </div>
-
-          {/* Spotify Toggle */}
+            </div>          </div>          {/* View Mode Toggle */}
           <div className="mt-6 pt-6 border-t border-gray-200">
             <div className="flex items-center justify-between">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
                   <Disc className="w-4 h-4 inline mr-1" />
-                  Show Spotify Tracks
+                  View Mode
                 </label>
                 <p className="text-xs text-gray-500">
-                  {showSpotifyOnly ? 'Showing only tracks missing lyrics' : 'Showing tracks with lyrics'}
-                  {spotifyComparison && ` (${showSpotifyOnly ? spotifyComparison.statistics?.tracksMissingLyrics || 0 : spotifyComparison.statistics?.tracksWithLyrics || 0} tracks)`}
+                  {viewMode === 'all' && 'Showing all tracks (lyrics + Spotify)'}
+                  {viewMode === 'lyrics-only' && 'Showing only tracks with lyrics'}
+                  {viewMode === 'spotify-only' && 'Showing only Spotify tracks missing lyrics'}
+                  {spotifyComparison && ` (${filteredData?.length || 0} tracks)`}
                 </p>
               </div>
-              <button
-                onClick={toggleSpotifyOnly}
-                className={`relative inline-flex items-center h-6 rounded-full w-11 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 ${
-                  showSpotifyOnly ? 'bg-blue-600' : 'bg-gray-200'
-                }`}
-              >
-                <span
-                  className={`inline-block w-4 h-4 transform transition-transform bg-white rounded-full ${
-                    showSpotifyOnly ? 'translate-x-6' : 'translate-x-1'
+              <div className="flex items-center space-x-2">
+                <button
+                  onClick={toggleViewMode}
+                  className={`px-3 py-1 text-xs font-medium rounded-full transition-colors ${
+                    viewMode === 'all' ? 'bg-blue-100 text-blue-700' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
                   }`}
-                />
-              </button>
+                >
+                  All
+                </button>
+                <button
+                  onClick={toggleViewMode}
+                  className={`px-3 py-1 text-xs font-medium rounded-full transition-colors ${
+                    viewMode === 'lyrics-only' ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                  }`}
+                >
+                  Lyrics Only
+                </button>
+                <button
+                  onClick={toggleViewMode}
+                  className={`px-3 py-1 text-xs font-medium rounded-full transition-colors ${
+                    viewMode === 'spotify-only' ? 'bg-orange-100 text-orange-700' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                  }`}
+                >
+                  Spotify Only
+                </button>
+              </div>
             </div>
           </div>
 
@@ -356,7 +373,7 @@ const LyricsPage = () => {
                 setSearchTerm('');
                 setFilters({ artist: 'all', language: 'all', album: 'all' });
                 setSortBy('title-asc');
-                setShowSpotifyOnly(false);
+                setViewMode('all');
                 setSearchParams(new URLSearchParams());
               }}
               className="px-4 py-2 text-sm text-gray-600 hover:text-gray-800 hover:bg-gray-100 rounded-md transition-colors"
@@ -368,7 +385,8 @@ const LyricsPage = () => {
         <div className="mb-6">
           <p className="text-gray-600">
             Showing {filteredData?.length || 0} of {allTracks?.length || 0} songs
-            {showSpotifyOnly && ' (Spotify tracks missing lyrics)'}
+            {viewMode === 'spotify-only' && ' (Spotify tracks missing lyrics)'}
+            {viewMode === 'lyrics-only' && ' (tracks with lyrics)'}
           </p>
         </div>{/* Lyrics Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
