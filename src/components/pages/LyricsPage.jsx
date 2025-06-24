@@ -1,23 +1,25 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import { useContent, useContentSearch } from '../../lib/contentLoader';
-import { Search, Filter, Music, User, Globe, ExternalLink, Disc } from 'lucide-react';
+import { Search, Filter, Music, User, Globe, ExternalLink, Disc, ToggleLeft, ToggleRight } from 'lucide-react';
 
 const LyricsPage = () => {
   const { data: lyrics, loading, error } = useContent('lyrics');
   const { data: artists } = useContent('artists');
+  const { data: spotifyComparison } = useContent('spotify-lyrics-comparison');
   const [searchParams, setSearchParams] = useSearchParams();
   
   const [searchTerm, setSearchTerm] = useState('');
   const [filters, setFilters] = useState({ artist: 'all', language: 'all', album: 'all' });
   const [sortBy, setSortBy] = useState('title');
-
+  const [showSpotifyOnly, setShowSpotifyOnly] = useState(false);
   // Initialize filters from URL parameters
   useEffect(() => {
     const artistParam = searchParams.get('artist');
     const languageParam = searchParams.get('language');
     const albumParam = searchParams.get('album');
     const searchParam = searchParams.get('search');
+    const spotifyParam = searchParams.get('spotify');
 
     if (artistParam) {
       setFilters(prev => ({ ...prev, artist: artistParam }));
@@ -31,27 +33,69 @@ const LyricsPage = () => {
     if (searchParam) {
       setSearchTerm(searchParam);
     }
+    if (spotifyParam === 'true') {
+      setShowSpotifyOnly(true);
+    }
   }, [searchParams]);
 
+  // Combine lyrics and Spotify-only tracks
+  const allTracks = React.useMemo(() => {
+    if (showSpotifyOnly && spotifyComparison?.tracksMissingLyrics) {
+      // Show only Spotify tracks without lyrics
+      return spotifyComparison.tracksMissingLyrics.map(track => ({
+        title: track.name,
+        artist: track.primaryArtist,
+        album: track.album?.name || '',
+        language: 'Unknown',
+        has_lyrics: false,
+        spotify_url: track.external_urls?.spotify,
+        spotify_id: track.id,
+        spotify_album_art: track.album?.images?.[0]?.url,
+        year: track.album?.release_date?.substring(0, 4) || '',
+        isSpotifyOnly: true
+      }));
+    } else if (showSpotifyOnly === false && lyrics) {
+      // Show only tracks with lyrics
+      return lyrics || [];
+    } else {
+      // Show all tracks (lyrics + Spotify-only)
+      const lyricsData = lyrics || [];
+      const spotifyOnlyTracks = spotifyComparison?.tracksMissingLyrics?.map(track => ({
+        title: track.name,
+        artist: track.primaryArtist,
+        album: track.album?.name || '',
+        language: 'Unknown',
+        has_lyrics: false,
+        spotify_url: track.external_urls?.spotify,
+        spotify_id: track.id,
+        spotify_album_art: track.album?.images?.[0]?.url,
+        year: track.album?.release_date?.substring(0, 4) || '',
+        isSpotifyOnly: true
+      })) || [];
+      
+      return [...lyricsData, ...spotifyOnlyTracks];
+    }
+  }, [lyrics, spotifyComparison, showSpotifyOnly]);
+
   // Get unique values for filters - with safer null checks
-  const uniqueArtists = (lyrics && Array.isArray(lyrics)) ? 
-    [...new Set(lyrics.filter(lyric => lyric?.artist).map(lyric => lyric.artist))].sort() : [];
-  const uniqueLanguages = (lyrics && Array.isArray(lyrics)) ? 
-    [...new Set(lyrics.filter(lyric => lyric?.language).map(lyric => lyric.language))].sort() : [];
-  const uniqueAlbums = (lyrics && Array.isArray(lyrics)) ? 
-    [...new Set(lyrics.filter(lyric => lyric?.album).map(lyric => lyric.album))].sort() : [];
-  // Apply filtering and searching manually - with safer null checks
-  const filteredData = (lyrics && Array.isArray(lyrics)) ? lyrics.filter(lyric => {
-    // Ensure lyric exists and has basic properties
-    if (!lyric) return false;
+  const uniqueArtists = allTracks ? 
+    [...new Set(allTracks.filter(track => track?.artist).map(track => track.artist))].sort() : [];
+  const uniqueLanguages = allTracks ? 
+    [...new Set(allTracks.filter(track => track?.language).map(track => track.language))].sort() : [];
+  const uniqueAlbums = allTracks ? 
+    [...new Set(allTracks.filter(track => track?.album).map(track => track.album))].sort() : [];  // Apply filtering and searching manually - with safer null checks
+  const filteredData = allTracks ? allTracks.filter(track => {
+    // Ensure track exists and has basic properties
+    if (!track) return false;
     
     const matchesSearch = !searchTerm || 
-      (lyric.title && lyric.title.toLowerCase().includes(searchTerm.toLowerCase())) ||
-      (lyric.artist && lyric.artist.toLowerCase().includes(searchTerm.toLowerCase())) ||
-      (lyric.album && lyric.album.toLowerCase().includes(searchTerm.toLowerCase()));
-      const matchesArtist = filters.artist === 'all' || (lyric.artist && lyric.artist === filters.artist);
-    const matchesLanguage = filters.language === 'all' || (lyric.language && lyric.language === filters.language);
-    const matchesAlbum = filters.album === 'all' || (lyric.album && lyric.album === filters.album);
+      (track.title && track.title.toLowerCase().includes(searchTerm.toLowerCase())) ||
+      (track.artist && track.artist.toLowerCase().includes(searchTerm.toLowerCase())) ||
+      (track.album && track.album.toLowerCase().includes(searchTerm.toLowerCase()));
+    
+    const matchesArtist = filters.artist === 'all' || (track.artist && track.artist === filters.artist);
+    const matchesLanguage = filters.language === 'all' || (track.language && track.language === filters.language);
+    const matchesAlbum = filters.album === 'all' || (track.album && track.album === filters.album);
     
     return matchesSearch && matchesArtist && matchesLanguage && matchesAlbum;
   }).sort((a, b) => {
@@ -82,7 +126,6 @@ const LyricsPage = () => {
     console.log('Lyrics data:', lyrics);
     console.log('Filtered data:', filteredData);
   }, [lyrics, filteredData]);
-
   // Helper functions to update filters and URL params
   const updateFilter = (key, value) => {
     const newFilters = { ...filters, [key]: value };
@@ -94,6 +137,20 @@ const LyricsPage = () => {
       newSearchParams.set(key, value);
     } else {
       newSearchParams.delete(key);
+    }
+    setSearchParams(newSearchParams);
+  };
+
+  const toggleSpotifyOnly = () => {
+    const newValue = !showSpotifyOnly;
+    setShowSpotifyOnly(newValue);
+    
+    // Update URL parameters
+    const newSearchParams = new URLSearchParams(searchParams);
+    if (newValue) {
+      newSearchParams.set('spotify', 'true');
+    } else {
+      newSearchParams.delete('spotify');
     }
     setSearchParams(newSearchParams);
   };
@@ -141,11 +198,18 @@ const LyricsPage = () => {
       {/* Header */}
       <div className="bg-white shadow-sm border-b">
         <div className="max-w-7xl mx-auto px-4 py-6">
-          <div className="flex flex-col md:flex-row md:items-center md:justify-between">
-            <div>
+          <div className="flex flex-col md:flex-row md:items-center md:justify-between">            <div>
               <h1 className="text-3xl font-bold text-gray-900">Song Lyrics</h1>
               <p className="mt-2 text-gray-600">
-                Complete lyrics collection with {lyrics?.length || 0} songs
+                {showSpotifyOnly 
+                  ? `${spotifyComparison?.statistics?.tracksMissingLyrics || 0} Spotify tracks missing lyrics`
+                  : `Complete lyrics collection with ${lyrics?.length || 0} songs`
+                }
+                {spotifyComparison && !showSpotifyOnly && (
+                  <span className="text-sm text-gray-500 block mt-1">
+                    + {spotifyComparison.statistics?.tracksMissingLyrics || 0} Spotify tracks without lyrics
+                  </span>
+                )}
               </p>
             </div>
             
@@ -256,6 +320,33 @@ const LyricsPage = () => {
                 <option value="wordCount-desc">Longest First</option>
                 <option value="wordCount-asc">Shortest First</option>
               </select>
+            </div>          </div>
+
+          {/* Spotify Toggle */}
+          <div className="mt-6 pt-6 border-t border-gray-200">
+            <div className="flex items-center justify-between">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  <Disc className="w-4 h-4 inline mr-1" />
+                  Show Spotify Tracks
+                </label>
+                <p className="text-xs text-gray-500">
+                  {showSpotifyOnly ? 'Showing only tracks missing lyrics' : 'Showing tracks with lyrics'}
+                  {spotifyComparison && ` (${showSpotifyOnly ? spotifyComparison.statistics?.tracksMissingLyrics || 0 : spotifyComparison.statistics?.tracksWithLyrics || 0} tracks)`}
+                </p>
+              </div>
+              <button
+                onClick={toggleSpotifyOnly}
+                className={`relative inline-flex items-center h-6 rounded-full w-11 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 ${
+                  showSpotifyOnly ? 'bg-blue-600' : 'bg-gray-200'
+                }`}
+              >
+                <span
+                  className={`inline-block w-4 h-4 transform transition-transform bg-white rounded-full ${
+                    showSpotifyOnly ? 'translate-x-6' : 'translate-x-1'
+                  }`}
+                />
+              </button>
             </div>
           </div>
 
@@ -265,6 +356,7 @@ const LyricsPage = () => {
                 setSearchTerm('');
                 setFilters({ artist: 'all', language: 'all', album: 'all' });
                 setSortBy('title-asc');
+                setShowSpotifyOnly(false);
                 setSearchParams(new URLSearchParams());
               }}
               className="px-4 py-2 text-sm text-gray-600 hover:text-gray-800 hover:bg-gray-100 rounded-md transition-colors"
@@ -272,56 +364,96 @@ const LyricsPage = () => {
               Clear All Filters
             </button>
           </div>
-        </div>
-
-        {/* Results Count */}
+        </div>        {/* Results Count */}
         <div className="mb-6">
           <p className="text-gray-600">
-            Showing {filteredData?.length || 0} of {lyrics?.length || 0} songs
+            Showing {filteredData?.length || 0} of {allTracks?.length || 0} songs
+            {showSpotifyOnly && ' (Spotify tracks missing lyrics)'}
           </p>
-        </div>
-
-        {/* Lyrics Grid */}
+        </div>{/* Lyrics Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {filteredData?.map((lyric, index) => (
-            <div key={lyric.id || `${lyric.artist || 'unknown-artist'}-${lyric.title || 'unknown-title'}-${index}`} className="bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow duration-200">
+          {filteredData?.map((track, index) => (
+            <div key={track.id || track.spotify_id || `${track.artist || 'unknown-artist'}-${track.title || 'unknown-title'}-${index}`} 
+                 className={`bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow duration-200 ${track.isSpotifyOnly ? 'border-l-4 border-orange-400' : ''}`}>
               <div className="p-6">
                 {/* Song Title */}
-                <h3 className="font-semibold text-gray-900 mb-2 text-lg">
-                  {lyric.title}
+                <h3 className="font-semibold text-gray-900 mb-2 text-lg flex items-center">
+                  {track.title}
+                  {track.isSpotifyOnly && (
+                    <span className="ml-2 px-2 py-1 text-xs bg-orange-100 text-orange-700 rounded-full">
+                      No Lyrics
+                    </span>
+                  )}
                 </h3>
                 
                 {/* Artist and Album */}
                 <div className="text-sm text-gray-600 mb-3">
                   <p className="flex items-center mb-1">
                     <User className="w-4 h-4 mr-1" />
-                    {lyric.artist}
-                  </p>                  {lyric.album && (
+                    {track.artist}
+                  </p>
+                  {track.album && (
                     <p className="flex items-center">
                       <Disc className="w-4 h-4 mr-1" />
-                      {lyric.album}
+                      {track.album} {track.year && `(${track.year})`}
                     </p>
                   )}
-                </div>                {/* Stats */}
-                <div className="flex items-center justify-between text-xs text-gray-500 mb-4">
-                  {lyric.wordCount && (
-                    <span>{lyric.wordCount} words</span>
+                  {track.language && (
+                    <p className="flex items-center mt-1">
+                      <Globe className="w-4 h-4 mr-1" />
+                      {track.language}
+                    </p>
                   )}
-                  {lyric.writers && lyric.writers.length > 0 && (
-                    <span>By: {lyric.writers.join(', ')}</span>
+                </div>
+
+                {/* Spotify Album Art for Spotify-only tracks */}
+                {track.isSpotifyOnly && track.spotify_album_art && (
+                  <div className="mb-4">
+                    <img 
+                      src={track.spotify_album_art} 
+                      alt={`${track.album} cover`}
+                      className="w-full h-32 object-cover rounded-md"
+                    />
+                  </div>
+                )}
+
+                {/* Action Buttons */}
+                <div className="flex space-x-2">
+                  {track.isSpotifyOnly ? (
+                    // Spotify-only track buttons
+                    <>
+                      {track.spotify_url && (
+                        <a
+                          href={track.spotify_url}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="flex-1 inline-flex items-center justify-center px-3 py-2 border border-green-300 text-sm font-medium rounded-md text-green-700 bg-green-50 hover:bg-green-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500"
+                        >
+                          <ExternalLink className="w-4 h-4 mr-1" />
+                          Open in Spotify
+                        </a>
+                      )}
+                      <button
+                        className="px-3 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+                        title="Add lyrics for this song"
+                      >
+                        Add Lyrics
+                      </button>
+                    </>
+                  ) : (
+                    // Regular lyrics track buttons
+                    <Link 
+                      to={`/lyrics/${track.id || (track.title || '').toLowerCase().replace(/[^a-z0-9]/g, '-').replace(/-+/g, '-')}`}
+                      className="w-full bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 transition-colors duration-200 text-sm font-medium text-center"
+                    >
+                      View Lyrics
+                    </Link>
                   )}
-                </div>                {/* Action Buttons */}
-                <div className="flex space-x-2">                  <Link 
-                    to={`/lyrics/${lyric.id || (lyric.title || '').toLowerCase().replace(/[^a-z0-9]/g, '-').replace(/-+/g, '-')}`}
-                    className="w-full bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 transition-colors duration-200 text-sm font-medium text-center"
-                  >
-                    View Lyrics
-                  </Link>
                 </div>
               </div>
             </div>
           ))}
-        </div>        {/* No Results */}
+        </div>{/* No Results */}
         {filteredData?.length === 0 && (
           <div className="text-center py-12">
             <Disc className="w-12 h-12 text-gray-400 mx-auto mb-4" />
